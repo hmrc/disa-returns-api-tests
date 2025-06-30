@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,19 @@
 
 package uk.gov.hmrc.api.specs
 
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.GivenWhenThen
-import uk.gov.hmrc.api.helpers.DisaSubmissionHelper
+import play.api.libs.ws.StandaloneWSResponse
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
-  val disaSubmissionHelper = new DisaSubmissionHelper
+class DisaSubmissionSpec extends BaseSpec {
+
+  Scenario(s"Verify DISA Returns monthly submission") {
+    Given("I created a valid monthly return file")
+    val filename = "Submission1"
+
+    When("I use the DISA return submission API to send monthly returns")
+    val response: StandaloneWSResponse = disaSubmissionHelper.post(filename)
+
+    Then("I got the status code 200 accepting the file upload is successful")
+    response.status shouldBe 200
+
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+import scala.util.Random
 
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.GivenWhenThen
-import uk.gov.hmrc.api.helpers.DisaSubmissionHelper
-
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
-  val disaSubmissionHelper = new DisaSubmissionHelper
+object NINOGenerator {
+  val nino: String = {
+    val firstTwoLetters = "ABCEGHJKLMNPRSTWXYZ"
+    val letterPart      = Random.shuffle(firstTwoLetters.toList).take(2).mkString
+    val numberPart      = Random.nextInt(999999).toString.reverse.padTo(6, '0').reverse
+    val lastLetters     = "ABCD"
+    val lastLetterPart  = Random.shuffle(lastLetters.toList).take(1).mkString
+    s"$letterPart$numberPart$lastLetterPart"
+  }
 }
