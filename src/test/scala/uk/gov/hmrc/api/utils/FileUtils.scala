@@ -52,6 +52,6 @@ object FileUtils {
       source.close()
       println("aaaaaa : " + sb.toString())
     }
-    sb.toString() // return the accumulated updated NDJSON content
+    sb.toString()
   }
 }
