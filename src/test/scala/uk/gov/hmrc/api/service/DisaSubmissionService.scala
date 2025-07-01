@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.client.HttpClient
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.utils.SubPathGenerator
+import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
@@ -28,16 +29,13 @@ class DisaSubmissionService extends HttpClient {
   val host: String    = TestEnvironment.url("disa-submission-backend")
   val subPath: String = SubPathGenerator.generateSubpath()
 
-  def post(
-    payloadFileName: String
-  ): StandaloneWSResponse =
+  def post(payloadAsText: String): StandaloneWSResponse = {
+    val bodyWithFinalNewline: String = if (payloadAsText.endsWith("\n")) payloadAsText else payloadAsText + "\n"
     Await.result(
-      post(
-        host + subPath,
-        payloadFileName,
-        ("Content-Type", "application/x-ndjson")
-      ),
+      mkRequest(host + subPath)
+        .withHttpHeaders("Content-Type" -> "application/x-ndjson")
+        .post(bodyWithFinalNewline),
       10.seconds
     )
-
+  }
 }
