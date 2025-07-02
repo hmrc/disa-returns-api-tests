@@ -29,13 +29,11 @@ class DisaSubmissionService extends HttpClient {
   val host: String    = TestEnvironment.url("disa-submission-backend")
   val subPath: String = SubPathGenerator.generateSubpath()
 
-  def post(payloadAsText: String): StandaloneWSResponse = {
-    val bodyWithFinalNewline: String = if (payloadAsText.endsWith("\n")) payloadAsText else payloadAsText + "\n"
+  def post(payloadAsText: String): StandaloneWSResponse =
     Await.result(
       mkRequest(host + subPath)
         .withHttpHeaders("Content-Type" -> "application/x-ndjson")
-        .post(bodyWithFinalNewline),
+        .post(payloadAsText),
       10.seconds
     )
-  }
 }

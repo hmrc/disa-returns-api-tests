@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.api.utils
 
+import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.*
 
 import scala.io.Source
 
-object FileUtils {
+object FileUtils extends LazyLogging {
 
   def updateNdjsonWithNino(fileName: String): String = {
     val source = Source.fromResource("NDJsons/request/" + fileName + ".txt")
@@ -40,18 +41,16 @@ object FileUtils {
                   )) + ("accountNumberOfTransferringAccount" -> JsString(NINOGenerator.nino()))
                 sb.append(Json.stringify(updatedPayload)).append("\n")
               case JsError(errors)        =>
-                println(s"[WARN] Line ${i + 1}: Invalid JSON object, skipping. Errors: $errors")
+                logger.info(s"[WARN] Line ${i + 1}: Invalid JSON object, skipping. Errors: $errors")
             }
           } catch {
             case ex: Exception =>
-              println(s"[ERROR] Line ${i + 1}: Failed to parse JSON, skipping. Error: ${ex.getMessage}")
+              logger.info(s"[ERROR] Line ${i + 1}: Failed to parse JSON, skipping. Error: ${ex.getMessage}")
           }
         }
       }
-    finally {
+    finally
       source.close()
-      println("aaaaaa : " + sb.toString())
-    }
     sb.toString()
   }
 }
