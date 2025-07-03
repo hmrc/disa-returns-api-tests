@@ -36,9 +36,9 @@ object FileUtils extends LazyLogging {
             jsValue.validate[JsObject] match {
               case JsSuccess(jsObject, _) =>
                 val updatedPayload =
-                  jsObject + ("nino"                         -> JsString(NINOGenerator.nino())) + ("accountNumber" -> JsString(
-                    NINOGenerator.nino()
-                  )) + ("accountNumberOfTransferringAccount" -> JsString(NINOGenerator.nino()))
+                  jsObject + ("nino"                         -> JsString(RandomDataGenerator.nino())) + ("accountNumber" -> JsString(
+                    RandomDataGenerator.generateSTDCode()
+                  )) + ("accountNumberOfTransferringAccount" -> JsString(RandomDataGenerator.generateOLDCode()))
                 sb.append(Json.stringify(updatedPayload)).append("\n")
               case JsError(errors)        =>
                 logger.info(s"[WARN] Line ${i + 1}: Invalid JSON object, skipping. Errors: $errors")
