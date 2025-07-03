@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.api.utils
 
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.GivenWhenThen
-import uk.gov.hmrc.api.helpers.DisaSubmissionHelper
+import scala.util.Random
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
-  val disaSubmissionHelper = new DisaSubmissionHelper
+object SubPathGenerator {
+  def generateSubpath(): String = {
+    val randomNumber = Random.between(1000, 10000).toString
+    s"$randomNumber/submission/$randomNumber"
+  }
 }
