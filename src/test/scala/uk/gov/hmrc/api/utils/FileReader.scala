@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.api.utils
 
-import org.scalatest.GivenWhenThen
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.api.helpers.{AuthHelper, DisaSubmissionHelper}
+import scala.io.Source
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
-  val authHelper           = new AuthHelper
-  val disaSubmissionHelper = new DisaSubmissionHelper
+object FileReader {
+
+  def readLines(fileName: String): Seq[String] = {
+    val source = Source.fromResource("NDJsons/request/" + fileName + ".txt")
+    try
+      source.getLines().toSeq
+    finally
+      source.close()
+  }
 }

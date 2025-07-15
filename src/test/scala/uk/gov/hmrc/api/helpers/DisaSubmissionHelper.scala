@@ -17,17 +17,26 @@
 package uk.gov.hmrc.api.helpers
 
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.service.DisaSubmissionService
-import uk.gov.hmrc.api.utils.FileUtils.updateNdjsonWithNino
+import uk.gov.hmrc.api.service.DisaReturnService
 
 class DisaSubmissionHelper {
 
-  val disaSubmissionService: DisaSubmissionService        = new DisaSubmissionService
-  def post(payloadFileName: String): StandaloneWSResponse = {
-    val payload                                           = updateNdjsonWithNino(payloadFileName)
+  val disaSubmissionService: DisaReturnService = new DisaReturnService
+
+  def postHeader(
+    totalRecords: Int,
+    submissionPeriod: String,
+    taxYear: Int,
+    bearerToken: String
+  ): StandaloneWSResponse = {
     val individualsMatchGetResponse: StandaloneWSResponse =
-      disaSubmissionService.post(payload)
+      disaSubmissionService.postHeader(totalRecords, submissionPeriod, taxYear, bearerToken)
     individualsMatchGetResponse
   }
 
+  def postReturns(): StandaloneWSResponse = {
+    val individualsMatchGetResponse: StandaloneWSResponse =
+      disaSubmissionService.postReturns()
+    individualsMatchGetResponse
+  }
 }

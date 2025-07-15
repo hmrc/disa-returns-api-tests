@@ -19,8 +19,16 @@ package uk.gov.hmrc.api.utils
 import scala.util.Random
 
 object SubPathGenerator {
-  def generateSubpath(): String = {
-    val randomNumber = Random.between(1000, 10000).toString
+  def generateReturnPath(): String = {
+    val randomNumber = generateRandomNumber(1000, 10000)
     s"$randomNumber/submission/$randomNumber"
+  }
+
+  def generateRandomNumber(from: Int, to: Int): String =
+    Random.between(from, to).toString
+
+  def generateHeaderPath(): String = {
+    val randomNumber = generateRandomNumber(1000, 10000)
+    s"$randomNumber/init"
   }
 }
