@@ -27,10 +27,11 @@ class DisaSubmissionHelper {
     totalRecords: Int,
     submissionPeriod: String,
     taxYear: Int,
-    bearerToken: String
+    isManagerReference: String,
+    headers: Map[String, String]
   ): StandaloneWSResponse = {
     val individualsMatchGetResponse: StandaloneWSResponse =
-      disaSubmissionService.postHeader(totalRecords, submissionPeriod, taxYear, bearerToken)
+      disaSubmissionService.postHeader(totalRecords, submissionPeriod, taxYear, isManagerReference, headers)
     individualsMatchGetResponse
   }
 

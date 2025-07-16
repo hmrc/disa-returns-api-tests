@@ -31,26 +31,23 @@ import scala.concurrent.duration.*
 class DisaReturnService extends HttpClient {
   val host: String                    = TestEnvironment.url("disa-returns")
   val monthlyReturnSubPath: String    = SubPathGenerator.generateReturnPath()
-  val monthlyReturnHeaderPath: String = SubPathGenerator.generateHeaderPath()
+  val monthlyReturnHeaderPath: String = "/init"
   val monthlyReturnFilename           = "Submission1"
 
   def postHeader(
     totalRecords: Int,
     submissionPeriod: String,
     taxYear: Int,
-    bearerToken: String
+    isManagerReference: String,
+    headers: Map[String, String]
   ): StandaloneWSResponse = {
     implicit val returnsHeaderWrites: Writes[ReturnsHeader] = Json.writes[ReturnsHeader]
     val payload                                             = ReturnsHeader(totalRecords, submissionPeriod, taxYear)
     val jsonString: JsValue                                 = Json.toJson(payload)
 
     Await.result(
-      mkRequest(host + monthlyReturnHeaderPath)
-        .withHttpHeaders(
-          "Content-Type"  -> "application/json",
-          "X-Client-ID"   -> "s87xrlwgySiCFK2zfWdOlOYcSlj7",
-          "Authorization" -> bearerToken
-        )
+      mkRequest(host + s"$isManagerReference" + monthlyReturnHeaderPath)
+        .withHttpHeaders(headers.toSeq: _*)
         .post(jsonString),
       10.seconds
     )

@@ -24,4 +24,10 @@ import uk.gov.hmrc.api.helpers.{AuthHelper, DisaSubmissionHelper}
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
   val authHelper           = new AuthHelper
   val disaSubmissionHelper = new DisaSubmissionHelper
+
+  val headersMap: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> "wyTaMMFj1W4sCzawnAxCTu1cyfOk",
+    "Authorization" -> authHelper.getAuthBearerToken
+  )
 }

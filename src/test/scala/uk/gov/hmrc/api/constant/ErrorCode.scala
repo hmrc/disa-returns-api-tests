@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.utils
+package uk.gov.hmrc.api.constant
 
-import scala.util.Random
+sealed trait ErrorCode {
+  def status: Int
+  def code: String
+  def message: String
+}
 
-object SubPathGenerator {
-  def generateReturnPath(): String = {
-    val randomNumber = generateRandomNumber(1000, 10000)
-    s"$randomNumber/submission/$randomNumber"
-  }
+case object ObligationMet extends ErrorCode {
+  val status  = 403
+  val code    = "RETURN_OBLIGATION_ALREADY_MET"
+  val message = "Return obligation already met"
+}
 
-  def generateRandomNumber(from: Int, to: Int): String =
-    Random.between(from, to).toString
+case object InternalServerError extends ErrorCode {
+  val status  = 500
+  val code    = "INTERNAL_SERVER_ERROR"
+  val message = "There has been an issue processing your request"
+}
+
+case object BadRequest extends ErrorCode {
+  val status  = 400
+  val code    = "VALIDATION_FAILURE"
+  val message = "Bad request"
 }
