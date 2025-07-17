@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.api.utils
 
-import scala.util.Random
+import scala.io.Source
 
-object SubPathGenerator {
-  def generateReturnPath(): String = {
-    val randomNumber = generateRandomNumber(1000, 10000)
-    s"$randomNumber/submission/$randomNumber"
+object FileReader {
+
+  def readLines(fileName: String): Seq[String] = {
+    val source = Source.fromResource("NDJsons/request/" + fileName + ".txt")
+    try
+      source.getLines().toSeq
+    finally
+      source.close()
   }
-
-  def generateRandomNumber(from: Int, to: Int): String =
-    Random.between(from, to).toString
 }
