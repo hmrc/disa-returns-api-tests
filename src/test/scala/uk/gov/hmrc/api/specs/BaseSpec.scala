@@ -27,7 +27,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
   val headersMap: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
-    "X-Client-ID"   -> "wyTaMMFj1W4sCzawnAxCTu1cyfOk",
+    "X-Client-ID"   -> "WL9LF5i6yn2MTTmVkMSio9KvXCbv",
     "Authorization" -> authHelper.getAuthBearerToken
   )
 }

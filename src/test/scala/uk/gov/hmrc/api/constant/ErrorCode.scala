@@ -22,10 +22,16 @@ sealed trait ErrorCode {
   def message: String
 }
 
-case object ObligationMet extends ErrorCode {
+case object ObligationClosed extends ErrorCode {
   val status  = 403
-  val code    = "RETURN_OBLIGATION_ALREADY_MET"
-  val message = "Return obligation already met"
+  val code    = "OBLIGATION_CLOSED"
+  val message = "Obligation closed"
+}
+
+case object ReportingWindowClosed extends ErrorCode {
+  val status  = 403
+  val code    = "REPORTING_WINDOW_CLOSED"
+  val message = "Reporting window has been closed"
 }
 
 case object InternalServerError extends ErrorCode {
@@ -38,4 +44,10 @@ case object BadRequest extends ErrorCode {
   val status  = 400
   val code    = "VALIDATION_FAILURE"
   val message = "Bad request"
+}
+
+case object Forbidden extends ErrorCode {
+  val status  = 403
+  val code    = "FORBIDDEN"
+  val message = "Multiple issues found regarding your submission"
 }

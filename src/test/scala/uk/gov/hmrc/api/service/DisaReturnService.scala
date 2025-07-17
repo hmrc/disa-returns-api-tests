@@ -29,9 +29,11 @@ import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class DisaReturnService extends HttpClient {
-  val host: String                    = TestEnvironment.url("disa-returns")
+  val disa_returns_host: String       = TestEnvironment.url("disa-returns")
+  val disa_returns_stub_host: String  = TestEnvironment.url("disa-returns-stub")
   val monthlyReturnSubPath: String    = SubPathGenerator.generateReturnPath()
   val monthlyReturnHeaderPath: String = "/init"
+  val reportingWindowPath: String     = "/test-only/setup-obligation-window"
   val monthlyReturnFilename           = "Submission1"
 
   def postHeader(
@@ -46,7 +48,7 @@ class DisaReturnService extends HttpClient {
     val jsonString: JsValue                                 = Json.toJson(payload)
 
     Await.result(
-      mkRequest(host + s"$isManagerReference" + monthlyReturnHeaderPath)
+      mkRequest(disa_returns_host + s"$isManagerReference" + monthlyReturnHeaderPath)
         .withHttpHeaders(headers.toSeq: _*)
         .post(jsonString),
       10.seconds
@@ -57,9 +59,24 @@ class DisaReturnService extends HttpClient {
     val payload      = readLines(monthlyReturnFilename)
     val ndjsonString = JsonGenerator.generateSerializedNdjson(payload)
     Await.result(
-      mkRequest(host + monthlyReturnSubPath)
+      mkRequest(disa_returns_host + monthlyReturnSubPath)
         .withHttpHeaders("Content-Type" -> "application/x-ndjson")
         .post(ndjsonString),
+      10.seconds
+    )
+  }
+
+  def setReportingWindow(status: Boolean): StandaloneWSResponse = {
+    val payload =
+      s"""
+         |{
+         |  "reportingWindowOpen": $status
+         |}
+         |""".stripMargin
+    Await.result(
+      mkRequest(disa_returns_stub_host + reportingWindowPath)
+        .withHttpHeaders("Content-Type" -> "application/json")
+        .post(payload),
       10.seconds
     )
   }

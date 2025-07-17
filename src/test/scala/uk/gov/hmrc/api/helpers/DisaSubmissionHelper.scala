@@ -40,4 +40,10 @@ class DisaSubmissionHelper {
       disaSubmissionService.postReturns()
     individualsMatchGetResponse
   }
+
+  def setReportingWindow(status: Boolean): StandaloneWSResponse = {
+    val individualsMatchGetResponse: StandaloneWSResponse =
+      disaSubmissionService.setReportingWindow(status)
+    individualsMatchGetResponse
+  }
 }
