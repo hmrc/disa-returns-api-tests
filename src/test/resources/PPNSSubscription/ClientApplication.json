@@ -1,0 +1,16 @@
+{
+  "name": "TEST APP",
+  "access": {
+    "accessType": "STANDARD",
+    "redirectUris": [],
+    "overrides": []
+  },
+  "environment": "SANDBOX",
+  "collaborators": [
+    {
+      "emailAddress": "test@test.com",
+      "role": "ADMINISTRATOR",
+      "userId": "dfdf62b2-5f07-29d9-9302-45cd2e5eb49b"
+    }
+  ]
+}

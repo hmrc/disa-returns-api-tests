@@ -16,15 +16,22 @@
 
 package uk.gov.hmrc.api.utils
 
+import play.api.libs.json.{JsValue, Json}
+
 import scala.io.Source
 
 object FileReader {
 
-  def readLines(fileName: String): Seq[String] = {
+  def readLines(fileName: String): Seq[String]   = {
     val source = Source.fromResource("NDJsons/request/" + fileName + ".txt")
     try
       source.getLines().toSeq
     finally
       source.close()
+  }
+  def loadJsonFromFile(fileName: String): String = {
+    val source = Source.fromResource("PPNSSubscription/" + fileName + ".json")
+    try source.getLines().mkString("\n")
+    finally source.close()
   }
 }

@@ -19,15 +19,27 @@ package uk.gov.hmrc.api.specs
 import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.api.helpers.{AuthHelper, DisaSubmissionHelper}
+import uk.gov.hmrc.api.helpers.{AuthHelper, DisaSubmissionHelper, PPNSHelper}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
   val authHelper           = new AuthHelper
   val disaSubmissionHelper = new DisaSubmissionHelper
+  val authToken: String    = authHelper.getAuthBearerToken
+  val ppnsHelper           = new PPNSHelper
 
   val headersMap: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
-    "X-Client-ID"   -> "WL9LF5i6yn2MTTmVkMSio9KvXCbv",
-    "Authorization" -> authHelper.getAuthBearerToken
+    "Authorization" -> authToken
+  )
+
+  val thirdpartyApplicationHadersMap: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "Authorization" -> authToken
+  )
+
+  val notificationBoxHadersMap: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "Authorization" -> authToken,
+    "User-Agent"    -> "disa-returns"
   )
 }
