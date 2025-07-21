@@ -46,6 +46,12 @@ case object BadRequest extends ErrorCode {
   val message = "Bad request"
 }
 
+case object InvalidBearerToken extends ErrorCode {
+  val status  = 400
+  val code    = "BAD_REQUEST"
+  val message = "Invalid bearer token"
+}
+
 case object Forbidden extends ErrorCode {
   val status  = 403
   val code    = "FORBIDDEN"

@@ -16,20 +16,56 @@
 
 package uk.gov.hmrc.api.specs
 
-import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.{AuthHelper, DisaSubmissionHelper, PPNSHelper}
+import uk.gov.hmrc.api.utils.FileReader
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
-  val authHelper           = new AuthHelper
-  val disaSubmissionHelper = new DisaSubmissionHelper
-  val authToken: String    = authHelper.getAuthBearerToken
-  val ppnsHelper           = new PPNSHelper
+trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
+  val authHelper            = new AuthHelper
+  val disaSubmissionHelper  = new DisaSubmissionHelper
+  val authToken: String     = authHelper.getAuthBearerToken
+  val ppnsHelper            = new PPNSHelper
+  var validClientId: String = _
+
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    val thirdPartyApplicationResponse: StandaloneWSResponse =
+      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
+    validClientId = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
+    ppnsHelper.createNotificationBox(validClientId, notificationBoxHadersMap)
+    ppnsHelper.updateSubscriptionFields()
+    ppnsHelper.updateSubscriptionFieldValues(validClientId)
+  }
 
   val headersMap: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
     "Authorization" -> authToken
+  )
+
+  def headersMapWithValidClientIDAndToken: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> validClientId,
+    "Authorization" -> authToken
+  )
+
+  val headersMapWithIncorrectClientId: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> "123456",
+    "Authorization" -> authToken
+  )
+
+  val headersMapWithIncorrectClientIdAndIncorrectToken: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> "123456",
+    "Authorization" -> "authToken"
+  )
+
+  val invalidHeadersMap: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "Authorization" -> "authToken"
   )
 
   val thirdpartyApplicationHadersMap: Map[String, String] = Map(
@@ -42,4 +78,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {
     "Authorization" -> authToken,
     "User-Agent"    -> "disa-returns"
   )
+
+  def subscribeToPPNS(): Unit = {}
 }

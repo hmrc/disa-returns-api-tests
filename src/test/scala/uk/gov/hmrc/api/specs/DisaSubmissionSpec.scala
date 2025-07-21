@@ -24,45 +24,22 @@ import uk.gov.hmrc.api.utils.FileReader
 
 class DisaSubmissionSpec extends BaseSpec, LazyLogging {
 
-  Scenario(s"1. Verify DISA Returns monthly header when no obligation and reporting window opened") {
-    Given("I created a valid monthly return header file")
+  Scenario(
+    s"1. Verify 'Initialise returns submission' api response when obligation has not met and when reporting window is opened"
+  ) {
+    Given("I created a valid 'Initialise returns submission' file")
 
-    When("I set the reporting windows status as open")
+    When("I set the reporting windows as opened")
     val reportingWindowResponse: StandaloneWSResponse = disaSubmissionHelper.setReportingWindow(true)
 
     Then("I got the status code 204 accepting the reporting window is opened")
     reportingWindowResponse.status shouldBe 204
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
+    When("I execute 'Initialise returns submission' api")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z451234", headersMapWithValidClientIDAndToken)
 
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z451234", modifiedHeaders)
-
-    Then("I got the status code 200 accepting the file upload is successful")
+    Then("I got the status code 200")
     response.status shouldBe 200
 
     val returnId = FileReader.readString(response, "returnId")
@@ -74,40 +51,17 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     logger.info(s"Generated boxId: $boxId")
   }
 
-  Scenario(s"2. Verify DISA Returns monthly header with obligation and reporting window opened") {
+  Scenario(
+    s"2. Verify 'Initialise returns submission' api response when obligation has met and when reporting window is opened"
+  ) {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(true)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
-
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z1111", modifiedHeaders)
+    When("I execute 'Initialise returns submission' api")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z1111", headersMapWithValidClientIDAndToken)
 
     Then("I got the status code 403 stating an obligation failed")
     response.status shouldBe 403
@@ -119,42 +73,19 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(ObligationClosed.message == message, "Incorrect message")
   }
 
-  Scenario(s"3. Verify DISA Returns monthly header with no obligation and reporting window closed") {
+  Scenario(
+    s"3. Verify 'Initialise returns submission' api response when no obligation has met and when reporting window is closed"
+  ) {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(false)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
+    When("I execute 'Initialise returns submission' api")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z341231", headersMapWithValidClientIDAndToken)
 
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z341231", modifiedHeaders)
-
-    Then("I got the status code 403 stating reporting window closed")
+    Then("I got the status code 403 stating the reporting window is closed")
     response.status shouldBe 403
 
     val code    = FileReader.readString(response, "code")
@@ -164,42 +95,19 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(ReportingWindowClosed.message == message, "Incorrect message")
   }
 
-  Scenario(s"4. Verify DISA Returns monthly header with obligation and reporting window closed") {
+  Scenario(
+    s"4. Verify 'Initialise returns submission' api when no obligation has met and when reporting window is closed"
+  ) {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(false)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
+    When("I execute 'Initialise returns submission' api")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z1111", headersMapWithValidClientIDAndToken)
 
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z1111", modifiedHeaders)
-
-    Then("I got the status code 403 stating that obligation and reporting window failed")
+    Then("I got the status code 403 stating that the obligation and reporting window is failed")
     response.status shouldBe 403
 
     val code         = FileReader.readString(response, "code")
@@ -218,40 +126,15 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(innerErrors.exists(err => (err \ "message").as[String] == ObligationClosed.message))
   }
 
-  Scenario(s"5. Verify DISA Returns monthly header with internal server error") {
+  Scenario(s"5. Verify 'Initialise returns submission' api gives internal server error correctly") {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(true)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
-
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z1234", modifiedHeaders)
+    When("I execute 'Initialise returns submission' api")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z1234", headersMapWithValidClientIDAndToken)
 
     Then("I got the status code 500 stating an internal server error")
     response.status shouldBe 500
@@ -263,40 +146,17 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(InternalServerError.message == message, "Incorrect message")
   }
 
-  Scenario(s"6. Verify DISA Returns monthly header for bad request") {
+  Scenario(
+    s"6. Verify 'Initialise returns submission' api gives bad request for an invalid payload (invalid totalRecords)"
+  ) {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(true)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
-
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(-1, "APR", 2025, "Z4321", modifiedHeaders)
+    When("I execute 'Initialise returns submission' api with an invalid no of totalRecords")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(-1, "APR", 2025, "Z4321", headersMapWithIncorrectClientId)
 
     Then("I got the status code 400 stating a bad request")
     response.status shouldBe 400
@@ -308,40 +168,15 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(BadRequest.message == message, "Incorrect message")
   }
 
-  Scenario(s"7. Verify DISA Returns monthly header for bad request") {
+  Scenario(s"7. Verify 'Initialise returns submission' api gives bad request for an invalid payload(Invalid taxYear)") {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(true)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
-
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 202545, "Z4321", modifiedHeaders)
+    When("I execute 'Initialise returns submission' api with an invalid tax year")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 202545, "Z4321", headersMapWithIncorrectClientId)
 
     Then("I got the status code 400 stating a bad request")
     response.status shouldBe 400
@@ -353,40 +188,17 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(BadRequest.message == message, "Incorrect message")
   }
 
-  Scenario(s"8. Verify DISA Returns monthly header with invalid bearer token") {
+  Scenario(
+    s"8. Verify 'Initialise returns submission' api gives invalid bearer token error for an invalid bearer token"
+  ) {
     Given("I created a valid monthly return header file")
 
     When("I set the reporting windows status as open")
     disaSubmissionHelper.setReportingWindow(true)
 
-    When("I created a valid client id using third party application")
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
-
-    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
-
-    Then("I got the status code 201 saying that client id created")
-    thirdPartyApplicationResponse.status shouldBe 201
-
-    When("I create a notification box for the created client id")
-    val notificationBoxResponse: StandaloneWSResponse =
-      ppnsHelper.createNotificationBox(clientID, notificationBoxHadersMap)
-
-    Then("I got the status code 201 saying that box created for the mentioned client id")
-    notificationBoxResponse.status shouldBe 201
-
-    When("I update all the subscription fields")
-    ppnsHelper.updateSubscriptionFields()
-
-    When("I update all the subscription field values")
-    val subscriptionFieldValuesResponse: StandaloneWSResponse = ppnsHelper.updateSubscriptionFieldValues(clientID)
-
-    Then("I got the status code 201 saying that all the subscription field values were updated")
-    subscriptionFieldValuesResponse.status shouldBe 201
-
-    When("I use the DISA return initialise API to send the header")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postHeader(1000, "APR", 202545, "Z4321", modifiedHeaders)
+    When("I execute 'Initialise returns submission' api with an invalid token")
+    val response: StandaloneWSResponse =
+      disaSubmissionHelper.postHeader(1000, "APR", 2025, "Z432112", headersMapWithIncorrectClientIdAndIncorrectToken)
 
     Then("I got the status code 400 stating a bad request")
     response.status shouldBe 400
@@ -394,7 +206,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val code    = FileReader.readString(response, "code")
     val message = FileReader.readString(response, "message")
 
-    assert(BadRequest.code == code, "Incorrect code")
-    assert(BadRequest.message == message, "Incorrect message")
+    assert(InvalidBearerToken.code == code, "Incorrect code")
+    assert(InvalidBearerToken.message == message, "Incorrect message")
   }
 }
