@@ -20,6 +20,7 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.*
+import uk.gov.hmrc.api.utils.FileReader
 
 class DisaSubmissionSpec extends BaseSpec, LazyLogging {
 
@@ -36,8 +37,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -65,10 +65,10 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 200 accepting the file upload is successful")
     response.status shouldBe 200
 
-    val json     = Json.parse(response.body)
-    val returnId = (json \ "returnId").as[String]
-    val action   = (json \ "action").as[String]
-    val boxId    = (json \ "boxId").as[String]
+    val returnId = FileReader.readString(response, "returnId")
+    val action   = FileReader.readString(response, "action")
+    val boxId    = FileReader.readString(response, "boxId")
+
     logger.info(s"Generated returnId: $returnId")
     logger.info(s"Generated action: $action")
     logger.info(s"Generated boxId: $boxId")
@@ -84,8 +84,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -113,9 +112,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 403 stating an obligation failed")
     response.status shouldBe 403
 
-    val json    = Json.parse(response.body)
-    val code    = (json \ "code").as[String]
-    val message = (json \ "message").as[String]
+    val code    = FileReader.readString(response, "code")
+    val message = FileReader.readString(response, "message")
+
     assert(ObligationClosed.code == code, "Incorrect code")
     assert(ObligationClosed.message == message, "Incorrect message")
   }
@@ -130,8 +129,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -159,9 +157,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 403 stating reporting window closed")
     response.status shouldBe 403
 
-    val json    = Json.parse(response.body)
-    val code    = (json \ "code").as[String]
-    val message = (json \ "message").as[String]
+    val code    = FileReader.readString(response, "code")
+    val message = FileReader.readString(response, "message")
+
     assert(ReportingWindowClosed.code == code, "Incorrect code")
     assert(ReportingWindowClosed.message == message, "Incorrect message")
   }
@@ -176,8 +174,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -205,12 +202,16 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 403 stating that obligation and reporting window failed")
     response.status shouldBe 403
 
-    val json        = Json.parse(response.body)
-    val code        = (json \ "code").as[String]
-    val message     = (json \ "message").as[String]
+    val code         = FileReader.readString(response, "code")
+    val message      = FileReader.readString(response, "message")
+    val innerErrors3 = FileReader.readString(response, "errors")
+
     assert(Forbidden.code == code, "Incorrect code")
     assert(Forbidden.message == message, "Incorrect message")
-    val innerErrors = (json \ "errors").as[Seq[JsValue]]
+
+    val innerErrors: Seq[JsValue] = Json.parse(innerErrors3).as[Seq[JsValue]]
+
+    assert(innerErrors.exists(err => (err \ "code").as[String] == ReportingWindowClosed.code))
     assert(innerErrors.exists(err => (err \ "code").as[String] == ReportingWindowClosed.code))
     assert(innerErrors.exists(err => (err \ "message").as[String] == ReportingWindowClosed.message))
     assert(innerErrors.exists(err => (err \ "code").as[String] == ObligationClosed.code))
@@ -227,8 +228,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -256,9 +256,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 500 stating an internal server error")
     response.status shouldBe 500
 
-    val json    = Json.parse(response.body)
-    val code    = (json \ "code").as[String]
-    val message = (json \ "message").as[String]
+    val code    = FileReader.readString(response, "code")
+    val message = FileReader.readString(response, "message")
+
     assert(InternalServerError.code == code, "Incorrect code")
     assert(InternalServerError.message == message, "Incorrect message")
   }
@@ -273,8 +273,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -302,9 +301,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 400 stating a bad request")
     response.status shouldBe 400
 
-    val json    = Json.parse(response.body)
-    val code    = (json \ "code").as[String]
-    val message = (json \ "message").as[String]
+    val code    = FileReader.readString(response, "code")
+    val message = FileReader.readString(response, "message")
+
     assert(BadRequest.code == code, "Incorrect code")
     assert(BadRequest.message == message, "Incorrect message")
   }
@@ -319,8 +318,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -348,9 +346,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 400 stating a bad request")
     response.status shouldBe 400
 
-    val json    = Json.parse(response.body)
-    val code    = (json \ "code").as[String]
-    val message = (json \ "message").as[String]
+    val code    = FileReader.readString(response, "code")
+    val message = FileReader.readString(response, "message")
+
     assert(BadRequest.code == code, "Incorrect code")
     assert(BadRequest.message == message, "Incorrect message")
   }
@@ -365,8 +363,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
 
-    val json1           = Json.parse(thirdPartyApplicationResponse.body)
-    val clientID        = (json1 \ "details" \ "clientId").as[String]
+    val clientID        = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
     val modifiedHeaders = headersMap + ("X-Client-ID" -> clientID)
 
     Then("I got the status code 201 saying that client id created")
@@ -394,9 +391,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 400 stating a bad request")
     response.status shouldBe 400
 
-    val json    = Json.parse(response.body)
-    val code    = (json \ "code").as[String]
-    val message = (json \ "message").as[String]
+    val code    = FileReader.readString(response, "code")
+    val message = FileReader.readString(response, "message")
+
     assert(BadRequest.code == code, "Incorrect code")
     assert(BadRequest.message == message, "Incorrect message")
   }
