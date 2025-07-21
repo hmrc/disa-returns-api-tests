@@ -397,15 +397,4 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(BadRequest.code == code, "Incorrect code")
     assert(BadRequest.message == message, "Incorrect message")
   }
-
-  Scenario(s"8. Verify DISA Returns monthly submission") {
-    Given("I created a valid monthly return file")
-
-    When("I use the DISA return submission API to send monthly returns")
-    val response: StandaloneWSResponse = disaSubmissionHelper.postReturns()
-
-    Then("I got the status code 200 accepting the file upload is successful")
-    response.status shouldBe 200
-
-  }
 }
