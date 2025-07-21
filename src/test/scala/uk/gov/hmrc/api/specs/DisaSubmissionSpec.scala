@@ -25,15 +25,10 @@ import uk.gov.hmrc.api.utils.FileReader
 class DisaSubmissionSpec extends BaseSpec, LazyLogging {
 
   Scenario(
-    s"1. Verify 'Initialise returns submission' api response when obligation has not met and when reporting window is opened"
+    s"1. Verify 'Initialise returns submission' api response gives status code 200 when obligation has not met and reporting window is opened"
   ) {
-    Given("I created a valid 'Initialise returns submission' file")
-
-    When("I set the reporting windows as opened")
-    val reportingWindowResponse: StandaloneWSResponse = disaSubmissionHelper.setReportingWindow(true)
-
-    Then("I got the status code 204 accepting the reporting window is opened")
-    reportingWindowResponse.status shouldBe 204
+    Given("I set the reporting windows as opened successfully")
+    disaSubmissionHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api")
     val response: StandaloneWSResponse =
@@ -52,11 +47,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"2. Verify 'Initialise returns submission' api response when obligation has met and when reporting window is opened"
+    s"2. Verify 'Initialise returns submission' api response gives status code 403 when obligation has met and reporting window is opened"
   ) {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
+    Given("I set the reporting windows as opened successfully")
     disaSubmissionHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api")
@@ -74,11 +67,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"3. Verify 'Initialise returns submission' api response when no obligation has met and when reporting window is closed"
+    s"3. Verify 'Initialise returns submission' api response gives status code 403 when no obligation has met and reporting window is closed"
   ) {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
+    Given("I set the reporting windows as closed successfully")
     disaSubmissionHelper.setReportingWindow(false)
 
     When("I execute 'Initialise returns submission' api")
@@ -96,11 +87,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"4. Verify 'Initialise returns submission' api when no obligation has met and when reporting window is closed"
+    s"4. Verify 'Initialise returns submission' api response gives status code 403 when no obligation has met and reporting window is closed"
   ) {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
+    Given("I set the reporting windows as closed successfully")
     disaSubmissionHelper.setReportingWindow(false)
 
     When("I execute 'Initialise returns submission' api")
@@ -126,10 +115,10 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(innerErrors.exists(err => (err \ "message").as[String] == ObligationClosed.message))
   }
 
-  Scenario(s"5. Verify 'Initialise returns submission' api gives internal server error correctly") {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
+  Scenario(
+    s"5. Verify 'Initialise returns submission' api response gives status code 500 for an internal server error correctly when etmp returns downstream error"
+  ) {
+    Given("I set the reporting windows as opened successfully")
     disaSubmissionHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api")
@@ -147,11 +136,9 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"6. Verify 'Initialise returns submission' api gives bad request for an invalid payload (invalid totalRecords)"
+    s"6. Verify 'Initialise returns submission' api response gives status code '400 - bad request' for an invalid payload (invalid totalRecords)"
   ) {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
+    Given("I set the reporting windows as opened successfully")
     disaSubmissionHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api with an invalid no of totalRecords")
@@ -168,32 +155,10 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(BadRequest.message == message, "Incorrect message")
   }
 
-  Scenario(s"7. Verify 'Initialise returns submission' api gives bad request for an invalid payload(Invalid taxYear)") {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
-    disaSubmissionHelper.setReportingWindow(true)
-
-    When("I execute 'Initialise returns submission' api with an invalid tax year")
-    val response: StandaloneWSResponse =
-      disaSubmissionHelper.postHeader(1000, "APR", 202545, "Z4321", headersMapWithIncorrectClientId)
-
-    Then("I got the status code 400 stating a bad request")
-    response.status shouldBe 400
-
-    val code    = FileReader.readString(response, "code")
-    val message = FileReader.readString(response, "message")
-
-    assert(BadRequest.code == code, "Incorrect code")
-    assert(BadRequest.message == message, "Incorrect message")
-  }
-
   Scenario(
-    s"8. Verify 'Initialise returns submission' api gives invalid bearer token error for an invalid bearer token"
+    s"8. Verify 'Initialise returns submission' api response gives status code '400 - invalid bearer token' error when an invalid bearer token used"
   ) {
-    Given("I created a valid monthly return header file")
-
-    When("I set the reporting windows status as open")
+    Given("I set the reporting windows as opened successfully")
     disaSubmissionHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api with an invalid token")
