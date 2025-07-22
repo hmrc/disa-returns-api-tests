@@ -31,7 +31,6 @@ import scala.concurrent.duration.*
 
 class DisaReturnService extends HttpClient {
   val disa_returns_host: String       = TestEnvironment.url("disa-returns")
-  val reportingWindowPath: String     = "/test-only/setup-obligation-window"
   val monthlyReturnSubPath: String    = SubPathGenerator.generateReturnPath()
   val monthlyReturnHeaderPath: String = "/init"
   val monthlyReturnFilename           = "Submission1"
