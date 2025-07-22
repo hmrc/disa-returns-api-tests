@@ -19,21 +19,28 @@ package uk.gov.hmrc.api.service
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
-import uk.gov.hmrc.api.utils.SubPathGenerator
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class DisaSubmissionService extends HttpClient {
-  val host: String    = TestEnvironment.url("disa-submission-backend")
-  val subPath: String = SubPathGenerator.generateSubpath()
+class DisaReturnsStubService extends HttpClient {
 
-  def post(payloadAsText: String): StandaloneWSResponse =
+  val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stub")
+  val reportingWindowPath: String    = "/test-only/setup-obligation-window"
+
+  def setReportingWindow(status: Boolean): StandaloneWSResponse = {
+    val payload =
+      s"""
+         |{
+         |  "reportingWindowOpen": $status
+         |}
+         |""".stripMargin
     Await.result(
-      mkRequest(host + subPath)
-        .withHttpHeaders("Content-Type" -> "application/x-ndjson")
-        .post(payloadAsText),
+      mkRequest(disa_returns_stub_host + reportingWindowPath)
+        .withHttpHeaders("Content-Type" -> "application/json")
+        .post(payload),
       10.seconds
     )
+  }
 }

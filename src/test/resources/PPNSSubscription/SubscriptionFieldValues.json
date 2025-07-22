@@ -1,0 +1,5 @@
+{
+  "fields": {
+    "callbackUrl": "http://localhost:10202/push-pull-notification-receiver-stub/notifications"
+  }
+}

@@ -17,28 +17,13 @@
 package uk.gov.hmrc.api.helpers
 
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.service.DisaReturnService
+import uk.gov.hmrc.api.service.DisaReturnsStubService
 
-class DisaSubmissionHelper {
+class DisaReturnsStubHelper {
 
-  val disaSubmissionService: DisaReturnService = new DisaReturnService
+  val disaReturnsStubService: DisaReturnsStubService = new DisaReturnsStubService
 
-  def postInitialiseReturnsSubmissionApi(
-    totalRecords: Int,
-    submissionPeriod: String,
-    taxYear: Int,
-    isManagerReference: String,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
-    disaSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords,
-      submissionPeriod,
-      taxYear,
-      isManagerReference,
-      headers
-    )
-
-  def postReturns(): StandaloneWSResponse =
-    disaSubmissionService.postReturns()
+  def setReportingWindow(status: Boolean): StandaloneWSResponse =
+    disaReturnsStubService.setReportingWindow(status)
 
 }

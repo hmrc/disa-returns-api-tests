@@ -17,28 +17,21 @@
 package uk.gov.hmrc.api.helpers
 
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.service.DisaReturnService
+import uk.gov.hmrc.api.service.PPNSService
 
-class DisaSubmissionHelper {
+class PPNSHelper {
+  val PPNSService: PPNSService = new PPNSService
 
-  val disaSubmissionService: DisaReturnService = new DisaReturnService
+  def createClientApplication(headers: Map[String, String]): StandaloneWSResponse =
+    PPNSService.createClientApplication(headers)
 
-  def postInitialiseReturnsSubmissionApi(
-    totalRecords: Int,
-    submissionPeriod: String,
-    taxYear: Int,
-    isManagerReference: String,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
-    disaSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords,
-      submissionPeriod,
-      taxYear,
-      isManagerReference,
-      headers
-    )
+  def createNotificationBox(clientId: String, headers: Map[String, String]): StandaloneWSResponse =
+    PPNSService.createNotificationBox(clientId, headers)
 
-  def postReturns(): StandaloneWSResponse =
-    disaSubmissionService.postReturns()
+  def updateSubscriptionFields(): StandaloneWSResponse =
+    PPNSService.createSubscriptionField()
+
+  def updateSubscriptionFieldValues(clientId: String): StandaloneWSResponse =
+    PPNSService.createSubscriptionFieldValues(clientId)
 
 }

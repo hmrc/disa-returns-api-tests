@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.utils
+package uk.gov.hmrc.api.models
 
-import scala.util.Random
+import play.api.libs.json.{Json, OFormat}
 
-object SubPathGenerator {
-  def generateReturnPath(): String = {
-    val randomNumber = generateRandomNumber(1000, 10000)
-    s"$randomNumber/submission/$randomNumber"
-  }
+case class InitialiseReturnsSubmissionPayload(totalRecords: Int, submissionPeriod: String, taxYear: Int)
 
-  def generateRandomNumber(from: Int, to: Int): String =
-    Random.between(from, to).toString
+object InitialiseReturnsSubmissionPayload {
+  implicit val format: OFormat[InitialiseReturnsSubmissionPayload] = Json.format[InitialiseReturnsSubmissionPayload]
 }
