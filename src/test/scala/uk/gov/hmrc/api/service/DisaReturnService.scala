@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.api.service
 
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.models.InitialiseReturnsSubmissionPayload
 import uk.gov.hmrc.api.utils.FileReader.readLines
 import uk.gov.hmrc.api.utils.{JsonGenerator, SubPathGenerator}
 import uk.gov.hmrc.apitestrunner.http.HttpClient
@@ -30,22 +31,20 @@ import scala.concurrent.duration.*
 
 class DisaReturnService extends HttpClient {
   val disa_returns_host: String       = TestEnvironment.url("disa-returns")
-  val disa_returns_stub_host: String  = TestEnvironment.url("disa-returns-stub")
+  val reportingWindowPath: String     = "/test-only/setup-obligation-window"
   val monthlyReturnSubPath: String    = SubPathGenerator.generateReturnPath()
   val monthlyReturnHeaderPath: String = "/init"
-  val reportingWindowPath: String     = "/test-only/setup-obligation-window"
   val monthlyReturnFilename           = "Submission1"
 
-  def postHeader(
+  def postInitialiseReturnsSubmissionApi(
     totalRecords: Int,
     submissionPeriod: String,
     taxYear: Int,
     isManagerReference: String,
     headers: Map[String, String]
   ): StandaloneWSResponse = {
-    implicit val returnsHeaderWrites: Writes[ReturnsHeader] = Json.writes[ReturnsHeader]
-    val payload                                             = ReturnsHeader(totalRecords, submissionPeriod, taxYear)
-    val jsonString: JsValue                                 = Json.toJson(payload)
+    val payload             = InitialiseReturnsSubmissionPayload(totalRecords, submissionPeriod, taxYear)
+    val jsonString: JsValue = Json.toJson(payload)
 
     Await.result(
       mkRequest(disa_returns_host + s"$isManagerReference" + monthlyReturnHeaderPath)
@@ -65,22 +64,4 @@ class DisaReturnService extends HttpClient {
       10.seconds
     )
   }
-
-  def setReportingWindow(status: Boolean): StandaloneWSResponse = {
-    val payload =
-      s"""
-         |{
-         |  "reportingWindowOpen": $status
-         |}
-         |""".stripMargin
-    Await.result(
-      mkRequest(disa_returns_stub_host + reportingWindowPath)
-        .withHttpHeaders("Content-Type" -> "application/json")
-        .post(payload),
-      10.seconds
-    )
-  }
-
-  case class ReturnsHeader(totalRecords: Int, submissionPeriod: String, taxYear: Int)
-  case class SubmissionResponse(returnId: String, action: String)
 }

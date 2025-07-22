@@ -22,27 +22,16 @@ import uk.gov.hmrc.api.service.PPNSService
 class PPNSHelper {
   val PPNSService: PPNSService = new PPNSService
 
-  def createClientApplication(headers: Map[String, String]): StandaloneWSResponse = {
-    val individualsMatchGetResponse: StandaloneWSResponse = PPNSService.createClientApplication(headers)
-    individualsMatchGetResponse
-  }
+  def createClientApplication(headers: Map[String, String]): StandaloneWSResponse =
+    PPNSService.createClientApplication(headers)
 
-  def createNotificationBox(clientId: String, headers: Map[String, String]): StandaloneWSResponse = {
-    val individualsMatchGetResponse: StandaloneWSResponse = PPNSService.createNotificationBox(clientId, headers)
+  def createNotificationBox(clientId: String, headers: Map[String, String]): StandaloneWSResponse =
+    PPNSService.createNotificationBox(clientId, headers)
 
-    individualsMatchGetResponse
-  }
+  def updateSubscriptionFields(): StandaloneWSResponse =
+    PPNSService.createSubscriptionField()
 
-  def updateSubscriptionFields(): StandaloneWSResponse = {
-    val individualsMatchGetResponse: StandaloneWSResponse = PPNSService.createSubscriptionField()
-
-    individualsMatchGetResponse
-  }
-
-  def updateSubscriptionFieldValues(clientId: String): StandaloneWSResponse = {
-    val individualsMatchGetResponse: StandaloneWSResponse = PPNSService.createSubscriptionFieldValues(clientId)
-
-    individualsMatchGetResponse
-  }
+  def updateSubscriptionFieldValues(clientId: String): StandaloneWSResponse =
+    PPNSService.createSubscriptionFieldValues(clientId)
 
 }

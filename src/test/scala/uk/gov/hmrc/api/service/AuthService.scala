@@ -31,10 +31,10 @@ class AuthService extends HttpClient {
 
   val ggSignInFormData: Map[String, String] = Map(
     "CredID"             -> "aaa",
-    "affinityGroup"      -> "Individual",
+    "affinityGroup"      -> "Organisation",
     "confidenceLevel"    -> "50",
     "credentialStrength" -> "strong",
-    "authorityId"        -> "bbb",
+    "authorityId"        -> "",
     "redirectionUrl"     -> "http://localhost:9949/auth-login-stub/session"
   )
 
