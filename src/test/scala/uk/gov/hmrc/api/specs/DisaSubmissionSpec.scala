@@ -43,19 +43,18 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 200")
     initialiseReturnsSubmissionResponse.status shouldBe 200
 
-    assert(FileReader.readString(initialiseReturnsSubmissionResponse, "returnId") != null, "Return Id is Null")
+    val returnID = FileReader.readString(initialiseReturnsSubmissionResponse, "returnId")
+
+    assert(returnID != null, "Return Id is Null")
     assert(FileReader.readString(initialiseReturnsSubmissionResponse, "action") != null, "Return Id is Null")
     assert(FileReader.readString(initialiseReturnsSubmissionResponse, "boxId") != null, "Return Id is Null")
 
     When("I submit the valid bulk monthly return file")
     val submitBulkMonthlyReturnsResponse: StandaloneWSResponse =
-      disaSubmissionHelper.submitBulkMonthlyReturns(
-        "Z451234",
-        FileReader.readString(submitBulkMonthlyReturnsResponse, "returnId")
-      )
+      disaSubmissionHelper.submitBulkMonthlyReturns("Z451234", returnID)
 
-      Then("I got the status code 200")
-      submitBulkMonthlyReturnsResponse.status shouldBe 200
+    Then("I got the status code 200")
+    submitBulkMonthlyReturnsResponse.status shouldBe 200
   }
 
   Scenario(
