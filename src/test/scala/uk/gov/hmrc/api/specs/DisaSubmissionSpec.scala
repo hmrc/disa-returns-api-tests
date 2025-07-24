@@ -31,7 +31,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     disaReturnsStubHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api")
-    val response: StandaloneWSResponse =
+    val initialiseReturnsSubmissionResponse: StandaloneWSResponse =
       disaSubmissionHelper.postInitialiseReturnsSubmissionApi(
         1000,
         "APR",
@@ -41,11 +41,21 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 200")
-    response.status shouldBe 200
+    initialiseReturnsSubmissionResponse.status shouldBe 200
 
-    assert(FileReader.readString(response, "returnId") != null, "Return Id is Null")
-    assert(FileReader.readString(response, "action") != null, "Return Id is Null")
-    assert(FileReader.readString(response, "boxId") != null, "Return Id is Null")
+    assert(FileReader.readString(initialiseReturnsSubmissionResponse, "returnId") != null, "Return Id is Null")
+    assert(FileReader.readString(initialiseReturnsSubmissionResponse, "action") != null, "Return Id is Null")
+    assert(FileReader.readString(initialiseReturnsSubmissionResponse, "boxId") != null, "Return Id is Null")
+
+    When("I submit the bulk monthly return file")
+    val submitBulkMonthlyReturnsResponse: StandaloneWSResponse =
+      disaSubmissionHelper.submitBulkMonthlyReturns(
+        "Z451234",
+        FileReader.readString(submitBulkMonthlyReturnsResponse, "returnId")
+      )
+
+      Then("I got the status code 200")
+      submitBulkMonthlyReturnsResponse.status shouldBe 200
   }
 
   Scenario(

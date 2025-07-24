@@ -27,18 +27,18 @@ class DisaSubmissionHelper {
     totalRecords: Int,
     submissionPeriod: String,
     taxYear: Int,
-    isManagerReference: String,
+    isaManagerReference: String,
     headers: Map[String, String]
   ): StandaloneWSResponse =
     disaSubmissionService.postInitialiseReturnsSubmissionApi(
       totalRecords,
       submissionPeriod,
       taxYear,
-      isManagerReference,
+      isaManagerReference,
       headers
     )
 
-  def postReturns(): StandaloneWSResponse =
-    disaSubmissionService.postReturns()
+  def submitBulkMonthlyReturns(isaManagerReference: String, returnId: String): StandaloneWSResponse =
+    disaSubmissionService.submitBulkMonthlyReturns(isaManagerReference, returnId)
 
 }

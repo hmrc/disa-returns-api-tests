@@ -21,7 +21,7 @@ import scala.util.Random
 object SubPathGenerator {
   def generateReturnPath(): String = {
     val randomNumber = generateRandomNumber(1000, 10000)
-    s"$randomNumber/submission/$randomNumber"
+    s"$randomNumber/"
   }
 
   def generateRandomNumber(from: Int, to: Int): String =

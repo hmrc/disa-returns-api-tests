@@ -30,10 +30,10 @@ import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class DisaReturnService extends HttpClient {
-  val disa_returns_host: String       = TestEnvironment.url("disa-returns")
-  val monthlyReturnSubPath: String    = SubPathGenerator.generateReturnPath()
-  val monthlyReturnHeaderPath: String = "/init"
-  val monthlyReturnFilename           = "Submission1"
+  val disa_returns_host: String                     = TestEnvironment.url("disa-returns")
+  val submissionBulkMonthlyReturnApiSubpath: String = SubPathGenerator.generateReturnPath()
+  val initializeReturnsSubmissionApiPath: String    = "/init"
+  val bulkMonthlyReturnFileName                     = "Submission1"
 
   def postInitialiseReturnsSubmissionApi(
     totalRecords: Int,
@@ -46,20 +46,20 @@ class DisaReturnService extends HttpClient {
     val jsonString: JsValue = Json.toJson(payload)
 
     Await.result(
-      mkRequest(disa_returns_host + s"$isManagerReference" + monthlyReturnHeaderPath)
+      mkRequest(disa_returns_host + s"$isManagerReference" + initializeReturnsSubmissionApiPath)
         .withHttpHeaders(headers.toSeq: _*)
         .post(jsonString),
       10.seconds
     )
   }
 
-  def postReturns(): StandaloneWSResponse = {
-    val payload      = readLines(monthlyReturnFilename)
-    val ndjsonString = JsonGenerator.generateSerializedNdjson(payload)
+  def submitBulkMonthlyReturns(isaManagerReference: String, returnId: String): StandaloneWSResponse = {
+    val bulkMonthlyReturn                = readLines(bulkMonthlyReturnFileName)
+    val ndjsonBulkMonthlyReturnAsaString = JsonGenerator.generateSerializedNdjson(bulkMonthlyReturn)
     Await.result(
-      mkRequest(disa_returns_host + monthlyReturnSubPath)
+      mkRequest(disa_returns_host + "/" + isaManagerReference + "/" + returnId)
         .withHttpHeaders("Content-Type" -> "application/x-ndjson")
-        .post(ndjsonString),
+        .post(ndjsonBulkMonthlyReturnAsaString),
       10.seconds
     )
   }
