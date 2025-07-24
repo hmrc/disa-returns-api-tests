@@ -33,7 +33,7 @@ class DisaReturnService extends HttpClient {
   val disa_returns_host: String                     = TestEnvironment.url("disa-returns")
   val submissionBulkMonthlyReturnApiSubpath: String = SubPathGenerator.generateReturnPath()
   val initializeReturnsSubmissionApiPath: String    = "/init"
-  val bulkMonthlyReturnFileName                     = "Submission1"
+  val bulkMonthlyReturnFileName                     = "MonthlyReturns"
 
   def postInitialiseReturnsSubmissionApi(
     totalRecords: Int,
