@@ -49,7 +49,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(FileReader.readString(initialiseReturnsSubmissionResponse, "action") != null, "Return Id is Null")
     assert(FileReader.readString(initialiseReturnsSubmissionResponse, "boxId") != null, "Return Id is Null")
 
-    When("I submit the valid bulk monthly return file")
+     When("I submit the valid bulk monthly return file")
     val submitBulkMonthlyReturnsResponse: StandaloneWSResponse =
       disaSubmissionHelper.submitBulkMonthlyReturns("Z451234", returnID)
 

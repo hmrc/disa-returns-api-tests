@@ -17,9 +17,10 @@ docker run --rm -d -p 27017:27017 --name mongo percona/percona-server-mongodb:6.
 Start `<SERVICE_MANAGER_PROFILE>` services as follows:
 
 ```bash
+sm2 --start PUSH_PULL_NOTIFICATIONS_API --appendArgs '{"PUSH_PULL_NOTIFICATIONS_API": ["-Dallowlisted.useragents.0=api-subscription-fields","-Dallowlisted.useragents.1=disa-returns","-DvalidateHttpsCallbackUrl=false"]}'
+
 sm2 --start DISA_RETURNS_ALL
 
-sm2 --start PUSH_PULL_NOTIFICATIONS_API --appendArgs '{"PUSH_PULL_NOTIFICATIONS_API": ["-Dallowlisted.useragents.0=api-subscription-fields","-Dallowlisted.useragents.1=disa-returns","-DvalidateHttpsCallbackUrl=false"]}'
 ```
 
 ## Tests
