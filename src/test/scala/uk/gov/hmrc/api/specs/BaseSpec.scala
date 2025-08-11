@@ -20,16 +20,17 @@ import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.helpers.{AuthHelper, DisaReturnsStubHelper, DisaSubmissionHelper, PPNSHelper}
+import uk.gov.hmrc.api.helpers.*
 import uk.gov.hmrc.api.utils.FileReader
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
-  val authHelper            = new AuthHelper
-  val disaSubmissionHelper  = new DisaSubmissionHelper
-  val disaReturnsStubHelper = new DisaReturnsStubHelper
-  val authToken: String     = authHelper.getAuthBearerToken
-  val ppnsHelper            = new PPNSHelper
-  var validClientId: String = _
+  val authHelper                     = new AuthHelper
+  val disaSubmissionHelper           = new InitialiseReturnsSubmissionHelper
+  val disaReturnsStubHelper          = new DisaReturnsStubHelper
+  val authToken: String              = authHelper.getAuthBearerToken
+  val ppnsHelper                     = new PPNSHelper
+  var validClientId: String          = _
+  val monthlyReturnsSubmissionHelper = new MonthlyReturnsSubmissionHelper
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -48,6 +49,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   def headersMapWithValidClientIDAndToken: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> validClientId,
+    "Authorization" -> authToken
+  )
+
+  def headersMapWithValidClientIDAndTokenWithoutContentType: Map[String, String] = Map(
     "X-Client-ID"   -> validClientId,
     "Authorization" -> authToken
   )

@@ -31,21 +31,32 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     disaReturnsStubHelper.setReportingWindow(true)
 
     When("I execute 'Initialise returns submission' api")
+    val isaReferenceId                 = "Z451234"
     val response: StandaloneWSResponse =
       disaSubmissionHelper.postInitialiseReturnsSubmissionApi(
         1000,
         "APR",
         2025,
-        "Z451234",
+        isaReferenceId,
         headersMapWithValidClientIDAndToken
       )
 
     Then("I got the status code 200")
     response.status shouldBe 200
+    val returnId = FileReader.readString(response, "returnId")
 
-    assert(FileReader.readString(response, "returnId") != null, "Return Id is Null")
+    assert(returnId != null, "Return Id is Null")
     assert(FileReader.readString(response, "action") != null, "Return Id is Null")
     assert(FileReader.readString(response, "boxId") != null, "Return Id is Null")
+
+    val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
+      monthlyReturnsSubmissionHelper.postMonthlyReturns(
+        isaReferenceId,
+        returnId,
+        headersMapWithValidClientIDAndTokenWithoutContentType
+      )
+    Then("I got the status code 204")
+    monthlyReturnsSubmissionResponse.status shouldBe 204
   }
 
   Scenario(
