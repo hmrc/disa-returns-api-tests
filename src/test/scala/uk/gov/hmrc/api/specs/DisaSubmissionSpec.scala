@@ -25,7 +25,7 @@ import uk.gov.hmrc.api.utils.FileReader
 class DisaSubmissionSpec extends BaseSpec, LazyLogging {
 
   Scenario(
-    s"1. Verify 'Initialise returns submission' api response gives status code 200 when obligation has not met and reporting window is opened"
+    s"1. Verify 'monthly returns submission' api response gives status code 204 when obligation has not met and reporting window is opened"
   ) {
     Given("I set the reporting windows as opened successfully")
     disaReturnsStubHelper.setReportingWindow(true)
@@ -49,6 +49,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(FileReader.readString(response, "action") != null, "Return Id is Null")
     assert(FileReader.readString(response, "boxId") != null, "Return Id is Null")
 
+    When("I submit monthly return submissions")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
       monthlyReturnsSubmissionHelper.postMonthlyReturns(
         isaReferenceId,

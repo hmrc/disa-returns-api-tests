@@ -31,7 +31,7 @@ case class SISATransferPayload(
   totalCurrentYearSubscriptionsToDate: Double,
   marketValueOfAccount: Double,
   accountNumberOfTransferringAccount: String,
-  amountTransferred: String,
+  amountTransferred: Double,
   flexibleIsa: Boolean
 )
 
