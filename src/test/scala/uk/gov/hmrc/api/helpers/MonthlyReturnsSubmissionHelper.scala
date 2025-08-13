@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.utils
+package uk.gov.hmrc.api.helpers
 
-import scala.util.Random
+import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.service.MonthlyReturnsSubmissionService
 
-object SubPathGenerator {
-  def generateReturnPath(): String = {
-    val randomNumber = generateRandomNumber(1000, 10000)
-    s"$randomNumber/submission/$randomNumber"
-  }
+class MonthlyReturnsSubmissionHelper {
 
-  def generateRandomNumber(from: Int, to: Int): String =
-    Random.between(from, to).toString
+  val disaMonthlyReturnsSubmissionService: MonthlyReturnsSubmissionService = new MonthlyReturnsSubmissionService
+
+  def postMonthlyReturns(
+    isaManagerReference: String,
+    returnId: String,
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
+    disaMonthlyReturnsSubmissionService.postMonthlyReturnsSubmission(isaManagerReference, returnId, headers)
 }

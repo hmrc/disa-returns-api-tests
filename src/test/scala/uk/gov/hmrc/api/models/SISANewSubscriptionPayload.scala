@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.utils
+package uk.gov.hmrc.api.models
 
-import scala.util.Random
+import play.api.libs.json.{Json, Writes}
 
-object RandomDataGenerator {
-  def nino(): String = {
-    val firstTwoLetters = "ABCEGHJKLMNPRSTWXYZ"
-    val letterPart      = Random.shuffle(firstTwoLetters.toList).take(2).mkString
-    val numberPart      = Random.nextInt(999999).toString.reverse.padTo(6, '0').reverse
-    val lastLetters     = "ABCD"
-    val lastLetterPart  = Random.shuffle(lastLetters.toList).take(1).mkString
-    s"$letterPart$numberPart$lastLetterPart"
-  }
+case class SISANewSubscriptionPayload(
+  accountNumber: String,
+  nino: String,
+  firstName: String,
+  middleName: String,
+  lastName: String,
+  dateOfBirth: String,
+  isaType: String,
+  reportingATransfer: Boolean,
+  dateOfLastSubscription: String,
+  totalCurrentYearSubscriptionsToDate: Double,
+  marketValueOfAccount: Double,
+  flexibleIsa: Boolean
+)
 
-  def generateSTDCode(): String = {
-    val number = Random.nextInt(999999) + 1
-    f"STD$number%06d"
-  }
+object SISANewSubscriptionPayload {
+  implicit val format: Writes[SISANewSubscriptionPayload] = Json.writes[SISANewSubscriptionPayload]
 }

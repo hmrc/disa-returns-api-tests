@@ -17,11 +17,11 @@
 package uk.gov.hmrc.api.helpers
 
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.service.DisaReturnService
+import uk.gov.hmrc.api.service.InitialiseReturnsSubmissionService
+class InitialiseReturnsSubmissionHelper {
 
-class DisaSubmissionHelper {
-
-  val disaSubmissionService: DisaReturnService = new DisaReturnService
+  val disaInitialiseReturnsSubmissionService: InitialiseReturnsSubmissionService =
+    new InitialiseReturnsSubmissionService
 
   def postInitialiseReturnsSubmissionApi(
     totalRecords: Int,
@@ -30,15 +30,11 @@ class DisaSubmissionHelper {
     isManagerReference: String,
     headers: Map[String, String]
   ): StandaloneWSResponse =
-    disaSubmissionService.postInitialiseReturnsSubmissionApi(
+    disaInitialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
       totalRecords,
       submissionPeriod,
       taxYear,
       isManagerReference,
       headers
     )
-
-  def postReturns(): StandaloneWSResponse =
-    disaSubmissionService.postReturns()
-
 }
