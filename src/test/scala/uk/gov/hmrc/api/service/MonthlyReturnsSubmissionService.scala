@@ -21,16 +21,14 @@ import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.models.*
-import uk.gov.hmrc.api.utils.{RandomDataGenerator, SubPathGenerator}
+import uk.gov.hmrc.api.utils.RandomDataGenerator
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class MonthlyReturnsSubmissionService extends HttpClient {
-  val disa_returns_host: String    = TestEnvironment.url("disa-returns")
-  val monthlyReturnSubPath: String = SubPathGenerator.generateReturnPath()
-  val monthlyReturnFilename        = "Submission1"
+  val disa_returns_host: String = TestEnvironment.url("disa-returns")
 
   def getLISANewSubscriptionPayload(
     nino: String,
@@ -179,7 +177,7 @@ class MonthlyReturnsSubmissionService extends HttpClient {
         .toString + "\n" + Json.toJson(lisaTransferPayload).toString + "\n" + Json
         .toJson(sisaNewSubscriptionPayload)
         .toString + "\n" + Json.toJson(sisaTransferPayload).toString + "\n"
-
+    println("--------" + "\n" + jsonString)
     Await.result(
       mkRequest(disa_returns_host + isaManagerReference + "/" + returnId)
         .withHttpHeaders(headers.toSeq: _*)

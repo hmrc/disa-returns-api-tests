@@ -19,43 +19,11 @@ package uk.gov.hmrc.api.utils
 import play.api.libs.json.*
 import play.api.libs.ws.StandaloneWSResponse
 
-import scala.io.Source
-
 object FileReader {
-
-  def readLines(fileName: String): Seq[String] = {
-    val source = Source.fromResource("NDJsons/request/" + fileName + ".txt")
-    try
-      source.getLines().toSeq
-    finally
-      source.close()
-  }
-
-  def loadJsonFromFile(fileName: String): String = {
-    val source = Source.fromResource("PPNSSubscription/" + fileName + ".json")
-    try source.getLines().mkString("\n")
-    finally source.close()
-  }
 
   def readString(response: StandaloneWSResponse, path: String*): String = {
     val body: String  = response.body
     val json: JsValue = Json.parse(body)
-    path
-      .foldLeft(Option(json)) {
-        case (Some(acc), key) => (acc \ key).toOption
-        case _                => None
-      }
-      .map {
-        case JsString(s)  => s
-        case JsNumber(n)  => n.toString()
-        case JsBoolean(b) => b.toString
-        case other        => other.toString
-      }
-      .getOrElse("")
-  }
-
-  def readString(response: String, path: String*): String = {
-    val json: JsValue = Json.parse(response)
     path
       .foldLeft(Option(json)) {
         case (Some(acc), key) => (acc \ key).toOption

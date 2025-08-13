@@ -49,7 +49,7 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
     assert(FileReader.readString(response, "action") != null, "Return Id is Null")
     assert(FileReader.readString(response, "boxId") != null, "Return Id is Null")
 
-    When("I submit monthly return submissions")
+    When("I submit monthly returns first submission")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
       monthlyReturnsSubmissionHelper.postMonthlyReturns(
         isaReferenceId,
@@ -58,6 +58,16 @@ class DisaSubmissionSpec extends BaseSpec, LazyLogging {
       )
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
+
+    When("I submit monthly return second submission")
+    val monthlyReturnsSubmissionResponse2: StandaloneWSResponse =
+      monthlyReturnsSubmissionHelper.postMonthlyReturns(
+        isaReferenceId,
+        returnId,
+        headersMapWithValidClientIDAndTokenWithoutContentType
+      )
+    Then("I got the status code 204")
+    monthlyReturnsSubmissionResponse2.status shouldBe 204
   }
 
   Scenario(
