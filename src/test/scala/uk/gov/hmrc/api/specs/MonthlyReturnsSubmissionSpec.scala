@@ -60,7 +60,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
-
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
 
@@ -80,11 +79,12 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"3. Verify 'Initialise returns submission' api response gives status code '400 - BAD_REQUEST' for an invalid payload (totalRecords negative number)"
+    s"3. Verify 'Monthly Returns Submission' API response gives status code '400 - BAD_REQUEST' for an invalid payload (totalRecords negative number)"
   ) {
     Given("I set the reporting windows as open")
     disaReturnsStubHelper.setReportingWindow(true)
 
+    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
