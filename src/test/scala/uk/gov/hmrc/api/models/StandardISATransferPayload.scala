@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.api.models
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, OFormat, Writes}
 
-case class SISANewSubscriptionPayload(
+case class StandardISATransferPayload(
   accountNumber: String,
   nino: String,
   firstName: String,
@@ -30,9 +30,11 @@ case class SISANewSubscriptionPayload(
   dateOfLastSubscription: String,
   totalCurrentYearSubscriptionsToDate: Double,
   marketValueOfAccount: Double,
+  accountNumberOfTransferringAccount: String,
+  amountTransferred: Double,
   flexibleIsa: Boolean
 )
 
-object SISANewSubscriptionPayload {
-  implicit val format: Writes[SISANewSubscriptionPayload] = Json.writes[SISANewSubscriptionPayload]
+object StandardISATransferPayload {
+  implicit val format: OFormat[StandardISATransferPayload] = Json.format[StandardISATransferPayload]
 }

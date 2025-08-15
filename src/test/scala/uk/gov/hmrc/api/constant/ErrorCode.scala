@@ -46,9 +46,15 @@ case object BadRequest extends ErrorCode {
   val message = "Bad request"
 }
 
-case object InvalidBearerToken extends ErrorCode {
+case object InvalidNdJsonPayload extends ErrorCode {
   val status  = 400
   val code    = "BAD_REQUEST"
+  val message = "ND Json payload is empty."
+}
+
+case object InvalidBearerToken extends ErrorCode {
+  val status  = 401
+  val code    = "UNAUTHORISED"
   val message = "Invalid bearer token"
 }
 

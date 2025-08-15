@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.api.models
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, OFormat, Writes}
 
-case class LISATransferAndClosurePayload(
+case class LifetimeISATransferAndClosurePayload(
   accountNumber: String,
   nino: String,
   firstName: String,
@@ -39,6 +39,6 @@ case class LISATransferAndClosurePayload(
   lisaBonusClaim: Double
 )
 
-object LISATransferAndClosurePayload {
-  implicit val format: Writes[LISATransferAndClosurePayload] = Json.writes[LISATransferAndClosurePayload]
+object LifetimeISATransferAndClosurePayload {
+  implicit val format: OFormat[LifetimeISATransferAndClosurePayload] = Json.format[LifetimeISATransferAndClosurePayload]
 }

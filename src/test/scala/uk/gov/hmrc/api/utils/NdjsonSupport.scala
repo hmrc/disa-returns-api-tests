@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.helpers
+package uk.gov.hmrc.api.utils
 
-import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.service.MonthlyReturnsSubmissionService
+import play.api.libs.json._
 
-class MonthlyReturnsSubmissionHelper {
+trait NdjsonSupport {
 
-  val disaMonthlyReturnsSubmissionService: MonthlyReturnsSubmissionService = new MonthlyReturnsSubmissionService
-
-  def postMonthlyReturns(
-    isaManagerReference: String,
-    returnId: String,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
-    disaMonthlyReturnsSubmissionService.postMonthlyReturnsSubmission(isaManagerReference, returnId, headers)
+  /** Create NDJSON from a sequence of JsValues */
+  def toNdjson(values: Seq[JsValue]): String =
+    values.map(_.toString).mkString("\n") + "\n"
 }

@@ -30,8 +30,8 @@ class PPNSService extends HttpClient {
   val api_subscription_fields_host: String = TestEnvironment.url("api-subscription-fields")
   val thirdPartyApplicationPath: String    = "/application"
   val ppnsPath: String                     = "/box"
-  val subscriptionPath                     = "/definition/context/disa-returns/version/1.0"
-  val subscriptionFieldPath                = "/field/application/clientId/context/disa-returns/version/1.0"
+  val subscriptionPath                     = "/definition/context/obligations/declaration/isa/return/version/1.0"
+  val subscriptionFieldPath                = "/field/application/clientId/context/obligations/declaration/isa/return/version/1.0"
   val clientApplicationPayload: String     = """{
                                        |  "name": "TEST APP",
                                        |  "access": {
