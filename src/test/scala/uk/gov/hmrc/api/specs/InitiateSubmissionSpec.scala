@@ -135,7 +135,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
 
     When("I execute 'Initialise returns submission' api with an invalid token")
     val initiateResponse: StandaloneWSResponse =
-      postInitiateReturnsSubmission(headers = headersMapWithIncorrectClientIdAndIncorrectToken)
+      postInitiateReturnsSubmission(headers = headersIncorrectBearerToken)
 
     Then("I got the status code 401 stating a bad request")
     initiateResponse.status shouldBe 401

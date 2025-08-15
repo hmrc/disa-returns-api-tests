@@ -79,7 +79,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"3. Verify 'Monthly Returns Submission' API response gives status code '400 - BAD_REQUEST' for an invalid payload (totalRecords negative number)"
+    s"3. Verify 'Monthly Returns Submission' API response gives status code '400 - BAD_REQUEST' for an empty request body"
   ) {
     Given("I set the reporting windows as open")
     disaReturnsStubHelper.setReportingWindow(true)
@@ -116,7 +116,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
-      postMonthlyReturnsSubmission(returnId = returnId, headers = headersMapWithIncorrectClientIdAndIncorrectToken)
+      postMonthlyReturnsSubmission(returnId = returnId, headers = headersIncorrectBearerToken)
 
     Then("I got the status code 401 & correct error response body")
     monthlyReturnsSubmissionResponse.status shouldBe 401

@@ -60,6 +60,12 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     "Authorization" -> authToken
   )
 
+  val headersIncorrectBearerToken: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> validClientId,
+    "Authorization" -> "BadAuthToken"
+  )
+
   def headersMapWithValidClientIDAndTokenWithoutContentType: Map[String, String] = Map(
     "X-Client-ID"   -> validClientId,
     "Authorization" -> authToken
