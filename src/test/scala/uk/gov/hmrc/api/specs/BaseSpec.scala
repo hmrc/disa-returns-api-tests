@@ -21,20 +21,19 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.*
-import uk.gov.hmrc.api.service.{InitialiseReturnsSubmissionService, MonthlyReturnsSubmissionService}
+import uk.gov.hmrc.api.service.{DisaReturnsStubService, InitialiseReturnsSubmissionService, MonthlyReturnsSubmissionService, PPNSService}
 import uk.gov.hmrc.api.utils.FileReader
 
 import java.time.LocalDate
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
   val authHelper                         = new AuthHelper
-  val initialiseReturnsSubmissionHelper  = new InitialiseReturnsSubmissionHelper
-  val disaReturnsStubHelper              = new DisaReturnsStubHelper
   val authToken: String                  = authHelper.getAuthBearerToken
-  val ppnsHelper                         = new PPNSHelper
+  val ppnsService                        = new PPNSService
   var validClientId: String              = _
-  val monthlyReturnsSubmissionService    = new MonthlyReturnsSubmissionService
+  val disaReturnsStubService             = new DisaReturnsStubService
   val initialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
+  val monthlyReturnsSubmissionService    = new MonthlyReturnsSubmissionService
 
   val currentYear: Int = LocalDate.now.getYear
   val isaReferenceId   = "Z451234"
@@ -42,11 +41,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   override def beforeAll(): Unit = {
     super.beforeAll()
     val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
+      ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
     validClientId = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    ppnsHelper.createNotificationBox(validClientId, notificationBoxHadersMap)
-    ppnsHelper.updateSubscriptionFields()
-    ppnsHelper.updateSubscriptionFieldValues(validClientId)
+    ppnsService.createNotificationBox(validClientId, notificationBoxHadersMap)
+    ppnsService.createSubscriptionField()
+    ppnsService.createSubscriptionFieldValues(validClientId)
   }
 
   val headersMap: Map[String, String] = Map(

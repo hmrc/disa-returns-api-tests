@@ -28,7 +28,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     s"1. Verify 'Monthly Returns Submission' API response gives status code 204 for a valid monthly report submission"
   ) {
     Given("I set the reporting windows as open")
-    disaReturnsStubHelper.setReportingWindow(true)
+    disaReturnsStubService.setReportingWindow(true)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -55,7 +55,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Monthly Returns Submission' API response gives status code 403 FORBIDDEN when reporting window is closed"
   ) {
     Given("I set the reporting windows as closed successfully")
-    disaReturnsStubHelper.setReportingWindow(true)
+    disaReturnsStubService.setReportingWindow(true)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -64,7 +64,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     val returnId             = (initiateResponseJson \ "returnId").as[String]
 
     Given("I set the reporting windows as closed")
-    disaReturnsStubHelper.setReportingWindow(false)
+    disaReturnsStubService.setReportingWindow(false)
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
@@ -82,7 +82,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     s"3. Verify 'Monthly Returns Submission' API response gives status code '400 - BAD_REQUEST' for an empty request body"
   ) {
     Given("I set the reporting windows as open")
-    disaReturnsStubHelper.setReportingWindow(true)
+    disaReturnsStubService.setReportingWindow(true)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -106,7 +106,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     s"4. Verify 'Monthly Returns Submission' API response gives status code '401 - UNAUTHORISED' error when an invalid bearer token is provided"
   ) {
     Given("I set the reporting windows as open")
-    disaReturnsStubHelper.setReportingWindow(true)
+    disaReturnsStubService.setReportingWindow(true)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
