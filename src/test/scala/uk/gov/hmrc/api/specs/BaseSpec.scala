@@ -20,25 +20,32 @@ import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.helpers.{AuthHelper, DisaReturnsStubHelper, DisaSubmissionHelper, PPNSHelper}
+import uk.gov.hmrc.api.helpers.*
+import uk.gov.hmrc.api.service.{DisaReturnsStubService, InitialiseReturnsSubmissionService, MonthlyReturnsSubmissionService, PPNSService}
 import uk.gov.hmrc.api.utils.FileReader
 
+import java.time.LocalDate
+
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
-  val authHelper            = new AuthHelper
-  val disaSubmissionHelper  = new DisaSubmissionHelper
-  val disaReturnsStubHelper = new DisaReturnsStubHelper
-  val authToken: String     = authHelper.getAuthBearerToken
-  val ppnsHelper            = new PPNSHelper
-  var validClientId: String = _
+  val authHelper                         = new AuthHelper
+  val authToken: String                  = authHelper.getAuthBearerToken
+  val ppnsService                        = new PPNSService
+  var validClientId: String              = _
+  val disaReturnsStubService             = new DisaReturnsStubService
+  val initialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
+  val monthlyReturnsSubmissionService    = new MonthlyReturnsSubmissionService
+
+  val currentYear: Int = LocalDate.now.getYear
+  val isaReferenceId   = "Z451234"
 
   override def beforeAll(): Unit = {
     super.beforeAll()
     val thirdPartyApplicationResponse: StandaloneWSResponse =
-      ppnsHelper.createClientApplication(thirdpartyApplicationHadersMap)
+      ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
     validClientId = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
-    ppnsHelper.createNotificationBox(validClientId, notificationBoxHadersMap)
-    ppnsHelper.updateSubscriptionFields()
-    ppnsHelper.updateSubscriptionFieldValues(validClientId)
+    ppnsService.createNotificationBox(validClientId, notificationBoxHadersMap)
+    ppnsService.createSubscriptionField()
+    ppnsService.createSubscriptionFieldValues(validClientId)
   }
 
   val headersMap: Map[String, String] = Map(
@@ -46,8 +53,19 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     "Authorization" -> authToken
   )
 
-  def headersMapWithValidClientIDAndToken: Map[String, String] = Map(
+  def validHeaders: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> validClientId,
+    "Authorization" -> authToken
+  )
+
+  val headersIncorrectBearerToken: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "X-Client-ID"   -> validClientId,
+    "Authorization" -> "BadAuthToken"
+  )
+
+  def headersMapWithValidClientIDAndTokenWithoutContentType: Map[String, String] = Map(
     "X-Client-ID"   -> validClientId,
     "Authorization" -> authToken
   )
