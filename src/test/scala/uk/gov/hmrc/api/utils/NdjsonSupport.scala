@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.helpers
+package uk.gov.hmrc.api.utils
 
-import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.service.DisaReturnsStubService
+import play.api.libs.json._
 
-class DisaReturnsStubHelper {
+trait NdjsonSupport {
 
-  val disaReturnsStubService: DisaReturnsStubService = new DisaReturnsStubService
-
-  def setReportingWindow(status: Boolean): StandaloneWSResponse =
-    disaReturnsStubService.setReportingWindow(status)
-
+  /** Create NDJSON from a sequence of JsValues */
+  def toNdjson(values: Seq[JsValue]): String =
+    values.map(_.toString).mkString("\n") + "\n"
 }
