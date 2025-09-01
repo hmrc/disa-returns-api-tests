@@ -35,7 +35,7 @@ class AuthService extends HttpClient {
     "confidenceLevel"    -> "50",
     "credentialStrength" -> "strong",
     "authorityId"        -> "",
-    "redirectionUrl"     -> "http://localhost:9949/auth-login-stub/session"
+    "redirectionUrl"     -> s"$host/auth-login-stub/session"
   )
 
   def callGGSignIn: StandaloneWSResponse =

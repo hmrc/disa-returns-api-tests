@@ -55,7 +55,7 @@ case object InvalidNdJsonPayload extends ErrorCode {
 case object InvalidBearerToken extends ErrorCode {
   val status  = 401
   val code    = "UNAUTHORISED"
-  val message = "Invalid bearer token"
+  val message = "Unauthorised"
 }
 
 case object Forbidden extends ErrorCode {
