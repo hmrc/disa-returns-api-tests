@@ -30,12 +30,14 @@ class MonthlyReturnsSubmissionService extends HttpClient {
     isaManagerReference: String,
     returnId: String,
     headers: Map[String, String],
-    ndString: String = ""
-  ): StandaloneWSResponse =
+    ndString: String
+  ): StandaloneWSResponse = {
+    println("------------------------------------------------------"+ndString)
     Await.result(
       mkRequest(disa_returns_host + isaManagerReference + "/" + returnId)
         .withHttpHeaders(headers.toSeq: _*)
         .post(ndString),
       10.seconds
     )
+  }
 }

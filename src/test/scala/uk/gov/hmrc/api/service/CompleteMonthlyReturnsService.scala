@@ -16,35 +16,26 @@
 
 package uk.gov.hmrc.api.service
 
-import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
-import uk.gov.hmrc.api.models.InitialiseReturnsSubmissionPayload
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class InitialiseReturnsSubmissionService extends HttpClient {
-  val disa_returns_host: String       = TestEnvironment.url("disa-returns")
-  val monthlyReturnHeaderPath: String = "/init"
+class CompleteMonthlyReturnsService extends HttpClient {
+  val disa_returns_host: String = TestEnvironment.url("disa-returns")
 
-  def postInitialiseReturnsSubmissionApi(
-    totalRecords: Int,
-    submissionPeriod: String,
-    taxYear: Int,
-    isManagerReference: String,
-    headers: Map[String, String]
+  def postCompleteMonthlyReturnsSubmission(
+    isaManagerReference: String,
+    returnId: String,
+    headers: Map[String, String],
   ): StandaloneWSResponse = {
-    val payload             = InitialiseReturnsSubmissionPayload(totalRecords, submissionPeriod, taxYear)
-    val jsonString: JsValue = Json.toJson(payload)
-    println("==========================================================="+jsonString)
-
     Await.result(
-      mkRequest(disa_returns_host + s"$isManagerReference" + monthlyReturnHeaderPath)
+      mkRequest(disa_returns_host + isaManagerReference + "/" + returnId + "/" + "complete")
         .withHttpHeaders(headers.toSeq: _*)
-        .post(jsonString),
+        .post(""),
       10.seconds
     )
   }

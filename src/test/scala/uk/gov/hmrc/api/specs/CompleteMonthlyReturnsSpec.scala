@@ -19,16 +19,18 @@ package uk.gov.hmrc.api.specs
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.*
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
-class FooterSpec extends BaseSpec, LazyLogging {
+class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
 
   Scenario(
-    s"1. Verify 'Monthly Returns Submission' API response gives status code 204 for a valid monthly report submission"
+    s"1. Verify that the API successfully locks further submissions for a given isaManagerReferenceNumber and returnId"
   ) {
     Given("I set the reporting windows as open")
     disaReturnsStubService.setReportingWindow(true)
+
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -49,40 +51,64 @@ class FooterSpec extends BaseSpec, LazyLogging {
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
+
+    When("I POST a second submission request to 'Complete Monthly Returns' API")
+    val footerReturnsSubmissionResponse: StandaloneWSResponse =
+      postCompleteMonthlyReturnsSubmission(returnId = returnId)
+
+    Then("I got the status code 400")
+    footerReturnsSubmissionResponse.status shouldBe 400
   }
 
   Scenario(
-    s"2. Verify 'Monthly Returns Submission' API response gives status code 403 FORBIDDEN when reporting window is closed"
+    s"2. Verify that after sending /complete, any further /submission requests for the same isaManagerReferenceNumber and returnId are rejected"
   ) {
-    Given("I set the reporting windows as closed successfully")
+    Given("I set the reporting windows as open")
     disaReturnsStubService.setReportingWindow(true)
+
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
-
-    Given("I set the reporting windows as closed")
-    disaReturnsStubService.setReportingWindow(false)
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
       postMonthlyReturnsSubmission(returnId = returnId)
 
-    Then("I got the status code 403 & correct error response body")
-    monthlyReturnsSubmissionResponse.status shouldBe 403
-    val submitResponseJson = Json.parse(monthlyReturnsSubmissionResponse.body)
-    (submitResponseJson \ "code").as[String]    shouldBe ReportingWindowClosed.code
-    (submitResponseJson \ "message").as[String] shouldBe ReportingWindowClosed.message
+    Then("I got the status code 204")
+    monthlyReturnsSubmissionResponse.status shouldBe 204
 
+    When("I POST a second submission request to 'Monthly Returns Submission' API")
+    val monthlyReturnsSubmissionResponse2: StandaloneWSResponse =
+      postMonthlyReturnsSubmission(returnId = returnId)
+
+    Then("I got the status code 204")
+    monthlyReturnsSubmissionResponse2.status shouldBe 204
+
+    When("I POST a submission request to 'Footer' API")
+    val footerReturnsSubmissionResponse: StandaloneWSResponse =
+      postCompleteMonthlyReturnsSubmission(returnId = returnId)
+
+    When("I POST a second submission request to 'Complete Monthly Returns' API")
+    val footerReturnsSubmissionResponse2: StandaloneWSResponse =
+      postCompleteMonthlyReturnsSubmission(returnId = returnId)
+
+    Then("I got the status code 400")
+    footerReturnsSubmissionResponse2.status shouldBe 400
   }
 
   Scenario(
-    s"3. Verify 'Monthly Returns Submission' API response gives status code '400 - BAD_REQUEST' for an empty request body"
+    s"3. Verify that the API successfully completion of monthly returns or a given valid isaManagerReferenceNumber and returnId"
   ) {
     Given("I set the reporting windows as open")
     disaReturnsStubService.setReportingWindow(true)
+
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -92,37 +118,17 @@ class FooterSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
-      postMonthlyReturnsSubmission(returnId = returnId, ndString = "")
+      postMonthlyReturnsSubmission(returnId = returnId)
 
-    Then("I got the status code 400 BAD_REQUEST & correct error response body")
-    monthlyReturnsSubmissionResponse.status shouldBe 400
+    Then("I got the status code 204")
+    monthlyReturnsSubmissionResponse.status shouldBe 204
 
-    val submitResponseJson = Json.parse(monthlyReturnsSubmissionResponse.body)
-    (submitResponseJson \ "code").as[String]    shouldBe InvalidNdJsonPayload.code
-    (submitResponseJson \ "message").as[String] shouldBe InvalidNdJsonPayload.message
-  }
+    When("I POST a second submission request to 'Footer' API")
+    val footerReturnsSubmissionResponse: StandaloneWSResponse =
+      postCompleteMonthlyReturnsSubmission(returnId = returnId)
 
-  Scenario(
-    s"4. Verify 'Monthly Returns Submission' API response gives status code '401 - UNAUTHORISED' error when an invalid bearer token is provided"
-  ) {
-    Given("I set the reporting windows as open")
-    disaReturnsStubService.setReportingWindow(true)
-
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
-    initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
-    val returnId             = (initiateResponseJson \ "returnId").as[String]
-
-    When("I POST a request 'Monthly Returns Submission' API")
-    val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
-      postMonthlyReturnsSubmission(returnId = returnId, headers = headersIncorrectBearerToken)
-
-    Then("I got the status code 401 & correct error response body")
-    monthlyReturnsSubmissionResponse.status shouldBe 401
-    val submitResponseJson = Json.parse(monthlyReturnsSubmissionResponse.body)
-    (submitResponseJson \ "code").as[String]    shouldBe InvalidBearerToken.code
-    (submitResponseJson \ "message").as[String] shouldBe InvalidBearerToken.message
+    Then("I got the status code 200")
+    footerReturnsSubmissionResponse.status shouldBe 200
   }
 
   def postMonthlyReturnsSubmission(
@@ -143,10 +149,21 @@ class FooterSpec extends BaseSpec, LazyLogging {
     headers: Map[String, String] = validHeaders
   ): StandaloneWSResponse =
     initialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords = 1000,
+      totalRecords = 6,
       submissionPeriod = "APR",
       taxYear = currentYear,
       isManagerReference = isaManagerReference,
+      headers = headers
+    )
+
+  def postCompleteMonthlyReturnsSubmission(
+    isaManagerReference: String = isaReferenceId,
+    returnId: String,
+    headers: Map[String, String] = headersMapWithoutClientIDButValidTokenWithoutContentType
+  ): StandaloneWSResponse =
+    footerReturnsSubmissionService.postCompleteMonthlyReturnsSubmission(
+      isaManagerReference = isaManagerReference,
+      returnId = returnId,
       headers = headers
     )
 }

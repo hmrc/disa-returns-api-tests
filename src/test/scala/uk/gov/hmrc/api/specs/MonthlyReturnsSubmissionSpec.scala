@@ -30,6 +30,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     Given("I set the reporting windows as open")
     disaReturnsStubService.setReportingWindow(true)
 
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
+
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
@@ -56,6 +59,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as closed successfully")
     disaReturnsStubService.setReportingWindow(true)
+
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -84,6 +90,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     Given("I set the reporting windows as open")
     disaReturnsStubService.setReportingWindow(true)
 
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
+
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
@@ -107,6 +116,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open")
     disaReturnsStubService.setReportingWindow(true)
+
+    When("I POST a request 'Open Obligation Window")
+    openObligationWindowService.setOpenObligationWindow()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()

@@ -24,19 +24,19 @@ import uk.gov.hmrc.apitestrunner.http.HttpClient
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class FooterService extends HttpClient {
-  val disa_returns_host: String = TestEnvironment.url("disa-returns")
+class OpenObligationWindowService extends HttpClient {
 
-  def postMonthlyReturnsSubmission(
-    isaManagerReference: String,
-    returnId: String,
-    headers: Map[String, String],
-    ndString: String = ""
-  ): StandaloneWSResponse =
+  val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stub")
+  val openObligationWindowPath: String    = "/etmp/open-obligation-status/Z451234"
+  //val openObligationWindowPath: String = TestEnvironment.url("disa-returns")
+
+  def setOpenObligationWindow(): StandaloneWSResponse = {
+
     Await.result(
-      mkRequest(disa_returns_host + isaManagerReference + "/" + returnId)
-        .withHttpHeaders(headers.toSeq: _*)
-        .post(ndString),
+      mkRequest(disa_returns_stub_host + openObligationWindowPath)
+        .withHttpHeaders("Content-Type" -> "application/json")
+        .post(""),
       10.seconds
     )
+  }
 }
