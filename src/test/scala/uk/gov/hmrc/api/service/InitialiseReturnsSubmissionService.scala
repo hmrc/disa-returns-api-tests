@@ -39,7 +39,7 @@ class InitialiseReturnsSubmissionService extends HttpClient {
   ): StandaloneWSResponse = {
     val payload             = InitialiseReturnsSubmissionPayload(totalRecords, submissionPeriod, taxYear)
     val jsonString: JsValue = Json.toJson(payload)
-    println("==========================================================="+jsonString)
+    println("===========================================================" + jsonString)
 
     Await.result(
       mkRequest(disa_returns_host + s"$isManagerReference" + monthlyReturnHeaderPath)

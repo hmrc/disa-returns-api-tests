@@ -26,17 +26,15 @@ import scala.concurrent.duration.*
 
 class OpenObligationWindowService extends HttpClient {
 
-  val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stub")
-  val openObligationWindowPath: String    = "/etmp/open-obligation-status/Z451234"
-  //val openObligationWindowPath: String = TestEnvironment.url("disa-returns")
+  val disa_returns_stub_host: String   = TestEnvironment.url("disa-returns-stub")
+  val openObligationWindowPath: String = "/etmp/open-obligation-status/Z451234"
+  // val openObligationWindowPath: String = TestEnvironment.url("disa-returns")
 
-  def setOpenObligationWindow(): StandaloneWSResponse = {
-
+  def setOpenObligationWindow(): StandaloneWSResponse =
     Await.result(
       mkRequest(disa_returns_stub_host + openObligationWindowPath)
         .withHttpHeaders("Content-Type" -> "application/json")
         .post(""),
       10.seconds
     )
-  }
 }

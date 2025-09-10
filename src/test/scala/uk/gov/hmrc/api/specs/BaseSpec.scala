@@ -21,7 +21,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.*
-import uk.gov.hmrc.api.service.{DisaReturnsStubService, CompleteMonthlyReturnsService, InitialiseReturnsSubmissionService, MonthlyReturnsSubmissionService, OpenObligationWindowService, PPNSService}
+import uk.gov.hmrc.api.service.{CompleteMonthlyReturnsService, DisaReturnsStubService, InitialiseReturnsSubmissionService, MonthlyReturnsSubmissionService, OpenObligationWindowService, PPNSService}
 import uk.gov.hmrc.api.utils.FileReader
 
 import java.time.LocalDate
@@ -36,7 +36,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val monthlyReturnsSubmissionService    = new MonthlyReturnsSubmissionService
   val openObligationWindowService        = new OpenObligationWindowService
   val footerReturnsSubmissionService     = new CompleteMonthlyReturnsService
-  
+
   val currentYear: Int = LocalDate.now.getYear
   val isaReferenceId   = "Z451234"
 

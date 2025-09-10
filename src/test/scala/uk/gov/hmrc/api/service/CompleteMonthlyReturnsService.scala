@@ -30,13 +30,12 @@ class CompleteMonthlyReturnsService extends HttpClient {
   def postCompleteMonthlyReturnsSubmission(
     isaManagerReference: String,
     returnId: String,
-    headers: Map[String, String],
-  ): StandaloneWSResponse = {
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
     Await.result(
       mkRequest(disa_returns_host + isaManagerReference + "/" + returnId + "/" + "complete")
         .withHttpHeaders(headers.toSeq: _*)
         .post(""),
       10.seconds
     )
-  }
 }
