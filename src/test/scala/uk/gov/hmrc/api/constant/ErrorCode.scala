@@ -55,11 +55,17 @@ case object InvalidNdJsonPayload extends ErrorCode {
 case object InvalidBearerToken extends ErrorCode {
   val status  = 401
   val code    = "UNAUTHORISED"
-  val message = "Invalid bearer token"
+  val message = "Unauthorised"
 }
 
 case object Forbidden extends ErrorCode {
   val status  = 403
   val code    = "FORBIDDEN"
   val message = "Multiple issues found regarding your submission"
+}
+
+case object MismatchRecordCount extends ErrorCode {
+  val status  = 400
+  val code    = "MISMATCH_EXPECTED_VS_RECEIVED"
+  val message = "Number of records declared in the header does not match the number submitted."
 }

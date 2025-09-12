@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.api.service
 
-import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
+import play.api.libs.ws.DefaultBodyWritables.*
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
@@ -26,8 +26,10 @@ import scala.concurrent.duration.*
 
 class DisaReturnsStubService extends HttpClient {
 
-  val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stub")
-  val reportingWindowPath: String    = "/test-only/setup-obligation-window"
+  val disa_returns_stub_host: String       = TestEnvironment.url("disa-returns-stub")
+  val reportingWindowPath: String          = "/test-only/setup-obligation-window"
+  val obligationStatusFalseUrlPath: String = "/etmp/open-obligation-status/"
+  val obligationStatusTrueUrlPath: String  = "/etmp/close-obligation-status/"
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
     val payload =
@@ -43,4 +45,18 @@ class DisaReturnsStubService extends HttpClient {
       10.seconds
     )
   }
+
+  def setNoObligation(isaReference: String): StandaloneWSResponse =
+    Await.result(
+      mkRequest(disa_returns_stub_host + obligationStatusFalseUrlPath + isaReference)
+        .post(""),
+      10.seconds
+    )
+
+  def setObligationStatusTrue(isaReference: String): StandaloneWSResponse =
+    Await.result(
+      mkRequest(disa_returns_stub_host + obligationStatusTrueUrlPath + isaReference)
+        .post(""),
+      10.seconds
+    )
 }

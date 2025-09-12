@@ -26,8 +26,9 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"1. Verify 'Initiate Returns Submission' API response gives status code 200 when obligation has not been met and reporting window is open"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.setNoObligation(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -44,11 +45,12 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"2. Verify 'Initiate Returns Submission' API response gives status code 403 when obligation has been met and reporting window is open"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when obligation has met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.setObligationStatusTrue(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaManagerReference = "Z1111")
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReferenceId)
 
     Then("I got the status code 403 with the correct obligation closed error response body")
     initiateResponse.status shouldBe 403
@@ -60,8 +62,9 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"3. Verify 'Initiate Returns Submission' API response gives status code 403 when no obligation has met and reporting window is closed"
   ) {
-    Given("I set the reporting windows as closed")
+    Given("I set the reporting windows as closed and when no obligation has met")
     disaReturnsStubService.setReportingWindow(false)
+    disaReturnsStubService.setNoObligation(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -76,11 +79,12 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"4. Verify 'Initiate Returns Submission' API response gives status code 403 when obligation has been met and reporting window is closed"
   ) {
-    Given("I set the reporting windows as closed")
+    Given("I set the reporting windows as closed and when obligation has been met")
     disaReturnsStubService.setReportingWindow(false)
+    disaReturnsStubService.setObligationStatusTrue(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaManagerReference = "Z1111")
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReferenceId)
 
     Then("I got the status code 403 stating that the obligation and reporting window is failed")
     initiateResponse.status shouldBe 403
@@ -97,8 +101,9 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"5. Verify 'Initiate Returns Submission' API response gives status code 500 for an internal server error correctly when etmp returns downstream error"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has been met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.setNoObligation(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse =
@@ -114,8 +119,9 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"6. Verify 'Initiate Returns Submission' API response gives status code '400 - bad request' for an invalid payload (invalid totalRecords)"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has been met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.setNoObligation(isaReferenceId)
 
     When("I execute 'Initialise returns submission' api with an invalid no of totalRecords")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(totalRecords = -1)
@@ -130,8 +136,9 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"8. Verify 'Initialise returns submission' api response gives status code '401 - invalid bearer token' error when an invalid bearer token used"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has been met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.setNoObligation(isaReferenceId)
 
     When("I execute 'Initialise returns submission' api with an invalid token")
     val initiateResponse: StandaloneWSResponse =
