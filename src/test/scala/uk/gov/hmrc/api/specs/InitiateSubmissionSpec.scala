@@ -28,7 +28,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -47,7 +47,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setObligationStatusTrue(isaReferenceId)
+    disaReturnsStubService.closeObligationStatus(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReferenceId)
@@ -64,7 +64,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as closed and when no obligation has met")
     disaReturnsStubService.setReportingWindow(false)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -81,7 +81,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as closed and when obligation has been met")
     disaReturnsStubService.setReportingWindow(false)
-    disaReturnsStubService.setObligationStatusTrue(isaReferenceId)
+    disaReturnsStubService.closeObligationStatus(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReferenceId)
@@ -103,7 +103,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has been met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I execute 'Initiate Returns Submission' API")
     val initiateResponse: StandaloneWSResponse =
@@ -121,7 +121,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has been met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I execute 'Initialise returns submission' api with an invalid no of totalRecords")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(totalRecords = -1)
@@ -138,7 +138,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has been met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I execute 'Initialise returns submission' api with an invalid token")
     val initiateResponse: StandaloneWSResponse =

@@ -29,7 +29,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -57,7 +57,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -85,7 +85,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -110,7 +110,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()

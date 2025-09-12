@@ -46,14 +46,14 @@ class DisaReturnsStubService extends HttpClient {
     )
   }
 
-  def setNoObligation(isaReference: String): StandaloneWSResponse =
+  def openObligationStatus(isaReference: String): StandaloneWSResponse =
     Await.result(
       mkRequest(disa_returns_stub_host + obligationStatusFalseUrlPath + isaReference)
         .post(""),
       10.seconds
     )
 
-  def setObligationStatusTrue(isaReference: String): StandaloneWSResponse =
+  def closeObligationStatus(isaReference: String): StandaloneWSResponse =
     Await.result(
       mkRequest(disa_returns_stub_host + obligationStatusTrueUrlPath + isaReference)
         .post(""),

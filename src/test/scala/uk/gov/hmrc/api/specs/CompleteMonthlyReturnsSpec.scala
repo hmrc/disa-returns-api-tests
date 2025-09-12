@@ -28,7 +28,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse = postInitiateReturnsSubmission()
@@ -56,15 +56,14 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse.status shouldBe 200
-
   }
 
   Scenario(
-    s"2. Verify 'Complete Monthly Returns' API response gives status code 400 for an incorrect 'Initiate Returns' totalRecords count"
+    s"2. Verify 'Complete Monthly Returns' API response gives status code 400 BadRequest Mismatch when the number of records declared in the header does not match the number submitted"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse = postInitiateReturnsSubmission()
@@ -91,11 +90,11 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"3. Verify 'Complete Monthly Returns' API response gives status code 403 when when user tries to resend the same 'Complete Monthly Returns' API"
+    s"3. Verify 'Complete Monthly Returns' API response gives status code 403 Obligation closed when the user tries to resend the same 'Complete Monthly Returns' API"
   ) {
     Given("I set the reporting windows as open and when obligation has not met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse = postInitiateReturnsSubmission()
@@ -138,7 +137,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.setNoObligation(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse = postInitiateReturnsSubmission()
@@ -153,16 +152,9 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
-    When("I POST a second submission request to 'Monthly Returns Submission' API")
-    val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(returnId = returnId)
-
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse2.status shouldBe 204
-
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturnsWithoutAuthentication(returnId = returnId)
+      postCompleteMonthlyReturns(returnId = returnId, headers = Map.empty)
 
     Then("I got the status code 401")
     completeMonthlyReturnsResponse.status shouldBe 401
@@ -197,17 +189,6 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
   def postCompleteMonthlyReturns(
     isaManagerReference: String = isaReferenceId,
     headers: Map[String, String] = validHeadersOnlyWithToken,
-    returnId: String
-  ): StandaloneWSResponse =
-    completeMonthlyReturnsService.postCompleteMonthlyReturns(
-      isaManagerReference = isaManagerReference,
-      returnId = returnId,
-      headers = headers
-    )
-
-  def postCompleteMonthlyReturnsWithoutAuthentication(
-    isaManagerReference: String = isaReferenceId,
-    headers: Map[String, String] = validHeadersWithInvalidToken,
     returnId: String
   ): StandaloneWSResponse =
     completeMonthlyReturnsService.postCompleteMonthlyReturns(
