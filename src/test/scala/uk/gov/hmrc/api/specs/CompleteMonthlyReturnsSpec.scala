@@ -24,26 +24,26 @@ import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
   Scenario(
-    s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid Monthly Returns submission"
+    s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid complete monthly returns submission"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReferenceId)
 
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
+    When("I POST a request 'Initiate Returns Submission' API to get a returnId for 12 totalRecords")
     val initiateResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
 
-    When("I POST a request 'Monthly Returns Submission' API")
+    When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
     val monthlyReturnsSubmissionResponse =
       postMonthlyReturnsSubmission(returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
-    When("I POST a second submission request to 'Monthly Returns Submission' API")
+    When("I POST a second submission request to 'Monthly Returns Submission' API for the rest of 6 totalRecords")
     val monthlyReturnsSubmissionResponse2 =
       postMonthlyReturnsSubmission(returnId = returnId)
 
