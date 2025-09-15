@@ -21,7 +21,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.*
-import uk.gov.hmrc.api.service.{DisaReturnsStubService, InitialiseReturnsSubmissionService, MonthlyReturnsSubmissionService, PPNSService}
+import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.utils.FileReader
 
 import java.time.LocalDate
@@ -34,9 +34,10 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val disaReturnsStubService             = new DisaReturnsStubService
   val initialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
   val monthlyReturnsSubmissionService    = new MonthlyReturnsSubmissionService
+  val completeMonthlyReturnsService      = new CompleteMonthlyReturns
 
   val currentYear: Int = LocalDate.now.getYear
-  val isaReferenceId   = "Z451234"
+  val isaReferenceId   = "Z4512"
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -57,6 +58,16 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     "Content-Type"  -> "application/json",
     "X-Client-ID"   -> validClientId,
     "Authorization" -> authToken
+  )
+
+  def validHeadersOnlyWithToken: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "Authorization" -> authToken
+  )
+
+  def validHeadersWithInvalidToken: Map[String, String] = Map(
+    "Content-Type"  -> "application/json",
+    "Authorization" -> "authToken"
   )
 
   val headersIncorrectBearerToken: Map[String, String] = Map(

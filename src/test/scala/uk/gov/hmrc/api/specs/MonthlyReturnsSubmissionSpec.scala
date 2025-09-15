@@ -27,8 +27,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"1. Verify 'Monthly Returns Submission' API response gives status code 204 for a valid monthly report submission"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -54,8 +55,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"2. Verify 'Monthly Returns Submission' API response gives status code 403 FORBIDDEN when reporting window is closed"
   ) {
-    Given("I set the reporting windows as closed successfully")
+    Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -81,8 +83,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"3. Verify 'Monthly Returns Submission' API response gives status code '400 - BAD_REQUEST' for an empty request body"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
@@ -105,8 +108,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"4. Verify 'Monthly Returns Submission' API response gives status code '401 - UNAUTHORISED' error when an invalid bearer token is provided"
   ) {
-    Given("I set the reporting windows as open")
+    Given("I set the reporting windows as open and when no obligation has met")
     disaReturnsStubService.setReportingWindow(true)
+    disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
