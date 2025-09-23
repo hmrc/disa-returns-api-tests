@@ -27,8 +27,8 @@ import scala.concurrent.duration.*
 class DisaReturnsStubService extends HttpClient {
 
   val disa_returns_stub_host: String       = TestEnvironment.url("disa-returns-stub")
-  val reportingWindowPath: String          = "/test-only/setup-obligation-window"
-  val obligationStatusFalseUrlPath: String = "/etmp/open-obligation-status/"
+  val reportingWindowPath: String          = "/test-only/etmp/reporting-window-state"
+  val obligationStatusFalseUrlPath: String = "/test-only/etmp/open-obligation-status/"
   val obligationStatusTrueUrlPath: String  = "/etmp/close-obligation-status/"
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
