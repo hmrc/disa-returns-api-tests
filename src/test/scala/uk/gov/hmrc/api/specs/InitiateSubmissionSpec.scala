@@ -20,6 +20,7 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.*
+import uk.gov.hmrc.api.utils.BaseSpec
 
 class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
 
@@ -151,18 +152,4 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     (json \ "message").as[String] shouldBe InvalidBearerToken.message
   }
 
-  def postInitiateReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
-    headers: Map[String, String] = validHeaders,
-    totalRecords: Int = 1000,
-    taxYear: Int = currentYear,
-    submissionPeriod: String = "APR"
-  ): StandaloneWSResponse =
-    initialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords = totalRecords,
-      submissionPeriod = submissionPeriod,
-      taxYear = taxYear,
-      isManagerReference = isaManagerReference,
-      headers = headers
-    )
 }
