@@ -43,7 +43,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     super.beforeAll()
     val thirdPartyApplicationResponse: StandaloneWSResponse =
       ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
-    validClientId = FileReader.readString(thirdPartyApplicationResponse, "details", "clientId")
+    validClientId = FileReader.readString(thirdPartyApplicationResponse, "clientId")
     ppnsService.createNotificationBox(validClientId, notificationBoxHadersMap)
     ppnsService.createSubscriptionField()
     ppnsService.createSubscriptionFieldValues(validClientId)

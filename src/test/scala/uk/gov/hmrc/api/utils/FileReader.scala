@@ -21,20 +21,13 @@ import play.api.libs.ws.StandaloneWSResponse
 
 object FileReader {
 
-  def readString(response: StandaloneWSResponse, path: String*): String = {
+  def readString(response: StandaloneWSResponse, path: String): String = {
     val body: String  = response.body
     val json: JsValue = Json.parse(body)
-    path
-      .foldLeft(Option(json)) {
-        case (Some(acc), key) => (acc \ key).toOption
-        case _                => None
-      }
-      .map {
-        case JsString(s)  => s
-        case JsNumber(n)  => n.toString()
-        case JsBoolean(b) => b.toString
-        case other        => other.toString
-      }
-      .getOrElse("")
+
+    json.validate[String]((__ \\ path).read[String]) match {
+      case JsSuccess(value, _) => value
+      case JsError(errors)     => throw new NoSuchElementException(errors.toString())
+    }
   }
 }
