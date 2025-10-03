@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.*
-import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
+import uk.gov.hmrc.api.utils.BaseSpec
 
 class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
@@ -128,29 +128,4 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     (submitResponseJson \ "code").as[String]    shouldBe InvalidBearerToken.code
     (submitResponseJson \ "message").as[String] shouldBe InvalidBearerToken.message
   }
-
-  def postMonthlyReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
-    returnId: String,
-    headers: Map[String, String] = validHeaders,
-    ndString: String = validNdjsonTestData()
-  ): StandaloneWSResponse =
-    monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
-      isaManagerReference = isaManagerReference,
-      returnId = returnId,
-      headers = headers,
-      ndString = ndString
-    )
-
-  def postInitiateReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
-    headers: Map[String, String] = validHeaders
-  ): StandaloneWSResponse =
-    initialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords = 1000,
-      submissionPeriod = "APR",
-      taxYear = currentYear,
-      isManagerReference = isaManagerReference,
-      headers = headers
-    )
 }

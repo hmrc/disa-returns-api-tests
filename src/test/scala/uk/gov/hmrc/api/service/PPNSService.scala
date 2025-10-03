@@ -30,9 +30,10 @@ class PPNSService extends HttpClient {
   val api_subscription_fields_host: String = TestEnvironment.url("api-subscription-fields")
   val thirdPartyApplicationPath: String    = "/application"
   val ppnsPath: String                     = "/box"
-  val subscriptionPath                     = "/definition/context/obligations/declaration/isa/return/version/1.0"
-  val subscriptionFieldPath                = "/field/application/clientId/context/obligations/declaration/isa/return/version/1.0"
-  val clientApplicationPayload: String     = """{
+
+  val subscriptionPath                 = "/definition/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0"
+  val subscriptionFieldPath            = "/field/application/clientId/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0"
+  val clientApplicationPayload: String = """{
                                        |  "name": "TEST APP",
                                        |  "access": {
                                        |    "accessType": "STANDARD",
@@ -49,11 +50,12 @@ class PPNSService extends HttpClient {
                                        |  ]
                                        |}""".stripMargin
 
-  val notificationBoxPayload: String         = """{
+  val notificationBoxPayload: String = """{
                                      |  "boxName": "obligations/declaration/isa/return##1.0##callbackUrl",
                                      |  "clientId": "clientIdNumber"
                                      |}""".stripMargin
-  val subscriptionFieldsPayload: String      = """{
+
+  val subscriptionFieldsPayload: String = """{
                                     |  "fieldDefinitions": [
                                     |    {
                                     |      "name": "callbackUrl",
@@ -72,6 +74,7 @@ class PPNSService extends HttpClient {
                                     |    }
                                     |  ]
                                     |}""".stripMargin
+
   val subscriptionFieldValuesPayload: String = """{
                                          |  "fields": {
                                          |    "callbackUrl": "http://localhost:10202/push-pull-notification-receiver-stub/notifications"
@@ -105,7 +108,7 @@ class PPNSService extends HttpClient {
       10.seconds
     )
 
-  def createSubscriptionFieldValues(clientId: String): StandaloneWSResponse = {
+  def createSubscriptionFieldValues(clientId: String): StandaloneWSResponse =
     val path = subscriptionFieldPath.replace("clientId", clientId)
     Await.result(
       mkRequest(api_subscription_fields_host + path)
@@ -113,5 +116,4 @@ class PPNSService extends HttpClient {
         .put(subscriptionFieldValuesPayload),
       10.seconds
     )
-  }
 }

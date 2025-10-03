@@ -20,9 +20,10 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.MismatchRecordCount
-import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
+import uk.gov.hmrc.api.utils.BaseSpec
 
 class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
+
   Scenario(
     s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid complete monthly returns submission"
   ) {
@@ -31,7 +32,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId for 12 totalRecords")
-    val initiateResponse = postInitiateReturnsSubmission()
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
@@ -66,7 +67,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val initiateResponse = postInitiateReturnsSubmission()
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
@@ -97,10 +98,10 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     disaReturnsStubService.openObligationStatus(isaReferenceId)
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val initiateResponse = postInitiateReturnsSubmission()
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
     initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
-    val returnId             = (initiateResponseJson \ "returnId").as[String]
+    val initiateResponseJson: JsValue = Json.parse(initiateResponse.body)
+    val returnId                      = (initiateResponseJson \ "returnId").as[String]
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
@@ -160,40 +161,4 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     completeMonthlyReturnsResponse.status shouldBe 401
 
   }
-
-  def postMonthlyReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
-    returnId: String,
-    headers: Map[String, String] = validHeaders,
-    ndString: String = validNdjsonTestData()
-  ): StandaloneWSResponse =
-    monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
-      isaManagerReference = isaManagerReference,
-      returnId = returnId,
-      headers = headers,
-      ndString = ndString
-    )
-
-  def postInitiateReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
-    headers: Map[String, String] = validHeaders
-  ): StandaloneWSResponse =
-    initialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords = 12,
-      submissionPeriod = "APR",
-      taxYear = currentYear,
-      isManagerReference = isaManagerReference,
-      headers = headers
-    )
-
-  def postCompleteMonthlyReturns(
-    isaManagerReference: String = isaReferenceId,
-    headers: Map[String, String] = validHeadersOnlyWithToken,
-    returnId: String
-  ): StandaloneWSResponse =
-    completeMonthlyReturnsService.postCompleteMonthlyReturns(
-      isaManagerReference = isaManagerReference,
-      returnId = returnId,
-      headers = headers
-    )
 }
