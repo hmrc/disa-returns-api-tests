@@ -48,7 +48,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
     withClue("Setup step failed: Create Client Application → ") {
       val thirdPartyApplicationResponse =
-        ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
+        ppnsService.createClientApplication(thirdPartyApplicationHeadersMap)
       thirdPartyApplicationResponse.status should (be(201) or be(200))
 
       val jsonTry = Try(Json.parse(thirdPartyApplicationResponse.body))
@@ -63,7 +63,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
     val setupSteps: Seq[(String, () => Any)] = Seq(
       "Create Notification Box"          -> (() => {
-        val res = ppnsService.createNotificationBox(clientId, notificationBoxHadersMap)
+        val res = ppnsService.createNotificationBox(clientId, notificationBoxHeadersMap)
         res.status shouldBe 201
       }),
       "Create Subscription Field"        -> (() => {
@@ -104,12 +104,12 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     "Authorization" -> authToken
   )
 
-  val thirdpartyApplicationHadersMap: Map[String, String] = Map(
+  val thirdPartyApplicationHeadersMap: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
     "Authorization" -> authToken
   )
 
-  val notificationBoxHadersMap: Map[String, String] = Map(
+  val notificationBoxHeadersMap: Map[String, String] = Map(
     "Content-Type"  -> "application/json",
     "Authorization" -> authToken,
     "User-Agent"    -> "disa-returns"
