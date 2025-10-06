@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.api.utils
 
-import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
@@ -29,6 +28,7 @@ import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
+import scala.util.Try
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
   val authHelper: AuthHelper                                                 = new AuthHelper
@@ -51,8 +51,14 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
         ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
       thirdPartyApplicationResponse.status should (be(201) or be(200))
 
-      val json = Json.parse(thirdPartyApplicationResponse.body)
-      clientId = (json \ "details" \ "token" \ "clientId").as[String]
+      val jsonTry = Try(Json.parse(thirdPartyApplicationResponse.body))
+      jsonTry.fold(
+        _ => fail("Response body was not valid JSON."),
+        json =>
+          clientId = (json \ "details" \ "token" \ "clientId").asOpt[String].getOrElse {
+            fail("Could not extract clientId from response JSON.")
+          }
+      )
     }
 
     val setupSteps: Seq[(String, () => Any)] = Seq(
