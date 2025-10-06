@@ -2,7 +2,7 @@
 
 # disa-returns-api-tests
 
-<SERVICE_NAME> API tests.
+API tests pack for disa-returns API.
 
 ## Pre-requisites
 

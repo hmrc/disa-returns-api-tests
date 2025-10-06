@@ -26,10 +26,10 @@ import scala.concurrent.duration.*
 
 class DisaReturnsStubService extends HttpClient {
 
-  val disa_returns_stub_host: String       = TestEnvironment.url("disa-returns-stub")
-  val reportingWindowPath: String          = "/test-only/etmp/reporting-window-state"
-  val obligationStatusFalseUrlPath: String = "/test-only/etmp/open-obligation-status/"
-  val obligationStatusTrueUrlPath: String  = "/etmp/close-obligation-status/"
+  val disa_returns_stub_host: String    = TestEnvironment.url("disa-returns-stub")
+  val reportingWindowPath: String       = "/test-only/etmp/reporting-window-state"
+  val openObligationStatusPath: String  = "/test-only/etmp/open-obligation-status/"
+  val closeObligationStatusPath: String = "/etmp/close-obligation-status/"
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
     val payload =
@@ -48,14 +48,14 @@ class DisaReturnsStubService extends HttpClient {
 
   def openObligationStatus(isaReference: String): StandaloneWSResponse =
     Await.result(
-      mkRequest(disa_returns_stub_host + obligationStatusFalseUrlPath + isaReference)
+      mkRequest(disa_returns_stub_host + openObligationStatusPath + isaReference)
         .post(""),
       10.seconds
     )
 
   def closeObligationStatus(isaReference: String): StandaloneWSResponse =
     Await.result(
-      mkRequest(disa_returns_stub_host + obligationStatusTrueUrlPath + isaReference)
+      mkRequest(disa_returns_stub_host + closeObligationStatusPath + isaReference)
         .post(""),
       10.seconds
     )
