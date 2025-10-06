@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.api.utils
 
+import com.typesafe.scalalogging.{LazyLogging, Logger}
+import play.api.*
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
@@ -28,7 +30,7 @@ import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
+trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with LazyLogging {
   val authHelper: AuthHelper                                                 = new AuthHelper
   val authToken: String                                                      = authHelper.getAuthBearerToken
   val ppnsService: PPNSService                                               = new PPNSService
@@ -43,13 +45,33 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    val thirdPartyApplicationResponse: StandaloneWSResponse =
+
+    val thirdPartyApplicationResponse =
       ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
-    val json: JsValue                                       = Json.parse(thirdPartyApplicationResponse.body)
+    thirdPartyApplicationResponse.status shouldBe 201
+
+    val json = Json.parse(thirdPartyApplicationResponse.body)
     clientId = (json \ "details" \ "token" \ "clientId").as[String]
-    ppnsService.createNotificationBox(clientId, notificationBoxHadersMap).status shouldBe 201
-    ppnsService.createSubscriptionField()
-    ppnsService.createSubscriptionFieldValues(clientId).status                   shouldBe 201
+
+    val setupSteps: Seq[(String, () => Any)] = Seq(
+      "Create Notification Box"          -> (() => {
+        val res = ppnsService.createNotificationBox(clientId, notificationBoxHadersMap)
+        res.status shouldBe 201
+      }),
+      "Create Subscription Field"        -> (() => {
+        val res = ppnsService.createSubscriptionField()
+        res.status shouldBe 200
+      }),
+      "Create Subscription Field Values" -> (() => {
+        val res = ppnsService.createSubscriptionFieldValues(clientId)
+        res.status shouldBe 201
+      })
+    )
+    setupSteps.foreach { case (name, action) =>
+      withClue(s"Setup step failed: $name → ") {
+        action()
+      }
+    }
   }
 
   def validHeaders: Map[String, String] = Map(
