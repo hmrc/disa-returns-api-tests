@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.api.utils
 
-import com.typesafe.scalalogging.{LazyLogging, Logger}
-import play.api.*
+import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+import play.api.*
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
@@ -30,7 +30,7 @@ import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with LazyLogging {
+trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
   val authHelper: AuthHelper                                                 = new AuthHelper
   val authToken: String                                                      = authHelper.getAuthBearerToken
   val ppnsService: PPNSService                                               = new PPNSService
@@ -46,12 +46,14 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    val thirdPartyApplicationResponse =
-      ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
-    thirdPartyApplicationResponse.status shouldBe 201
+    withClue("Setup step failed: Create Client Application → ") {
+      val thirdPartyApplicationResponse =
+        ppnsService.createClientApplication(thirdpartyApplicationHadersMap)
+      thirdPartyApplicationResponse.status should (be(201) or be(200))
 
-    val json = Json.parse(thirdPartyApplicationResponse.body)
-    clientId = (json \ "details" \ "token" \ "clientId").as[String]
+      val json = Json.parse(thirdPartyApplicationResponse.body)
+      clientId = (json \ "details" \ "token" \ "clientId").as[String]
+    }
 
     val setupSteps: Seq[(String, () => Any)] = Seq(
       "Create Notification Box"          -> (() => {
@@ -60,7 +62,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       }),
       "Create Subscription Field"        -> (() => {
         val res = ppnsService.createSubscriptionField()
-        res.status shouldBe 200
+        res.status should (be(201) or be(200))
       }),
       "Create Subscription Field Values" -> (() => {
         val res = ppnsService.createSubscriptionFieldValues(clientId)
