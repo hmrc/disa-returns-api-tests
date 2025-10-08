@@ -39,6 +39,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val initialiseReturnsSubmissionService: InitialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
   val monthlyReturnsSubmissionService: MonthlyReturnsSubmissionService       = new MonthlyReturnsSubmissionService
   val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
+  val reportingService: ReportingService                                     = new ReportingService
 
   val currentYear: Int       = LocalDate.now.getYear
   val isaReferenceId: String = "Z4512"
