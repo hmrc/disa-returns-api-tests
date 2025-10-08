@@ -24,15 +24,15 @@ import uk.gov.hmrc.apitestrunner.http.HttpClient
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class ReportingService extends HttpClient {
+class ReconciliationReportService extends HttpClient {
   val disa_returns_host: String              = TestEnvironment.url("disa-returns")
-  val disa_returns_test_support_host: String = TestEnvironment.url("disa-returns-test-support-stub")
+  val disa_returns_test_support_host: String = TestEnvironment.url("disa-returns-test-support-api")
   val callBackendPointPath: String           = "/callback/monthly/"
   val disa_returns_route: String             = "/monthly/"
   val reportingResultsSummaryPath: String    = "/results/summary"
   val testSupportPath: String                = "/reconciliation"
 
-  def receiveSummaryAndSaveUsingCallbackApi(
+  def makeReturnSummaryCallback(
     isaManagerReference: String,
     period: String,
     month: String,
@@ -52,18 +52,19 @@ class ReportingService extends HttpClient {
     )
   }
 
-  def receiveSummaryAndSaveUsingTestSupportApi(
+  def triggerReportReadyScenario(
     isaManagerReference: String,
     period: String,
     month: String,
+    numbers: Array[Int],
     headers: Map[String, String]
   ): StandaloneWSResponse = {
     val payload =
       s"""
          {
-         |    "oversubscribed": 1,
-         |    "traceAndMatch": 2,
-         |    "failedEligibility": 3
+         |    "oversubscribed": ${numbers(0)},
+         |    "traceAndMatch": ${numbers(1)},
+         |    "failedEligibility": ${numbers(2)}
          |}""".stripMargin
     Await.result(
       mkRequest(

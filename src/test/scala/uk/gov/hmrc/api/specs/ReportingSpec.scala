@@ -28,7 +28,7 @@ class ReportingSpec extends BaseSpec, LazyLogging {
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
     val receivedSummaryResponse: StandaloneWSResponse =
-      reportingService.receiveSummaryAndSaveUsingCallbackApi(
+      reportingService.makeReturnSummaryCallback(
         isaReferenceId,
         "2025-26",
         "FEB",
@@ -42,7 +42,7 @@ class ReportingSpec extends BaseSpec, LazyLogging {
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
       reportingService.getReportingResultsSummary(isaReferenceId, "2025-26", "FEB", validHeadersOnlyWithToken)
 
-    Then("I got the status code 204")
+    Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
@@ -56,11 +56,13 @@ class ReportingSpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
+    val numbers                                       = Array(1, 2, 3)
     val receivedSummaryResponse: StandaloneWSResponse =
-      reportingService.receiveSummaryAndSaveUsingTestSupportApi(
+      reportingService.triggerReportReadyScenario(
         isaReferenceId,
         "2025-26",
         "AUG",
+        numbers,
         validHeadersOnlyWithToken
       )
 
@@ -77,7 +79,7 @@ class ReportingSpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "returnResultsLocation").asOpt[String] should not be empty
-    (json \ "totalRecords").asOpt[Int]             should not be empty
+    (json \ "totalRecords").asOpt[Int]             should contain(numbers.sum)
     (json \ "numberOfPages").asOpt[Int]            should not be empty
   }
 
