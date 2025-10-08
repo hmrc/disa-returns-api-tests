@@ -29,6 +29,7 @@ import scala.concurrent.duration.*
 class InitialiseReturnsSubmissionService extends HttpClient {
   val disa_returns_host: String       = TestEnvironment.url("disa-returns")
   val monthlyReturnHeaderPath: String = "/init"
+  val disa_returns_route: String      = "/monthly/"
 
   def postInitialiseReturnsSubmissionApi(
     totalRecords: Int,
@@ -41,7 +42,7 @@ class InitialiseReturnsSubmissionService extends HttpClient {
     val jsonString: JsValue = Json.toJson(payload)
 
     Await.result(
-      mkRequest(disa_returns_host + s"$isManagerReference" + monthlyReturnHeaderPath)
+      mkRequest(disa_returns_host + disa_returns_route + s"$isManagerReference" + monthlyReturnHeaderPath)
         .withHttpHeaders(headers.toSeq: _*)
         .post(jsonString),
       10.seconds
