@@ -37,9 +37,9 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 200")
     initiateResponse.status shouldBe 200
     val json = Json.parse(initiateResponse.body)
-    (json \ "returnId").asOpt[String] should not be empty
-    (json \ "action").asOpt[String]   should not be empty
-    (json \ "boxId").asOpt[String]    should not be empty
+    (json \ "returnId").as[String] should not be empty
+    (json \ "action").as[String]   should not be empty
+    (json \ "boxId").as[String]    should not be empty
 
   }
 

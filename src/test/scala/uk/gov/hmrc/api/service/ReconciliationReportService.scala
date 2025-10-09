@@ -36,12 +36,13 @@ class ReconciliationReportService extends HttpClient {
     isaManagerReference: String,
     period: String,
     month: String,
+    totalRecords: Int,
     headers: Map[String, String]
   ): StandaloneWSResponse = {
     val payload =
       s"""
          |{
-         |  "totalRecords": 1000
+         |  "totalRecords": $totalRecords
          |}
          |""".stripMargin
     Await.result(
