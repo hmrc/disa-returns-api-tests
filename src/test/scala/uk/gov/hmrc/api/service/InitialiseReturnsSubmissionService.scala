@@ -19,7 +19,7 @@ package uk.gov.hmrc.api.service
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.AppConfig.*
 import uk.gov.hmrc.api.models.InitialiseReturnsSubmissionPayload
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
@@ -27,9 +27,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class InitialiseReturnsSubmissionService extends HttpClient {
-  val disa_returns_host: String       = TestEnvironment.url("disa-returns")
   val monthlyReturnHeaderPath: String = "/init"
-  val disa_returns_route: String      = "/monthly/"
 
   def postInitialiseReturnsSubmissionApi(
     totalRecords: Int,
@@ -42,7 +40,7 @@ class InitialiseReturnsSubmissionService extends HttpClient {
     val jsonString: JsValue = Json.toJson(payload)
 
     Await.result(
-      mkRequest(disa_returns_host + disa_returns_route + s"$isManagerReference" + monthlyReturnHeaderPath)
+      mkRequest(disaReturnsHost + disaReturnsRoute + s"$isManagerReference" + monthlyReturnHeaderPath)
         .withHttpHeaders(headers.toSeq: _*)
         .post(jsonString),
       10.seconds
