@@ -17,21 +17,26 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
+import org.scalactic.Prettifier.default
 import play.api.libs.json.Json
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.utils.BaseSpec
 
-class ReportingSpec extends BaseSpec, LazyLogging {
+class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
   Scenario(
     s"1. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
+    val totalRecords                                  = 1000
+    val taxYear                                       = "2025-26"
+    val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.makeReturnSummaryCallback(
         isaReferenceId,
-        "2025-26",
-        "FEB",
+        taxYear,
+        month,
+        totalRecords,
         validHeadersOnlyWithToken
       )
 
@@ -40,29 +45,33 @@ class ReportingSpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReferenceId, "2025-26", "FEB", validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(isaReferenceId, taxYear, month, validHeadersOnlyWithToken)
 
     Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
-    (json \ "returnResultsLocation").asOpt[String] should not be empty
-    (json \ "totalRecords").asOpt[Int]             should not be empty
-    (json \ "numberOfPages").asOpt[Int]            should not be empty
+    (json \ "returnResultsLocation").as[String] should include(
+      s"/monthly/$isaReferenceId/$taxYear/$month/results?page=1"
+    )
+    (json \ "totalRecords").as[Int]        shouldEqual totalRecords
+    (json \ "numberOfPages").as[Int]            should be > 0
   }
 
   Scenario(
     s"2. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
-    val numbers                                       = Array(1, 2, 3)
+    val totalRecords                                  = Array(1, 2, 3)
+    val taxYear                                       = "2025-26"
+    val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.triggerReportReadyScenario(
         isaReferenceId,
-        "2025-26",
-        "AUG",
-        numbers,
+        taxYear,
+        month,
+        totalRecords,
         validHeadersOnlyWithToken
       )
 
@@ -71,16 +80,18 @@ class ReportingSpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReferenceId, "2025-26", "AUG", validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(isaReferenceId, taxYear, month, validHeadersOnlyWithToken)
 
-    Then("I got the status code 204")
+    Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
-    (json \ "returnResultsLocation").asOpt[String] should not be empty
-    (json \ "totalRecords").asOpt[Int]             should contain(numbers.sum)
-    (json \ "numberOfPages").asOpt[Int]            should not be empty
+    (json \ "returnResultsLocation").as[String] should include(
+      s"/monthly/$isaReferenceId/$taxYear/$month/results?page=1"
+    )
+    (json \ "totalRecords").as[Int]        shouldEqual totalRecords.sum
+    (json \ "numberOfPages").as[Int]            should be > 0
   }
 
   Scenario(
@@ -97,8 +108,8 @@ class ReportingSpec extends BaseSpec, LazyLogging {
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
-    (json \ "message").asOpt[String] should contain(
-      "No return found for " + isaReferenceId + " for " + month + " " + period
+    (json \ "message").as[String] should include(
+      s"No return found for $isaReferenceId for $month $period"
     )
   }
 }

@@ -18,34 +18,32 @@ package uk.gov.hmrc.api.service
 
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.AppConfig
+import uk.gov.hmrc.api.constant.AppConfig.*
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class ReconciliationReportService extends HttpClient {
-  val disa_returns_host: String              = TestEnvironment.url("disa-returns")
-  val disa_returns_test_support_host: String = TestEnvironment.url("disa-returns-test-support-api")
-  val callBackendPointPath: String           = "/callback/monthly/"
-  val disa_returns_route: String             = "/monthly/"
-  val reportingResultsSummaryPath: String    = "/results/summary"
-  val testSupportPath: String                = "/reconciliation"
+  val reportingResultsSummaryPath: String = "/results/summary"
+  val testSupportPath: String             = "/reconciliation"
 
   def makeReturnSummaryCallback(
     isaManagerReference: String,
-    period: String,
+    taxYear: String,
     month: String,
+    totalRecords: Int,
     headers: Map[String, String]
   ): StandaloneWSResponse = {
     val payload =
       s"""
          |{
-         |  "totalRecords": 1000
+         |  "totalRecords": $totalRecords
          |}
          |""".stripMargin
     Await.result(
-      mkRequest(disa_returns_host + callBackendPointPath + isaManagerReference + "/" + period + "/" + month)
+      mkRequest(disaReturnsHost + disaReturnsCallbackPath + isaManagerReference + "/" + taxYear + "/" + month)
         .withHttpHeaders(headers.toSeq: _*)
         .post(payload),
       10.seconds
@@ -54,7 +52,7 @@ class ReconciliationReportService extends HttpClient {
 
   def triggerReportReadyScenario(
     isaManagerReference: String,
-    period: String,
+    taxYear: String,
     month: String,
     numbers: Array[Int],
     headers: Map[String, String]
@@ -68,7 +66,7 @@ class ReconciliationReportService extends HttpClient {
          |}""".stripMargin
     Await.result(
       mkRequest(
-        disa_returns_test_support_host + "/" + isaManagerReference + "/" + period + "/" + month + testSupportPath
+        disaReturnsTestSupportHost + "/" + isaManagerReference + "/" + taxYear + "/" + month + testSupportPath
       )
         .withHttpHeaders(headers.toSeq: _*)
         .post(payload),
@@ -78,13 +76,13 @@ class ReconciliationReportService extends HttpClient {
 
   def getReportingResultsSummary(
     isaManagerReference: String,
-    period: String,
+    taxYear: String,
     month: String,
     headers: Map[String, String]
   ): StandaloneWSResponse =
     Await.result(
       mkRequest(
-        disa_returns_host + disa_returns_route + isaManagerReference + "/" + period + "/" + month + reportingResultsSummaryPath
+        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + reportingResultsSummaryPath
       )
         .withHttpHeaders(headers.toSeq: _*)
         .get(),

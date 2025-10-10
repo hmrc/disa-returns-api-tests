@@ -18,15 +18,13 @@ package uk.gov.hmrc.api.service
 
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.AppConfig.*
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class CompleteMonthlyReturns extends HttpClient {
-  val disa_returns_host: String  = TestEnvironment.url("disa-returns")
-  val disa_returns_route: String = "/monthly/"
 
   def postCompleteMonthlyReturns(
     isaManagerReference: String,
@@ -34,7 +32,7 @@ class CompleteMonthlyReturns extends HttpClient {
     headers: Map[String, String]
   ): StandaloneWSResponse =
     Await.result(
-      mkRequest(disa_returns_host + disa_returns_route + isaManagerReference + "/" + returnId + "/complete")
+      mkRequest(disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + returnId + "/complete")
         .withHttpHeaders(headers.toSeq: _*)
         .post(""),
       10.seconds
