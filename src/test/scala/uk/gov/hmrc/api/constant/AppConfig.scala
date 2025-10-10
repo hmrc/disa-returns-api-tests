@@ -23,5 +23,5 @@ object AppConfig {
   val disaReturnsHost: String            = env.url("disa-returns")
   val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
   val disaReturnsRoute: String           = "/monthly/"
-  val callBackendPointPath: String       = "/callback/monthly/"
+  val disaReturnsCallbackPath: String       = "/callback/monthly/"
 }

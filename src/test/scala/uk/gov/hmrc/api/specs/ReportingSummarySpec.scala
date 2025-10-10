@@ -28,7 +28,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     s"1. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
-    val number                                        = 1000
+    val totalRecords                                        = 1000
     val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
@@ -36,7 +36,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
         isaReferenceId,
         taxYear,
         month,
-        number,
+        totalRecords,
         validHeadersOnlyWithToken
       )
 
@@ -55,7 +55,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     (json \ "returnResultsLocation").as[String] should include(
       s"/monthly/$isaReferenceId/$taxYear/$month/results?page=1"
     )
-    (json \ "totalRecords").as[Int]        shouldEqual number
+    (json \ "totalRecords").as[Int]        shouldEqual totalRecords
     (json \ "numberOfPages").as[Int]            should be > 0
   }
 
@@ -63,7 +63,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
-    val numbers                                       = Array(1, 2, 3)
+    val totalRecords                                       = Array(1, 2, 3)
     val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
@@ -71,7 +71,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
         isaReferenceId,
         taxYear,
         month,
-        numbers,
+        totalRecords,
         validHeadersOnlyWithToken
       )
 
@@ -90,7 +90,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     (json \ "returnResultsLocation").as[String] should include(
       s"/monthly/$isaReferenceId/$taxYear/$month/results?page=1"
     )
-    (json \ "totalRecords").as[Int]        shouldEqual numbers.sum
+    (json \ "totalRecords").as[Int]        shouldEqual totalRecords.sum
     (json \ "numberOfPages").as[Int]            should be > 0
   }
 
