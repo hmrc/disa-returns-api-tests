@@ -30,11 +30,11 @@ class ReconciliationReportService extends HttpClient {
   val testSupportPath: String             = "/reconciliation"
 
   def makeReturnSummaryCallback(
-                                 isaManagerReference: String,
-                                 taxYear: String,
-                                 month: String,
-                                 totalRecords: Int,
-                                 headers: Map[String, String]
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    totalRecords: Int,
+    headers: Map[String, String]
   ): StandaloneWSResponse = {
     val payload =
       s"""
@@ -51,11 +51,11 @@ class ReconciliationReportService extends HttpClient {
   }
 
   def triggerReportReadyScenario(
-                                  isaManagerReference: String,
-                                  taxYear: String,
-                                  month: String,
-                                  numbers: Array[Int],
-                                  headers: Map[String, String]
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    numbers: Array[Int],
+    headers: Map[String, String]
   ): StandaloneWSResponse = {
     val payload =
       s"""
@@ -75,10 +75,10 @@ class ReconciliationReportService extends HttpClient {
   }
 
   def getReportingResultsSummary(
-                                  isaManagerReference: String,
-                                  taxYear: String,
-                                  month: String,
-                                  headers: Map[String, String]
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    headers: Map[String, String]
   ): StandaloneWSResponse =
     Await.result(
       mkRequest(

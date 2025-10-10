@@ -28,7 +28,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     s"1. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
-    val totalRecords                                        = 1000
+    val totalRecords                                  = 1000
     val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
@@ -63,7 +63,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
-    val totalRecords                                       = Array(1, 2, 3)
+    val totalRecords                                  = Array(1, 2, 3)
     val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
