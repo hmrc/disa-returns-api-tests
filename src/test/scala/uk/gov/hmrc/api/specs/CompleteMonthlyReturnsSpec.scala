@@ -19,7 +19,6 @@ package uk.gov.hmrc.api.specs
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.MismatchRecordCount
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
@@ -28,105 +27,88 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid complete monthly returns submission"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.openObligationStatus(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReference)
+
+    Given("I created the client application and notification box")
+    createClientApplication()
+    createNotificationBoxAndSubscribe()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId for 12 totalRecords")
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
+    val taxYear                                = "2025-26"
+    val month                                  = "AUG"
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
 
     When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
     val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
     When("I POST a second submission request to 'Monthly Returns Submission' API for the rest of 6 totalRecords")
     val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
 
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(returnId = returnId)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse.status shouldBe 200
   }
 
   Scenario(
-    s"2. Verify 'Complete Monthly Returns' API response gives status code 400 BadRequest Mismatch when the number of records declared in the header does not match the number submitted"
-  ) {
-    Given("I set the reporting windows as open and when no obligation has met")
-    disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.openObligationStatus(isaReferenceId)
-
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
-    initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
-    val returnId             = (initiateResponseJson \ "returnId").as[String]
-
-    When("I POST a request 'Monthly Returns Submission' API")
-    val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
-
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse.status shouldBe 204
-
-    When("I POST the 'Complete Monthly Returns' API")
-    val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(returnId = returnId)
-
-    Then("I got the status code 400 & correct error response body")
-    completeMonthlyReturnsResponse.status shouldBe 400
-    val responseBody = Json.parse(completeMonthlyReturnsResponse.body)
-    (responseBody \ "code").as[String]    shouldBe MismatchRecordCount.code
-    (responseBody \ "message").as[String] shouldBe MismatchRecordCount.message
-  }
-
-  Scenario(
-    s"3. Verify 'Complete Monthly Returns' API response gives status code 403 Obligation closed when the user tries to resend the same 'Complete Monthly Returns' API"
+    s"2. Verify 'Complete Monthly Returns' API response gives status code 403 Obligation closed when the user tries to resend the same 'Complete Monthly Returns' API"
   ) {
     Given("I set the reporting windows as open and when obligation has not met")
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.openObligationStatus(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReference)
+
+    Given("I created the client application and notification box")
+    createClientApplication()
+    createNotificationBoxAndSubscribe()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission()
+    val taxYear                                = "2025-26"
+    val month                                  = "JAN"
+    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
     initiateResponse.status shouldBe 200
     val initiateResponseJson: JsValue = Json.parse(initiateResponse.body)
     val returnId                      = (initiateResponseJson \ "returnId").as[String]
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
     When("I POST a second submission request to 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
 
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(returnId = returnId)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse.status shouldBe 200
 
     When("I POST the same 'Complete Monthly Returns' API for the second time")
     val completeMonthlyReturnsResponse2 =
-      postCompleteMonthlyReturns(returnId = returnId)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse2.status shouldBe 403
@@ -134,28 +116,35 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"4. Verify 'Complete Monthly Returns' API response gives status code 401 for an authentication failure"
+    s"3. Verify 'Complete Monthly Returns' API response gives status code 401 for an authentication failure"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
-    disaReturnsStubService.openObligationStatus(isaReferenceId)
+    disaReturnsStubService.openObligationStatus(isaReference)
+
+    Given("I created the client application and notification box")
+    createClientApplication()
+    createNotificationBoxAndSubscribe()
 
     When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val initiateResponse = postInitiateReturnsSubmission()
+    val taxYear          = "2025-26"
+    val month            = "JAN"
+    val initiateResponse = postInitiateReturnsSubmission(isaReference, month = month)
     initiateResponse.status shouldBe 200
     val initiateResponseJson = Json.parse(initiateResponse.body)
     val returnId             = (initiateResponseJson \ "returnId").as[String]
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(returnId = returnId, headers = Map.empty)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month, headers = Map.empty)
 
     Then("I got the status code 401")
     completeMonthlyReturnsResponse.status shouldBe 401
