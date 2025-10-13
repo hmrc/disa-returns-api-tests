@@ -31,9 +31,10 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val totalRecords                                  = 1000
     val taxYear                                       = "2025-26"
     val month                                         = "AUG"
+    val isaReference                                  = generateRandomZReference()
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.makeReturnSummaryCallback(
-        isaReferenceId,
+        isaReference,
         taxYear,
         month,
         totalRecords,
@@ -45,7 +46,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReferenceId, taxYear, month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(isaReference, taxYear, month, validHeadersOnlyWithToken)
 
     Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
@@ -53,7 +54,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "returnResultsLocation").as[String] should include(
-      s"/monthly/$isaReferenceId/$taxYear/$month/results?page=1"
+      s"/monthly/$isaReference/$taxYear/$month/results?page=1"
     )
     (json \ "totalRecords").as[Int]        shouldEqual totalRecords
     (json \ "numberOfPages").as[Int]            should be > 0
@@ -63,12 +64,13 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
+    val isaReference                                  = generateRandomZReference()
     val totalRecords                                  = Array(1, 2, 3)
     val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.triggerReportReadyScenario(
-        isaReferenceId,
+        isaReference,
         taxYear,
         month,
         totalRecords,
@@ -80,7 +82,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReferenceId, taxYear, month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(isaReference, taxYear, month, validHeadersOnlyWithToken)
 
     Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
@@ -88,7 +90,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "returnResultsLocation").as[String] should include(
-      s"/monthly/$isaReferenceId/$taxYear/$month/results?page=1"
+      s"/monthly/$isaReference/$taxYear/$month/results?page=1"
     )
     (json \ "totalRecords").as[Int]        shouldEqual totalRecords.sum
     (json \ "numberOfPages").as[Int]            should be > 0
@@ -99,9 +101,10 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   ) {
     val period                                                        = "2025-26"
     val month                                                         = "APR"
+    val isaReference                                                  = generateRandomZReference()
     When("I request 'reporting results summary' via a GET request when the report is not exists")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReferenceId, period, month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(isaReference, period, month, validHeadersOnlyWithToken)
 
     Then("I got the status code 404")
     receivedReportingResultsSummaryResponse.status shouldBe 404
@@ -109,7 +112,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "message").as[String] should include(
-      s"No return found for $isaReferenceId for $month $period"
+      s"No return found for $isaReference for $month $period"
     )
   }
 }

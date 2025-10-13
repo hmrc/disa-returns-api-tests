@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.api.utils
 
+import org.scalactic.Prettifier.default
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
@@ -40,14 +41,9 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val monthlyReturnsSubmissionService: MonthlyReturnsSubmissionService       = new MonthlyReturnsSubmissionService
   val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
-
-  val currentYear: Int                     = LocalDate.now.getYear
-  val rng                                  = new Random()
-  val generateRandomTestData: () => String = () => f"Z${rng.nextInt(10000)}%04d"
-  var isaReferenceId: String               = _
-
-  override def beforeEach(): Unit =
-    isaReferenceId = generateRandomTestData()
+  val currentYear: Int                                                       = LocalDate.now.getYear
+  val rng                                                                    = new Random()
+  val generateRandomZReference: () => String                                 = () => f"Z${rng.nextInt(10000)}%04d"
 
   def createClientApplication(): Unit =
     withClue("Setup step failed: Create Client Application → ") {
@@ -135,7 +131,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     )
 
   def postMonthlyReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
+    isaManagerReference: String,
     returnId: String,
     headers: Map[String, String] = validHeaders,
     ndString: String = validNdjsonTestData()
@@ -148,7 +144,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     )
 
   def postCompleteMonthlyReturns(
-    isaManagerReference: String = isaReferenceId,
+    isaManagerReference: String,
     headers: Map[String, String] = validHeaders,
     taxYear: String,
     month: String

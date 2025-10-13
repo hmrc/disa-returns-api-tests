@@ -28,7 +28,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"1. Verify 'Initiate Returns Submission' API response gives status code 200 when obligation has not been met and reporting window is open"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReference)
 
@@ -53,7 +53,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Initiate Returns Submission' API response gives status code 403 when obligation has been met and reporting window is open"
   ) {
     Given("I set the reporting windows as open and when obligation has met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.closeObligationStatus(isaReference)
 
@@ -76,7 +76,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"3. Verify 'Initiate Returns Submission' API response gives status code 403 when no obligation has met and reporting window is closed"
   ) {
     Given("I set the reporting windows as closed and when no obligation has met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(false)
     disaReturnsStubService.openObligationStatus(isaReference)
 
@@ -99,7 +99,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"4. Verify 'Initiate Returns Submission' API response gives status code 403 when obligation has been met and reporting window is closed"
   ) {
     Given("I set the reporting windows as closed and when obligation has been met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(false)
     disaReturnsStubService.closeObligationStatus(isaReference)
 
@@ -127,7 +127,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"5. Verify 'Initiate Returns Submission' API response gives status code 500 for an internal server error correctly when etmp returns downstream error"
   ) {
     Given("The reporting windows is open and when obligation has been met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
 
     Given("I created the client application without a notification box")
@@ -149,7 +149,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"6. Verify 'Initiate Returns Submission' API response gives status code '400 - bad request' for an invalid payload (invalid totalRecords)"
   ) {
     Given("I set the reporting windows as open and when no obligation has been met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReference)
 
@@ -173,7 +173,7 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     s"7. Verify 'Initialise returns submission' api response gives status code '401 - invalid bearer token' error when an invalid bearer token used"
   ) {
     Given("I set the reporting windows as open and when no obligation has been met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReference)
 

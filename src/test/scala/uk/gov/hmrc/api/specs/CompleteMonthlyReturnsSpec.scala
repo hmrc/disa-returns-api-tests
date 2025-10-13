@@ -27,7 +27,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid complete monthly returns submission"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReference)
 
@@ -45,21 +45,21 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
     val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
     When("I POST a second submission request to 'Monthly Returns Submission' API for the rest of 6 totalRecords")
     val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
 
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(taxYear = taxYear, month = month)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse.status shouldBe 200
@@ -69,7 +69,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     s"2. Verify 'Complete Monthly Returns' API response gives status code 403 Obligation closed when the user tries to resend the same 'Complete Monthly Returns' API"
   ) {
     Given("I set the reporting windows as open and when obligation has not met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReference)
 
@@ -87,28 +87,28 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
     When("I POST a second submission request to 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
 
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(taxYear = taxYear, month = month)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse.status shouldBe 200
 
     When("I POST the same 'Complete Monthly Returns' API for the second time")
     val completeMonthlyReturnsResponse2 =
-      postCompleteMonthlyReturns(taxYear = taxYear, month = month)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse2.status shouldBe 403
@@ -119,7 +119,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     s"3. Verify 'Complete Monthly Returns' API response gives status code 401 for an authentication failure"
   ) {
     Given("I set the reporting windows as open and when no obligation has met")
-    val isaReference = isaReferenceId
+    val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
     disaReturnsStubService.openObligationStatus(isaReference)
 
@@ -137,14 +137,14 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(returnId = returnId)
+      postMonthlyReturnsSubmission(isaReference, returnId = returnId)
 
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
     When("I POST the 'Complete Monthly Returns' API")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(taxYear = taxYear, month = month, headers = Map.empty)
+      postCompleteMonthlyReturns(isaReference, taxYear = taxYear, month = month, headers = Map.empty)
 
     Then("I got the status code 401")
     completeMonthlyReturnsResponse.status shouldBe 401
