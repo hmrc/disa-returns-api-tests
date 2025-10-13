@@ -18,7 +18,7 @@ package uk.gov.hmrc.api.utils
 
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import play.api.*
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
@@ -28,9 +28,9 @@ import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
-import scala.util.Try
+import scala.util.{Random, Try}
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll {
+trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
   val authHelper: AuthHelper                                                 = new AuthHelper
   val authToken: String                                                      = authHelper.getAuthBearerToken
   val ppnsService: PPNSService                                               = new PPNSService
@@ -41,12 +41,15 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
 
-  val currentYear: Int       = LocalDate.now.getYear
-  val isaReferenceId: String = "Z4512"
+  val currentYear: Int                     = LocalDate.now.getYear
+  val rng                                  = new Random()
+  val generateRandomTestData: () => String = () => f"Z${rng.nextInt(10000)}%04d"
+  var isaReferenceId: String               = _
 
-  override def beforeAll(): Unit = {
-    super.beforeAll()
+  override def beforeEach(): Unit =
+    isaReferenceId = generateRandomTestData()
 
+  def createClientApplication(): Unit =
     withClue("Setup step failed: Create Client Application → ") {
       val thirdPartyApplicationResponse =
         ppnsService.createClientApplication(thirdPartyApplicationHeadersMap)
@@ -62,6 +65,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       )
     }
 
+  def createNotificationBoxAndSubscribe(): Unit = {
     val setupSteps: Seq[(String, () => Any)] = Seq(
       "Create Notification Box"          -> (() => {
         val res = ppnsService.createNotificationBox(clientId, notificationBoxHeadersMap)
@@ -117,15 +121,16 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   )
 
   def postInitiateReturnsSubmission(
-    isaManagerReference: String = isaReferenceId,
+    isaManagerReference: String,
     headers: Map[String, String] = validHeaders,
-    totalRecords: Int = 12
+    totalRecords: Int = 12,
+    month: String
   ): StandaloneWSResponse =
     initialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
       totalRecords = totalRecords,
-      submissionPeriod = "APR",
+      month,
       taxYear = currentYear,
-      isManagerReference = isaManagerReference,
+      isaManagerReference,
       headers = headers
     )
 
@@ -136,7 +141,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     ndString: String = validNdjsonTestData()
   ): StandaloneWSResponse =
     monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
-      isaManagerReference = isaManagerReference,
+      isaManagerReference,
       returnId = returnId,
       headers = headers,
       ndString = ndString
@@ -144,12 +149,14 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   def postCompleteMonthlyReturns(
     isaManagerReference: String = isaReferenceId,
-    headers: Map[String, String] = validHeadersOnlyWithToken,
-    returnId: String
+    headers: Map[String, String] = validHeaders,
+    taxYear: String,
+    month: String
   ): StandaloneWSResponse =
     completeMonthlyReturnsService.postCompleteMonthlyReturns(
-      isaManagerReference = isaManagerReference,
-      returnId = returnId,
+      isaManagerReference,
+      taxYear = taxYear,
+      month = month,
       headers = headers
     )
 }

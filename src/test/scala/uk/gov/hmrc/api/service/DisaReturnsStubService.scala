@@ -29,7 +29,7 @@ class DisaReturnsStubService extends HttpClient {
   val disa_returns_stub_host: String    = TestEnvironment.url("disa-returns-stub")
   val reportingWindowPath: String       = "/test-only/etmp/reporting-window-state"
   val openObligationStatusPath: String  = "/test-only/etmp/open-obligation-status/"
-  val closeObligationStatusPath: String = "/etmp/close-obligation-status/"
+  val closeObligationStatusPath: String = "/etmp/declaration/"
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
     val payload =
