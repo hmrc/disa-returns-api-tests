@@ -27,10 +27,10 @@ import scala.concurrent.duration.*
 class CompleteMonthlyReturns extends HttpClient {
 
   def postCompleteMonthlyReturns(
-                                  isaManagerReference: String,
-                                  taxYear: String,
-                                  month: String,
-                                  headers: Map[String, String]
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    headers: Map[String, String]
   ): StandaloneWSResponse =
     Await.result(
       mkRequest(disaReturnsHost + disaReturnsRoute + s"$isaManagerReference/$taxYear/$month/declaration")
