@@ -38,7 +38,6 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     val month                                  = "AUG"
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
     initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
 
     When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
     val monthlyReturnsSubmissionResponse =
@@ -77,7 +76,6 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     val month                                  = "JAN"
     val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
     initiateResponse.status shouldBe 200
-    val initiateResponseJson: JsValue = Json.parse(initiateResponse.body)
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
@@ -123,7 +121,6 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     val month            = "JAN"
     val initiateResponse = postInitiateReturnsSubmission(isaReference, month = month)
     initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
