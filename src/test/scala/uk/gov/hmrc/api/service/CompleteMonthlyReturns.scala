@@ -27,13 +27,13 @@ import scala.concurrent.duration.*
 class CompleteMonthlyReturns extends HttpClient {
 
   def postCompleteMonthlyReturns(
-    isaManagerReference: String,
-    newTaxYear: String,
-    month: String,
-    headers: Map[String, String]
+                                  isaManagerReference: String,
+                                  taxYear: String,
+                                  month: String,
+                                  headers: Map[String, String]
   ): StandaloneWSResponse =
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsRoute + s"$isaManagerReference/$newTaxYear/$month/declaration")
+      mkRequest(disaReturnsHost + disaReturnsRoute + s"$isaManagerReference/$taxYear/$month/declaration")
         .withHttpHeaders(headers.toSeq: _*)
         .post(""),
       10.seconds

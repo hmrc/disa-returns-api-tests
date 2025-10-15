@@ -132,14 +132,14 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     )
 
   def postMonthlyReturnsSubmission(
-    isaManagerReference: String,
-    newTaxYear: String = taxYear,
-    headers: Map[String, String] = validHeaders,
-    ndString: String = validNdjsonTestData()
+                                    isaManagerReference: String,
+                                    taxYear: String = taxYear,
+                                    headers: Map[String, String] = validHeaders,
+                                    ndString: String = validNdjsonTestData()
   ): StandaloneWSResponse =
     monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
       isaManagerReference,
-      newTaxYear = newTaxYear,
+      taxYear = taxYear,
       headers = headers,
       ndString = ndString
     )
@@ -152,7 +152,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   ): StandaloneWSResponse =
     completeMonthlyReturnsService.postCompleteMonthlyReturns(
       isaManagerReference,
-      newTaxYear = newTaxYear,
+      taxYear = newTaxYear,
       month = month,
       headers = headers
     )

@@ -54,7 +54,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
 
-    When("I POST the 'Declaration request' API")
+    When("I POST a request to the 'Declaration' endpoint")
     val completeMonthlyReturnsResponse =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month)
 
@@ -93,14 +93,14 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse2.status shouldBe 204
 
-    When("I POST the 'Declaration request' API")
+    When("I POST a request to the 'Declaration' endpoint")
     val completeMonthlyReturnsResponse =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month)
 
     Then("I got the status code 204")
     completeMonthlyReturnsResponse.status shouldBe 200
 
-    When("I POST the 'Declaration request' API for the second time")
+    When("I POST a request to the 'Declaration' endpoint for the second time")
     val completeMonthlyReturnsResponse2 =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month)
 
@@ -132,7 +132,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Then("I got the status code 204")
     monthlyReturnsSubmissionResponse.status shouldBe 204
 
-    When("I POST the 'Declaration request' API")
+    When("I POST a request to the 'Declaration' endpoint")
     val completeMonthlyReturnsResponse =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month, headers = Map.empty)
 
