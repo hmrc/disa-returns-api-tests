@@ -42,8 +42,9 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
   val currentYear: Int                                                       = LocalDate.now.getYear
-  val rng                                                                    = new Random()
-  val generateRandomZReference: () => String                                 = () => f"Z${rng.nextInt(10000)}%04d"
+  val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
+  val randomNumber                                                           = new Random()
+  val generateRandomZReference: () => String                                 = () => f"Z${randomNumber.nextInt(10000)}%04d"
 
   def createClientApplication(): Unit =
     withClue("Setup step failed: Create Client Application → ") {
@@ -132,26 +133,26 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   def postMonthlyReturnsSubmission(
     isaManagerReference: String,
-    returnId: String,
+    newTaxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
     ndString: String = validNdjsonTestData()
   ): StandaloneWSResponse =
     monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
       isaManagerReference,
-      returnId = returnId,
+      newTaxYear = newTaxYear,
       headers = headers,
       ndString = ndString
     )
 
   def postCompleteMonthlyReturns(
     isaManagerReference: String,
+    newTaxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
-    taxYear: String,
     month: String
   ): StandaloneWSResponse =
     completeMonthlyReturnsService.postCompleteMonthlyReturns(
       isaManagerReference,
-      taxYear = taxYear,
+      newTaxYear = newTaxYear,
       month = month,
       headers = headers
     )

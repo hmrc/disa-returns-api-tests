@@ -29,7 +29,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
     val totalRecords                                  = 1000
-    val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val isaReference                                  = generateRandomZReference()
     val receivedSummaryResponse: StandaloneWSResponse =
@@ -66,7 +65,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
     val isaReference                                  = generateRandomZReference()
     val totalRecords                                  = Array(1, 2, 3)
-    val taxYear                                       = "2025-26"
     val month                                         = "AUG"
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.triggerReportReadyScenario(
@@ -99,12 +97,11 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   Scenario(
     s"3. Verify 'Results Summary' API response gives status code 404 NOT FOUND when the report results from reconciliation is not available"
   ) {
-    val period                                                        = "2025-26"
     val month                                                         = "APR"
     val isaReference                                                  = generateRandomZReference()
     When("I request 'reporting results summary' via a GET request when the report is not exists")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReference, period, month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(isaReference, taxYear, month, validHeadersOnlyWithToken)
 
     Then("I got the status code 404")
     receivedReportingResultsSummaryResponse.status shouldBe 404
@@ -112,7 +109,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "message").as[String] should include(
-      s"No return found for $isaReference for $month $period"
+      s"No return found for $isaReference for $month $taxYear"
     )
   }
 }

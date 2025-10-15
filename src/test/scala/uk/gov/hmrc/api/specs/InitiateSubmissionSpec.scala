@@ -46,7 +46,6 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     (json \ "returnId").as[String] should not be empty
     (json \ "action").as[String]   should not be empty
     (json \ "boxId").as[String]    should not be empty
-
   }
 
   Scenario(
@@ -192,5 +191,4 @@ class InitiateSubmissionSpec extends BaseSpec, LazyLogging {
     (json \ "code").as[String]    shouldBe InvalidBearerToken.code
     (json \ "message").as[String] shouldBe InvalidBearerToken.message
   }
-
 }
