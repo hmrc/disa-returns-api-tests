@@ -35,12 +35,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     createClientApplication()
     createNotificationBoxAndSubscribe()
 
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val month                                  = "AUG"
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
-
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
       postMonthlyReturnsSubmission(isaReference)
@@ -67,12 +61,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     createClientApplication()
     createNotificationBoxAndSubscribe()
 
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val month                                  = "AUG"
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
-
     Given("I set the reporting windows as closed")
     disaReturnsStubService.setReportingWindow(false)
 
@@ -98,12 +86,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     createClientApplication()
     createNotificationBoxAndSubscribe()
 
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val month                                  = "AUG"
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
-
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
       postMonthlyReturnsSubmission(isaReference, ndString = "")
@@ -126,12 +108,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     Given("I created the client application and notification box")
     createClientApplication()
     createNotificationBoxAndSubscribe()
-
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val month                                  = "AUG"
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
-    val initiateResponseJson = Json.parse(initiateResponse.body)
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse: StandaloneWSResponse =
