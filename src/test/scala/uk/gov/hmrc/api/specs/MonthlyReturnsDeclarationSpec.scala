@@ -53,7 +53,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     val completeMonthlyReturnsResponse =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month)
 
-    Then("I got the status code 204")
+    Then("I got the status code 200")
     completeMonthlyReturnsResponse.status shouldBe 200
   }
 
@@ -87,7 +87,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     val completeMonthlyReturnsResponse =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month)
 
-    Then("I got the status code 204")
+    Then("I got the status code 200")
     completeMonthlyReturnsResponse.status shouldBe 200
 
     When("I POST a request to the 'Declaration' endpoint for the second time")
