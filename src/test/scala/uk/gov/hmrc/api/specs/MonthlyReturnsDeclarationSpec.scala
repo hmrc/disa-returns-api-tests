@@ -29,11 +29,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     Given("I set the reporting windows as open and when no obligation has met")
     val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
-
-    Given("I created the client application and notification box")
-    createClientApplication()
-    createNotificationBoxAndSubscribe()
-    val month = "AUG"
+    val month        = "AUG"
 
     When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
     val monthlyReturnsSubmissionResponse =
@@ -63,11 +59,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     Given("I set the reporting windows as open and when obligation has not met")
     val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
-
-    Given("I created the client application and notification box")
-    createClientApplication()
-    createNotificationBoxAndSubscribe()
-    val month = "JAN"
+    val month        = "JAN"
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
@@ -104,11 +96,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     Given("I set the reporting windows as open and when no obligation has met")
     val isaReference = generateRandomZReference()
     disaReturnsStubService.setReportingWindow(true)
-
-    Given("I created the client application and notification box")
-    createClientApplication()
-    createNotificationBoxAndSubscribe()
-    val month = "JAN"
+    val month        = "JAN"
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
