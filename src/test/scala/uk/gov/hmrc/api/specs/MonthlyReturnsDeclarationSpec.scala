@@ -21,7 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.utils.BaseSpec
 
-class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
+class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
   Scenario(
     s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid complete monthly returns submission"
@@ -33,11 +33,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Given("I created the client application and notification box")
     createClientApplication()
     createNotificationBoxAndSubscribe()
-
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId for 12 totalRecords")
-    val month                                  = "AUG"
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
+    val month = "AUG"
 
     When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
     val monthlyReturnsSubmissionResponse =
@@ -71,11 +67,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Given("I created the client application and notification box")
     createClientApplication()
     createNotificationBoxAndSubscribe()
-
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val month                                  = "JAN"
-    val initiateResponse: StandaloneWSResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
+    val month = "JAN"
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
@@ -116,11 +108,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     Given("I created the client application and notification box")
     createClientApplication()
     createNotificationBoxAndSubscribe()
-
-    When("I POST a request 'Initiate Returns Submission' API to get a returnId")
-    val month            = "JAN"
-    val initiateResponse = postInitiateReturnsSubmission(isaReference, month = month)
-    initiateResponse.status shouldBe 200
+    val month = "JAN"
 
     When("I POST a request 'Monthly Returns Submission' API")
     val monthlyReturnsSubmissionResponse =
