@@ -44,7 +44,28 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val currentYear: Int                                                       = LocalDate.now.getYear
   val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
   val randomNumber                                                           = new Random()
-  val generateRandomZReference: () => String                                 = () => f"Z${randomNumber.nextInt(10000)}%04d"
+  val generateRandomZReference: () => String                                 = () => ZReferenceGenerator.generate()
+
+  object ZReferenceGenerator {
+    private val usedRefs = scala.collection.mutable.Set[String]()
+    private val random   = new scala.util.Random()
+    private val badRefs  = Set("Z1404", "Z1500")
+
+    def generate(): String = {
+      var ref   = ""
+      var valid = false
+
+      while (!valid) {
+        ref = f"Z${random.nextInt(9999)}%04d"
+        if (!usedRefs.contains(ref) && !badRefs.contains(ref)) {
+          valid = true
+        }
+      }
+
+      usedRefs += ref
+      ref
+    }
+  }
 
   def createClientApplication(): Unit =
     withClue("Setup step failed: Create Client Application → ") {
@@ -146,13 +167,13 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   def postCompleteMonthlyReturns(
     isaManagerReference: String,
-    newTaxYear: String = taxYear,
+    taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
     month: String
   ): StandaloneWSResponse =
     completeMonthlyReturnsService.postCompleteMonthlyReturns(
       isaManagerReference,
-      taxYear = newTaxYear,
+      taxYear = taxYear,
       month = month,
       headers = headers
     )
