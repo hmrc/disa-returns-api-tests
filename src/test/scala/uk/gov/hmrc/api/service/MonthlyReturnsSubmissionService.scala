@@ -26,14 +26,16 @@ import scala.concurrent.duration.*
 
 class MonthlyReturnsSubmissionService extends HttpClient {
 
+  val disa_returns_month: String = "SEP"
+
   def postMonthlyReturnsSubmission(
     isaManagerReference: String,
-    returnId: String,
+    taxYear: String,
     headers: Map[String, String],
     ndString: String = ""
   ): StandaloneWSResponse =
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + returnId)
+      mkRequest(disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + disa_returns_month)
         .withHttpHeaders(headers.toSeq: _*)
         .post(ndString),
       10.seconds

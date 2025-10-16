@@ -42,8 +42,30 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
   val currentYear: Int                                                       = LocalDate.now.getYear
-  val rng                                                                    = new Random()
-  val generateRandomZReference: () => String                                 = () => f"Z${rng.nextInt(10000)}%04d"
+  val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
+  val randomNumber                                                           = new Random()
+  val generateRandomZReference: () => String                                 = () => ZReferenceGenerator.generate()
+
+  object ZReferenceGenerator {
+    private val usedRefs = scala.collection.mutable.Set[String]()
+    private val random   = new scala.util.Random()
+    private val badRefs  = Set("Z1404", "Z1500")
+
+    def generate(): String = {
+      var ref   = ""
+      var valid = false
+
+      while (!valid) {
+        ref = f"Z${random.nextInt(9999)}%04d"
+        if (!usedRefs.contains(ref) && !badRefs.contains(ref)) {
+          valid = true
+        }
+      }
+
+      usedRefs += ref
+      ref
+    }
+  }
 
   def createClientApplication(): Unit =
     withClue("Setup step failed: Create Client Application → ") {
@@ -132,21 +154,21 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   def postMonthlyReturnsSubmission(
     isaManagerReference: String,
-    returnId: String,
+    taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
     ndString: String = validNdjsonTestData()
   ): StandaloneWSResponse =
     monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
       isaManagerReference,
-      returnId = returnId,
+      taxYear = taxYear,
       headers = headers,
       ndString = ndString
     )
 
   def postCompleteMonthlyReturns(
     isaManagerReference: String,
+    taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
-    taxYear: String,
     month: String
   ): StandaloneWSResponse =
     completeMonthlyReturnsService.postCompleteMonthlyReturns(
