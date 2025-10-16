@@ -102,7 +102,7 @@ class CompleteMonthlyReturnsSpec extends BaseSpec, LazyLogging {
     val completeMonthlyReturnsResponse2 =
       postCompleteMonthlyReturns(isaReference, taxYear, month = month)
 
-    Then("I got the status code 204")
+    Then("I got the status code 403")
     completeMonthlyReturnsResponse2.status shouldBe 403
   }
 
