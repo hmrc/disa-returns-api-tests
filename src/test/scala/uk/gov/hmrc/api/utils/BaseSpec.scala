@@ -38,8 +38,8 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   var clientId: String                                                       = _
   val disaReturnsStubService: DisaReturnsStubService                         = new DisaReturnsStubService
   val initialiseReturnsSubmissionService: InitialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
-  val monthlyReturnsSubmissionService: MonthlyReturnsSubmissionService       = new MonthlyReturnsSubmissionService
-  val monthlyReturnsDeclaration: MonthlyReturnsDeclaration                   = new MonthlyReturnsDeclaration
+  val monthlyReturnsSubmission: MonthlyReturnsSubmissionService              = new MonthlyReturnsSubmissionService
+  val monthlyReturnsDeclaration: MonthlyReturnsDeclarationService            = new MonthlyReturnsDeclarationService
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
   val currentYear: Int                                                       = LocalDate.now.getYear
   val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
@@ -154,17 +154,19 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       headers = headers
     )
 
-  def postMonthlyReturnsSubmission(
+  def submissionRequest(
     isaManagerReference: String,
     taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
-    ndString: String = validNdjsonTestData()
+    ndString: String = validNdjsonTestData(),
+    month: String
   ): StandaloneWSResponse =
-    monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
+    monthlyReturnsSubmission.postSubmission(
       isaManagerReference,
       taxYear = taxYear,
       headers = headers,
-      ndString = ndString
+      ndString = ndString,
+      month = month
     )
 
   def declarationRequest(

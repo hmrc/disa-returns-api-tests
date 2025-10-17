@@ -17,97 +17,41 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
   Scenario(
-    s"1. Verify 'Complete Monthly Returns' API response gives status code 200 for a valid complete monthly returns submission"
+    s"1. Verify 'declaration endpoint' returns a 200 status code for a successful request"
   ) {
-    Given("I set the reporting windows as open and when no obligation has met")
     val isaReference = generateRandomZReference()
-    disaReturnsStubService.setReportingWindow(true)
-    val month        = "AUG"
+    openReportingWindow()
+    When("I POST a declaration request")
+    val response     = declarationRequest(isaReference, taxYear = taxYear, month = month)
 
-    When("I POST a request 'Monthly Returns Submission' API for 6 totalRecords for the first time")
-    val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(isaReference)
-
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse.status shouldBe 204
-
-    When("I POST a second submission request to 'Monthly Returns Submission' API for the rest of 6 totalRecords")
-    val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(isaReference)
-
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse2.status shouldBe 204
-
-    When("I POST a request to the 'Declaration' endpoint")
-    val completeMonthlyReturnsResponse =
-      declarationRequest(isaReference, taxYear, month = month)
-
-    Then("I got the status code 200")
-    completeMonthlyReturnsResponse.status shouldBe 200
+    Then("A 200 status code is returned")
+    response.status shouldBe 200
+    val body = Json.parse(response.body)
+    (body \ "boxId").asOpt[String] shouldBe empty
   }
 
   Scenario(
-    s"2. Verify 'Complete Monthly Returns' API response gives status code 403 Obligation closed when the user tries to resend the same 'Complete Monthly Returns' API"
+    s"2. Verify 'declaration endpoint' returns a 200 status code and successfully returns a boxId"
   ) {
-    Given("I set the reporting windows as open and when obligation has not met")
     val isaReference = generateRandomZReference()
-    disaReturnsStubService.setReportingWindow(true)
-    val month        = "JAN"
+    openReportingWindow()
+    Given("A client application and PPNS box is created")
+    createClientApplication()
+    createNotificationBoxAndSubscribe()
 
-    When("I POST a request 'Monthly Returns Submission' API")
-    val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(isaReference)
+    When("I POST a declaration request")
+    val response = declarationRequest(isaReference, taxYear = taxYear, month = month)
 
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse.status shouldBe 204
-
-    When("I POST a second submission request to 'Monthly Returns Submission' API")
-    val monthlyReturnsSubmissionResponse2 =
-      postMonthlyReturnsSubmission(isaReference)
-
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse2.status shouldBe 204
-
-    When("I POST a request to the 'Declaration' endpoint")
-    val completeMonthlyReturnsResponse =
-      declarationRequest(isaReference, taxYear, month = month)
-
-    Then("I got the status code 200")
-    completeMonthlyReturnsResponse.status shouldBe 200
-
-    When("I POST a request to the 'Declaration' endpoint for the second time")
-    val completeMonthlyReturnsResponse2 =
-      declarationRequest(isaReference, taxYear, month = month)
-
-    Then("I got the status code 403")
-    completeMonthlyReturnsResponse2.status shouldBe 403
+    Then("A 200 status code is returned")
+    response.status shouldBe 200
+    val body = Json.parse(response.body)
+    (body \ "boxId").asOpt[String] should not be empty
   }
 
-  Scenario(
-    s"3. Verify 'Complete Monthly Returns' API response gives status code 401 for an authentication failure"
-  ) {
-    Given("I set the reporting windows as open and when no obligation has met")
-    val isaReference = generateRandomZReference()
-    disaReturnsStubService.setReportingWindow(true)
-    val month        = "JAN"
-
-    When("I POST a request 'Monthly Returns Submission' API")
-    val monthlyReturnsSubmissionResponse =
-      postMonthlyReturnsSubmission(isaReference)
-
-    Then("I got the status code 204")
-    monthlyReturnsSubmissionResponse.status shouldBe 204
-
-    When("I POST a request to the 'Declaration' endpoint")
-    val completeMonthlyReturnsResponse =
-      declarationRequest(isaReference, taxYear, month = month, headers = Map.empty)
-
-    Then("I got the status code 401")
-    completeMonthlyReturnsResponse.status shouldBe 401
-  }
 }

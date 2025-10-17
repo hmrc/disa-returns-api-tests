@@ -24,7 +24,7 @@ import uk.gov.hmrc.apitestrunner.http.HttpClient
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class MonthlyReturnsDeclaration extends HttpClient {
+class MonthlyReturnsDeclarationService extends HttpClient {
 
   def postDeclaration(
     isaManagerReference: String,
