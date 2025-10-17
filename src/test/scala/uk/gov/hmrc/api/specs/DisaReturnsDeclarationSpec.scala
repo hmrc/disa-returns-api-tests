@@ -28,7 +28,7 @@ class DisaReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     val isaReference = generateRandomZReference()
     openReportingWindow()
     When("I POST a declaration request")
-    val response = declarationRequest(isaReference, taxYear = taxYear, month = month)
+    val response     = declarationRequest(isaReference, taxYear = taxYear, month = month)
 
     Then("A 200 status code is returned")
     response.status shouldBe 200
