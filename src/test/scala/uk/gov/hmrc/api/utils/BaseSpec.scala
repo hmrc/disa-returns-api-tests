@@ -39,12 +39,18 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val disaReturnsStubService: DisaReturnsStubService                         = new DisaReturnsStubService
   val initialiseReturnsSubmissionService: InitialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
   val monthlyReturnsSubmissionService: MonthlyReturnsSubmissionService       = new MonthlyReturnsSubmissionService
-  val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
+  val monthlyReturnsDeclaration: MonthlyReturnsDeclaration                   = new MonthlyReturnsDeclaration
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
   val currentYear: Int                                                       = LocalDate.now.getYear
   val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
   val randomNumber                                                           = new Random()
   val generateRandomZReference: () => String                                 = () => ZReferenceGenerator.generate()
+  val month                                                                  = "AUG"
+
+  def openReportingWindow(): Unit = {
+    Given("The reporting window is open")
+    disaReturnsStubService.setReportingWindow(true)
+  }
 
   object ZReferenceGenerator {
     private val usedRefs = scala.collection.mutable.Set[String]()
@@ -161,13 +167,13 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       ndString = ndString
     )
 
-  def postCompleteMonthlyReturns(
+  def declarationRequest(
     isaManagerReference: String,
     taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
     month: String
   ): StandaloneWSResponse =
-    completeMonthlyReturnsService.postCompleteMonthlyReturns(
+    monthlyReturnsDeclaration.postDeclaration(
       isaManagerReference,
       taxYear = taxYear,
       month = month,

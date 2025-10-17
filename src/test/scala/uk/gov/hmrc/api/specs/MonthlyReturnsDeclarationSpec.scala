@@ -17,8 +17,6 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
-import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
@@ -47,7 +45,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request to the 'Declaration' endpoint")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(isaReference, taxYear, month = month)
+      declarationRequest(isaReference, taxYear, month = month)
 
     Then("I got the status code 200")
     completeMonthlyReturnsResponse.status shouldBe 200
@@ -77,14 +75,14 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request to the 'Declaration' endpoint")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(isaReference, taxYear, month = month)
+      declarationRequest(isaReference, taxYear, month = month)
 
     Then("I got the status code 200")
     completeMonthlyReturnsResponse.status shouldBe 200
 
     When("I POST a request to the 'Declaration' endpoint for the second time")
     val completeMonthlyReturnsResponse2 =
-      postCompleteMonthlyReturns(isaReference, taxYear, month = month)
+      declarationRequest(isaReference, taxYear, month = month)
 
     Then("I got the status code 403")
     completeMonthlyReturnsResponse2.status shouldBe 403
@@ -107,7 +105,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     When("I POST a request to the 'Declaration' endpoint")
     val completeMonthlyReturnsResponse =
-      postCompleteMonthlyReturns(isaReference, taxYear, month = month, headers = Map.empty)
+      declarationRequest(isaReference, taxYear, month = month, headers = Map.empty)
 
     Then("I got the status code 401")
     completeMonthlyReturnsResponse.status shouldBe 401
