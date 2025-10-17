@@ -38,13 +38,20 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   var clientId: String                                                       = _
   val disaReturnsStubService: DisaReturnsStubService                         = new DisaReturnsStubService
   val initialiseReturnsSubmissionService: InitialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
-  val monthlyReturnsSubmissionService: MonthlyReturnsSubmissionService       = new MonthlyReturnsSubmissionService
-  val completeMonthlyReturnsService: CompleteMonthlyReturns                  = new CompleteMonthlyReturns
+  val monthlyReturnsSubmission: MonthlyReturnsSubmissionService              = new MonthlyReturnsSubmissionService
+  val monthlyReturnsDeclaration: MonthlyReturnsDeclarationService            = new MonthlyReturnsDeclarationService
   val reportingService: ReconciliationReportService                          = new ReconciliationReportService
   val currentYear: Int                                                       = LocalDate.now.getYear
   val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
   val randomNumber                                                           = new Random()
   val generateRandomZReference: () => String                                 = () => ZReferenceGenerator.generate()
+  val month                                                                  = "AUG"
+  val isaManagerReference                                                    = "Z1234"
+
+  def openReportingWindow(): Unit = {
+    Given("The reporting window is open")
+    disaReturnsStubService.setReportingWindow(true)
+  }
 
   object ZReferenceGenerator {
     private val usedRefs = scala.collection.mutable.Set[String]()
@@ -93,6 +100,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
         val res = ppnsService.createSubscriptionField()
         res.status should (be(201) or be(200))
       })
+      //        TODO commented out as this is creating two boxes. Do we want to test the callback url
+//      "Create Subscription Field Values" -> (() => {
+//        val res = ppnsService.createSubscriptionFieldValues(clientId)
+//        res.status shouldBe 201
+//      })
     )
     setupSteps.foreach { case (name, action) =>
       withClue(s"Setup step failed: $name → ") {
@@ -148,26 +160,28 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       headers = headers
     )
 
-  def postMonthlyReturnsSubmission(
+  def submissionRequest(
     isaManagerReference: String,
     taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
-    ndString: String = validNdjsonTestData()
+    ndString: String = validNdjsonTestData(),
+    month: String
   ): StandaloneWSResponse =
-    monthlyReturnsSubmissionService.postMonthlyReturnsSubmission(
+    monthlyReturnsSubmission.postSubmission(
       isaManagerReference,
       taxYear = taxYear,
       headers = headers,
-      ndString = ndString
+      ndString = ndString,
+      month = month
     )
 
-  def postCompleteMonthlyReturns(
+  def declarationRequest(
     isaManagerReference: String,
     taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
     month: String
   ): StandaloneWSResponse =
-    completeMonthlyReturnsService.postCompleteMonthlyReturns(
+    monthlyReturnsDeclaration.postDeclaration(
       isaManagerReference,
       taxYear = taxYear,
       month = month,
