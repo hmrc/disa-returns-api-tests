@@ -46,6 +46,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val randomNumber                                                           = new Random()
   val generateRandomZReference: () => String                                 = () => ZReferenceGenerator.generate()
   val month                                                                  = "AUG"
+  val isaManagerReference                                                    = "Z1234"
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")
@@ -99,6 +100,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
         val res = ppnsService.createSubscriptionField()
         res.status should (be(201) or be(200))
       })
+      //        TODO commented out as this is creating two boxes. Do we want to test the callback url
+//      "Create Subscription Field Values" -> (() => {
+//        val res = ppnsService.createSubscriptionFieldValues(clientId)
+//        res.status shouldBe 201
+//      })
     )
     setupSteps.foreach { case (name, action) =>
       withClue(s"Setup step failed: $name → ") {
