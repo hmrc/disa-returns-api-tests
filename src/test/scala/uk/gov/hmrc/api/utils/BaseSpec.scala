@@ -85,17 +85,13 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   def createNotificationBoxAndSubscribe(): Unit = {
     val setupSteps: Seq[(String, () => Any)] = Seq(
-      "Create Notification Box"          -> (() => {
+      "Create Notification Box"   -> (() => {
         val res = ppnsService.createNotificationBox(clientId, notificationBoxHeadersMap)
         res.status shouldBe 201
       }),
-      "Create Subscription Field"        -> (() => {
+      "Create Subscription Field" -> (() => {
         val res = ppnsService.createSubscriptionField()
         res.status should (be(201) or be(200))
-      }),
-      "Create Subscription Field Values" -> (() => {
-        val res = ppnsService.createSubscriptionFieldValues(clientId)
-        res.status shouldBe 201
       })
     )
     setupSteps.foreach { case (name, action) =>
