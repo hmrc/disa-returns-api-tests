@@ -35,4 +35,18 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     Then("A 204 status code is returned")
     response.status shouldBe 204
   }
+
+  Scenario(
+    s"2. Verify 'submission endpoint' returns a 204 status code for a successful submission using a lowercase Z reference"
+  ) {
+    val isaReference = generateRandomZReference().toLowerCase // convert to lowercase
+    openReportingWindow()
+
+    When("I POST a submission request")
+    val response: StandaloneWSResponse =
+      submissionRequest(isaManagerReference = isaReference, month = month)
+
+    Then("A 204 status code is returned")
+    response.status shouldBe 204
+  }
 }
