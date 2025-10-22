@@ -17,9 +17,7 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
-import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.*
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {

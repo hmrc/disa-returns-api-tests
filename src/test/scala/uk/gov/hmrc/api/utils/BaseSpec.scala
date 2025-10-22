@@ -32,21 +32,20 @@ import java.time.LocalDate
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
-  val authHelper: AuthHelper                                                 = new AuthHelper
-  val authToken: String                                                      = authHelper.getAuthBearerToken
-  val ppnsService: PPNSService                                               = new PPNSService
-  var clientId: String                                                       = _
-  val disaReturnsStubService: DisaReturnsStubService                         = new DisaReturnsStubService
-  val initialiseReturnsSubmissionService: InitialiseReturnsSubmissionService = new InitialiseReturnsSubmissionService
-  val monthlyReturnsSubmission: MonthlyReturnsSubmissionService              = new MonthlyReturnsSubmissionService
-  val monthlyReturnsDeclaration: MonthlyReturnsDeclarationService            = new MonthlyReturnsDeclarationService
-  val reportingService: ReconciliationReportService                          = new ReconciliationReportService
-  val currentYear: Int                                                       = LocalDate.now.getYear
-  val taxYear: String                                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
-  val randomNumber                                                           = new Random()
-  val generateRandomZReference: () => String                                 = () => ZReferenceGenerator.generate()
-  val month                                                                  = "AUG"
-  val isaManagerReference                                                    = "Z1234"
+  val authHelper: AuthHelper                                      = new AuthHelper
+  val authToken: String                                           = authHelper.getAuthBearerToken
+  val ppnsService: PPNSService                                    = new PPNSService
+  var clientId: String                                            = _
+  val disaReturnsStubService: DisaReturnsStubService              = new DisaReturnsStubService
+  val monthlyReturnsSubmission: MonthlyReturnsSubmissionService   = new MonthlyReturnsSubmissionService
+  val monthlyReturnsDeclaration: MonthlyReturnsDeclarationService = new MonthlyReturnsDeclarationService
+  val reportingService: ReconciliationReportService               = new ReconciliationReportService
+  val currentYear: Int                                            = LocalDate.now.getYear
+  val taxYear: String                                             = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
+  val randomNumber                                                = new Random()
+  val generateRandomZReference: () => String                      = () => ZReferenceGenerator.generate()
+  val month                                                       = "AUG"
+  val isaManagerReference                                         = "Z1234"
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")
@@ -145,20 +144,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     "Authorization" -> authToken,
     "User-Agent"    -> "disa-returns"
   )
-
-  def postInitiateReturnsSubmission(
-    isaManagerReference: String,
-    headers: Map[String, String] = validHeaders,
-    totalRecords: Int = 12,
-    month: String
-  ): StandaloneWSResponse =
-    initialiseReturnsSubmissionService.postInitialiseReturnsSubmissionApi(
-      totalRecords = totalRecords,
-      month,
-      taxYear = currentYear,
-      isaManagerReference,
-      headers = headers
-    )
 
   def submissionRequest(
     isaManagerReference: String,
