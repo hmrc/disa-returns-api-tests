@@ -19,13 +19,12 @@ package uk.gov.hmrc.api.utils
 import scala.util.Random
 
 object RandomDataGenerator {
-  def nino(): String = {
-    val firstTwoLetters = "ABCEGHJKLMNPRSTWXYZ"
-    val letterPart      = Random.shuffle(firstTwoLetters.toList).take(2).mkString
-    val numberPart      = Random.nextInt(999999).toString.reverse.padTo(6, '0').reverse
-    val lastLetters     = "ABCD"
-    val lastLetterPart  = Random.shuffle(lastLetters.toList).take(1).mkString
-    s"$letterPart$numberPart$lastLetterPart"
+  def generateNino(): String = {
+    val prefix: String = "AA"
+    val num            = Random.nextInt(1000000)
+    val suffix         = "C"
+    val nino           = f"$prefix$num%06d$suffix"
+    nino
   }
 
   def generateSTDCode(): String = {
