@@ -21,21 +21,22 @@ import uk.gov.hmrc.api.models.*
 
 object MockMonthlyReturnData extends NdjsonSupport {
 
-  def getLISANewSubscriptionPayload(
+  def getLISASubscriptionPayload(
     nino: String,
     accountNumber: String
-  ): LifetimeISANewSubscriptionPayload = LifetimeISANewSubscriptionPayload(
+  ): LifetimeISASubscriptionPayload = LifetimeISASubscriptionPayload(
     accountNumber,
     nino,
     "First24997",
-    "LISA NS model",
+    "LISA Subscription model",
     "Last24997",
     "1980-01-22",
-    "LIFETIME_CASH",
-    false,
+    2001.02,
+    1988.53,
     "2025-06-01",
     2500.23,
     10000.12,
+    "LIFETIME",
     "2025-01-22",
     5000.56,
     3000.56
@@ -51,121 +52,75 @@ object MockMonthlyReturnData extends NdjsonSupport {
     "LISA Closure model",
     "Last24998",
     "1980-01-22",
-    "LIFETIME_STOCKS_AND_SHARES",
-    false,
-    "2025-06-01",
     2500.23,
-    10000.12,
+    125.23,
     "2025-01-22",
+    10000.12,
+    5000.56,
+    "LIFETIME",
+    "2025-06-01",
     "2025-03-22",
     "CLOSED",
-    5000.56,
-    3000.56
+    3000.56,
+    4200.54
   )
 
-  def getLISATransferAndClosurePayload(
+  def getSISASubscriptionPayload(
     nino: String,
     accountNumber: String
-  ): LifetimeISATransferAndClosurePayload = LifetimeISATransferAndClosurePayload(
-    accountNumber,
-    nino,
-    "First24999",
-    "LISA Transfer & Closure model",
-    "Last24999",
-    "1980-01-22",
-    "LIFETIME_STOCKS_AND_SHARES",
-    true,
-    "2025-06-01",
-    2500.23,
-    10000.12,
-    "1234567",
-    1200.34,
-    "2025-01-22",
-    "2025-03-22",
-    "TRANSFERRED_IN_FULL",
-    5000.56,
-    3000.56
-  )
-
-  def getLISATransferPayload(
-    nino: String,
-    accountNumber: String
-  ): LifetimeISATransferPayload = LifetimeISATransferPayload(
-    accountNumber,
-    nino,
-    "First25000",
-    "LISA Transfer model",
-    "Last25000",
-    "1980-01-22",
-    "LIFETIME_CASH",
-    true,
-    "2025-06-01",
-    2500.23,
-    10000.12,
-    "1234567",
-    1200.34,
-    "2025-01-22",
-    5000.56,
-    3000.56
-  )
-
-  def getSISANewSubscriptionPayload(
-    nino: String,
-    accountNumber: String
-  ): StandardISANewSubscriptionPayload = StandardISANewSubscriptionPayload(
+  ): StandardISASubscriptionPayload = StandardISASubscriptionPayload(
     accountNumber,
     nino,
     "First25001",
-    "SISA new subscription model",
+    "SISA subscription model",
     "Last25001",
     "1980-01-22",
-    "STOCKS_AND_SHARES",
-    false,
-    "2025-06-01",
     2500.23,
+    4560.12,
+    "2025-06-01",
     10000.12,
+    5678.12,
+    "STOCKS_AND_SHARES",
     false
   )
 
-  def getSISATransferPayload(
+  def getSISAClosurePayload(
     nino: String,
     accountNumber: String
-  ): StandardISATransferPayload = StandardISATransferPayload(
+  ): StandardISAClosurePayload = StandardISAClosurePayload(
     accountNumber,
     nino,
-    "First25002",
-    "SISA Transfer model",
-    "Last25002",
+    "First25001",
+    "SISA closure model",
+    "Last25001",
     "1980-01-22",
-    "CASH",
-    true,
-    "2025-06-01",
     2500.23,
+    4560.12,
+    "2025-06-01",
     10000.12,
-    "1234567",
-    1200.34,
-    true
+    5678.12,
+    "INNOVATIVE_FINANCE",
+    false,
+    "2025-07-01",
+    "VOID"
   )
 
   def validNdjsonTestData(): String = {
-    val lisaNewSubscriptionPayload    =
-      getLISANewSubscriptionPayload(RandomDataGenerator.nino(), RandomDataGenerator.generateSTDCode())
-    val lisaClosurePayload            = getLISAClosurePayload(RandomDataGenerator.nino(), RandomDataGenerator.generateSTDCode())
-    val lisaTransferAndClosurePayload =
-      getLISATransferAndClosurePayload(RandomDataGenerator.nino(), RandomDataGenerator.generateSTDCode())
-    val lisaTransferPayload           = getLISATransferPayload(RandomDataGenerator.nino(), RandomDataGenerator.generateSTDCode())
-    val sisaNewSubscriptionPayload    =
-      getSISANewSubscriptionPayload(RandomDataGenerator.nino(), RandomDataGenerator.generateSTDCode())
-    val sisaTransferPayload           = getSISATransferPayload(RandomDataGenerator.nino(), RandomDataGenerator.generateSTDCode())
+    val lisaSubscriptionPayload =
+      getLISASubscriptionPayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+    val lisaClosurePayload      =
+      getLISAClosurePayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+    val sisaSubscriptionPayload =
+      getSISASubscriptionPayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+    val sisaClosurePayload      =
+      getSISAClosurePayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
 
     toNdjson(
       Seq(
-        Json.toJson(lisaNewSubscriptionPayload),
+        Json.toJson(lisaSubscriptionPayload),
         Json.toJson(lisaClosurePayload),
-        Json.toJson(lisaTransferAndClosurePayload),
-        Json.toJson(lisaTransferPayload),
-        Json.toJson(sisaNewSubscriptionPayload),
-        Json.toJson(sisaTransferPayload)
+        Json.toJson(sisaSubscriptionPayload),
+        Json.toJson(sisaClosurePayload)
       )
     )
   }

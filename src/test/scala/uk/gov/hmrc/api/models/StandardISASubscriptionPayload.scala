@@ -18,25 +18,22 @@ package uk.gov.hmrc.api.models
 
 import play.api.libs.json.{Json, OFormat, Writes}
 
-case class LifetimeISATransferPayload(
+case class StandardISASubscriptionPayload(
   accountNumber: String,
   nino: String,
   firstName: String,
   middleName: String,
   lastName: String,
   dateOfBirth: String,
-  isaType: String,
-  reportingATransfer: Boolean,
+  amountTransferredIn: Double,
+  amountTransferredOut: Double,
   dateOfLastSubscription: String,
   totalCurrentYearSubscriptionsToDate: Double,
   marketValueOfAccount: Double,
-  accountNumberOfTransferringAccount: String,
-  amountTransferred: Double,
-  dateOfFirstSubscription: String,
-  lisaQualifyingAddition: Double,
-  lisaBonusClaim: Double
+  isaType: String,
+  flexibleIsa: Boolean
 )
 
-object LifetimeISATransferPayload {
-  implicit val format: OFormat[LifetimeISATransferPayload] = Json.format[LifetimeISATransferPayload]
+object StandardISASubscriptionPayload {
+  implicit val format: OFormat[StandardISASubscriptionPayload] = Json.format[StandardISASubscriptionPayload]
 }
