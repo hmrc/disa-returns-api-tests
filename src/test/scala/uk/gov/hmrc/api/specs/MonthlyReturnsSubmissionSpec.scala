@@ -29,10 +29,18 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     openReportingWindow()
 
     When("I POST a submission request")
-    val response: StandaloneWSResponse =
+    val submissionResponse: StandaloneWSResponse =
       submissionRequest(isaManagerReference = isaReference, month = month)
 
     Then("A 204 status code is returned")
-    response.status shouldBe 204
+    submissionResponse.status shouldBe 204
+
+    When("I Submit declaration request")
+    val declarationResponse: StandaloneWSResponse =
+      declarationRequest(isaManagerReference = isaReference, month = month)
+
+    Then("A 200 status code is returned")
+    declarationResponse.status shouldBe 200
+
   }
 }
