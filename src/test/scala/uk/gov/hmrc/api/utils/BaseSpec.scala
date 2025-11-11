@@ -164,12 +164,14 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     isaManagerReference: String,
     taxYear: String = taxYear,
     headers: Map[String, String] = validHeaders,
-    month: String
+    month: String,
+    nilReturn: Boolean = false
   ): StandaloneWSResponse =
     monthlyReturnsDeclaration.postDeclaration(
       isaManagerReference,
       taxYear = taxYear,
       month = month,
-      headers = headers
+      headers = headers,
+      nilReturn
     )
 }
