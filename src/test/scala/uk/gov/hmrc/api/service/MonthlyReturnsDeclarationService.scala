@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.libs.json._
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.AppConfig.*
@@ -30,12 +31,16 @@ class MonthlyReturnsDeclarationService extends HttpClient {
     isaManagerReference: String,
     taxYear: String,
     month: String,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
+    headers: Map[String, String],
+    nilReturn: Boolean
+  ): StandaloneWSResponse = {
+
+    val body = if (nilReturn) Json.stringify(Json.obj("nilReturn" -> true)) else ""
     Await.result(
       mkRequest(disaReturnsHost + disaReturnsRoute + s"$isaManagerReference/$taxYear/$month/declaration")
         .withHttpHeaders(headers.toSeq: _*)
-        .post(""),
+        .post(body),
       10.seconds
     )
+  }
 }
