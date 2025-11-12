@@ -89,7 +89,7 @@ class ReconciliationReportService extends HttpClient {
       10.seconds
     )
 
-  def getReportingResults(
+  def getReconcilationReportPage(
     isaManagerReference: String,
     taxYear: String,
     month: String,
