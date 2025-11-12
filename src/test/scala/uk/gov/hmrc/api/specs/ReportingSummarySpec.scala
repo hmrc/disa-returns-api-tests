@@ -113,7 +113,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     s"4. Verify 'Results Endpoint' returns status code 200 OK after successful reconciliation declaration"
   ) {
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
-    val isaReference                                  = generateRandomZReference()
+    val isaReference                                     = generateRandomZReference()
     val npsReceivedSummaryResponse: StandaloneWSResponse =
       reportingService.triggerReportReadyScenario(
         isaReference,
