@@ -88,4 +88,20 @@ class ReconciliationReportService extends HttpClient {
         .get(),
       10.seconds
     )
+
+  def getReconcilationReportPage(
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    page: Int,
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
+    Await.result(
+      mkRequest(
+        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + "/results?page=" + page
+      )
+        .withHttpHeaders(headers.toSeq: _*)
+        .get(),
+      10.seconds
+    )
 }

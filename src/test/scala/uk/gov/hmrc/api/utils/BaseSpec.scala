@@ -46,6 +46,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val generateRandomZReference: () => String                      = () => ZReferenceGenerator.generate()
   val month                                                       = "AUG"
   val isaManagerReference                                         = "Z1234"
+  val totalRecords                                                = Array(1, 2, 3)
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")
