@@ -54,4 +54,18 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     (body \ "boxId").asOpt[String] should not be empty
   }
 
+  Scenario(
+    s"3. Verify 'declaration endpoint' returns a 200 status code for a nil return"
+  ) {
+    val isaReference = generateRandomZReference()
+    openReportingWindow()
+    When("I POST a declaration request for a nil return")
+    val response     = declarationRequest(isaReference, taxYear = taxYear, month = month, nilReturn = true)
+
+    Then("A 200 status code is returned")
+    response.status shouldBe 200
+    val body = Json.parse(response.body)
+    (body \ "boxId").asOpt[String] shouldBe empty
+  }
+
 }
