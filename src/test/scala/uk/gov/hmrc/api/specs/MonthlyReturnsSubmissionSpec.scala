@@ -50,15 +50,12 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     val isaReference = generateRandomZReference()
     openReportingWindow()
 
-    val ndjsonWithoutNewline: String =
-      validNdjsonTestData().stripSuffix("\n")
-
     When("I POST a submission request without trailing newline")
     val response: StandaloneWSResponse =
       submissionRequest(
         isaManagerReference = isaReference,
         month = month,
-        ndString = ndjsonWithoutNewline
+        ndString = validNdjsonTestData().stripSuffix("\n")
       )
 
     Then("A 204 status code is returned")
