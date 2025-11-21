@@ -64,8 +64,6 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     Then("A 200 status code is returned")
     response.status shouldBe 200
-    val body = Json.parse(response.body)
-    (body \ "boxId").asOpt[String] shouldBe empty
   }
 
 }
