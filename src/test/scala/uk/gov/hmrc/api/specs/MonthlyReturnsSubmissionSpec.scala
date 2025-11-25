@@ -19,6 +19,7 @@ package uk.gov.hmrc.api.specs
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.utils.BaseSpec
+import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
@@ -41,6 +42,23 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
     Then("A 200 status code is returned")
     declarationResponse.status shouldBe 200
+  }
 
+  Scenario(
+    s"2. Verify submission endpoint accepts NDJSON WITHOUT a trailing newline"
+  ) {
+    val isaReference = generateRandomZReference()
+    openReportingWindow()
+
+    When("I POST a submission request without trailing newline")
+    val response: StandaloneWSResponse =
+      submissionRequest(
+        isaManagerReference = isaReference,
+        month = month,
+        ndString = validNdjsonTestData().stripSuffix("\n")
+      )
+
+    Then("A 204 status code is returned")
+    response.status shouldBe 204
   }
 }
