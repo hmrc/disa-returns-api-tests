@@ -25,10 +25,14 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"1. Verify 'declaration endpoint' returns a 200 status code for a successful request"
   ) {
-    val isaReference = generateRandomZReference()
     openReportingWindow()
+
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     When("I POST a declaration request")
-    val response     = declarationRequest(isaReference, taxYear = taxYear, month = month)
+    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
 
     Then("A 200 status code is returned")
     response.status shouldBe 200
@@ -39,14 +43,18 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"2. Verify 'declaration endpoint' returns a 200 status code and successfully returns a boxId"
   ) {
-    val isaReference = generateRandomZReference()
     openReportingWindow()
+
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     Given("A client application and PPNS box is created")
-    createClientApplication()
-    createNotificationBoxAndSubscribe()
+    createClientApplication(authToken)
+    createNotificationBoxAndSubscribe(authToken)
 
     When("I POST a declaration request")
-    val response = declarationRequest(isaReference, taxYear = taxYear, month = month)
+    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
 
     Then("A 200 status code is returned")
     response.status shouldBe 200
@@ -57,10 +65,14 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"3. Verify 'declaration endpoint' returns a 200 status code for a nil return"
   ) {
-    val isaReference = generateRandomZReference()
     openReportingWindow()
+
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     When("I POST a declaration request for a nil return")
-    val response     = declarationRequest(isaReference, taxYear = taxYear, month = month, nilReturn = true)
+    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month, nilReturn = true)
 
     Then("A 200 status code is returned")
     response.status shouldBe 200

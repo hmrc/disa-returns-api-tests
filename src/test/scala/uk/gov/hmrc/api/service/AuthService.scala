@@ -29,16 +29,19 @@ class AuthService extends HttpClient {
   val host: String = TestEnvironment.url("auth")
   val url          = s"$host/auth-login-stub/gg-sign-in"
 
-  val ggSignInFormData: Map[String, String] = Map(
-    "CredID"             -> "aaa",
-    "affinityGroup"      -> "Organisation",
-    "confidenceLevel"    -> "50",
-    "credentialStrength" -> "strong",
-    "authorityId"        -> "",
-    "redirectionUrl"     -> "http://localhost:9949/auth-login-stub/session"
-  )
-
-  def callGGSignIn: StandaloneWSResponse =
+  def callGGSignIn(isaReference: String): StandaloneWSResponse = {
+    val formData: Map[String, String] = Map(
+      "CredID"                              -> "aaa",
+      "affinityGroup"                       -> "Organisation",
+      "confidenceLevel"                     -> "50",
+      "credentialStrength"                  -> "strong",
+      "authorityId"                         -> "",
+      "redirectionUrl"                      -> "http://localhost:9949/auth-login-stub/session",
+      "enrolment[0].name"                   -> "HMRC-DISA-ORG",
+      "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
+      "enrolment[0].taxIdentifier[0].value" -> isaReference,
+      "enrolment[0].state"                  -> "Activated"
+    )
     Await.result(
       mkRequest(url)
         .withHttpHeaders(
@@ -47,9 +50,10 @@ class AuthService extends HttpClient {
           "User-Agent"   -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         )
         .withFollowRedirects(false)
-        .post(ggSignInFormData),
+        .post(formData),
       10.seconds
     )
+  }
 
   def getBearerToken(cookies: String): StandaloneWSResponse =
     Await.result(

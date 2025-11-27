@@ -27,16 +27,19 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   Scenario(
     s"1. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
     val totalRecords                                  = 1000
-    val isaReference                                  = generateRandomZReference()
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.makeReturnSummaryCallback(
         isaReference,
         taxYear,
         month,
         totalRecords,
-        validHeadersOnlyWithToken
+        validHeadersOnlyWithToken(authToken)
       )
 
     Then("I got the status code 204")
@@ -44,7 +47,12 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReference, taxYear, month = month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(
+        isaReference,
+        taxYear,
+        month = month,
+        validHeadersOnlyWithToken(authToken)
+      )
 
     Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
@@ -61,15 +69,18 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   Scenario(
     s"2. Verify 'Results Summary' API response gives status code 204 and able to see the 'state of the report results' from reconciliation"
   ) {
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
-    val isaReference                                  = generateRandomZReference()
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.triggerReportReadyScenario(
         isaReference,
         taxYear,
         month,
         totalRecords,
-        validHeadersOnlyWithToken
+        validHeadersOnlyWithToken(authToken)
       )
 
     Then("I got the status code 204")
@@ -77,7 +88,12 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReference, taxYear, month = month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(
+        isaReference,
+        taxYear,
+        month = month,
+        validHeadersOnlyWithToken(authToken)
+      )
 
     Then("I got the status code 200")
     receivedReportingResultsSummaryResponse.status shouldBe 200
@@ -94,10 +110,18 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   Scenario(
     s"3. Verify 'Results Summary' API response gives status code 404 NOT FOUND when the report results from reconciliation is not available"
   ) {
-    val isaReference                                                  = generateRandomZReference()
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     When("I request 'reporting results summary' via a GET request when the report is not exists")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(isaReference, taxYear, month = month, validHeadersOnlyWithToken)
+      reportingService.getReportingResultsSummary(
+        isaReference,
+        taxYear,
+        month = month,
+        validHeadersOnlyWithToken(authToken)
+      )
 
     Then("I got the status code 404")
     receivedReportingResultsSummaryResponse.status shouldBe 404
@@ -112,15 +136,18 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
   Scenario(
     s"4. Verify 'Results Endpoint' returns status code 200 OK after successful reconciliation declaration"
   ) {
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
-    val isaReference                                     = generateRandomZReference()
     val npsReceivedSummaryResponse: StandaloneWSResponse =
       reportingService.triggerReportReadyScenario(
         isaReference,
         taxYear,
         month = month,
         totalRecords,
-        validHeadersOnlyWithToken
+        validHeadersOnlyWithToken(authToken)
       )
 
     Then("I got the status code 204 confirming the data was successfully stored")
@@ -133,7 +160,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
         taxYear,
         month,
         page = 0,
-        validHeadersOnlyWithToken
+        validHeadersOnlyWithToken(authToken)
       )
 
     Then("I should receive status code 200 OK")

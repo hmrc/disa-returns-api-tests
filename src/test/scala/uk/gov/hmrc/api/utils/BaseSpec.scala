@@ -33,7 +33,6 @@ import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
   val authHelper: AuthHelper                                      = new AuthHelper
-  val authToken: String                                           = authHelper.getAuthBearerToken
   val ppnsService: PPNSService                                    = new PPNSService
   var clientId: String                                            = _
   val disaReturnsStubService: DisaReturnsStubService              = new DisaReturnsStubService
@@ -74,10 +73,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     }
   }
 
-  def createClientApplication(): Unit =
+  def createClientApplication(token: String): Unit =
     withClue("Setup step failed: Create Client Application → ") {
+      val headers: Map[String, String]  = thirdPartyApplicationHeadersMap(token)
       val thirdPartyApplicationResponse =
-        ppnsService.createClientApplication(thirdPartyApplicationHeadersMap)
+        ppnsService.createClientApplication(headers)
       thirdPartyApplicationResponse.status should (be(201) or be(200))
 
       val jsonTry = Try(Json.parse(thirdPartyApplicationResponse.body))
@@ -90,10 +90,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       )
     }
 
-  def createNotificationBoxAndSubscribe(): Unit = {
+  def createNotificationBoxAndSubscribe(token: String): Unit = {
+    val headers: Map[String, String]         = notificationBoxHeadersMap(token)
     val setupSteps: Seq[(String, () => Any)] = Seq(
       "Create Notification Box"   -> (() => {
-        val res = ppnsService.createNotificationBox(clientId, notificationBoxHeadersMap)
+        val res = ppnsService.createNotificationBox(clientId, headers)
         res.status shouldBe 201
       }),
       "Create Subscription Field" -> (() => {
@@ -113,15 +114,15 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     }
   }
 
-  def validHeaders: Map[String, String] = Map(
+  def validHeaders(token: String): Map[String, String] = Map(
     "Content-Type"  -> "application/json",
     "X-Client-ID"   -> clientId,
-    "Authorization" -> authToken
+    "Authorization" -> token
   )
 
-  def validHeadersOnlyWithToken: Map[String, String] = Map(
+  def validHeadersOnlyWithToken(token: String): Map[String, String] = Map(
     "Content-Type"  -> "application/json",
-    "Authorization" -> authToken
+    "Authorization" -> token
   )
 
   val headersIncorrectBearerToken: Map[String, String] = Map(
@@ -130,29 +131,30 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     "Authorization" -> "BadAuthToken"
   )
 
-  def headersMapWithValidClientIDAndTokenWithoutContentType: Map[String, String] = Map(
+  def headersMapWithValidClientIDAndTokenWithoutContentType(token: String): Map[String, String] = Map(
     "X-Client-ID"   -> clientId,
-    "Authorization" -> authToken
+    "Authorization" -> token
   )
 
-  val thirdPartyApplicationHeadersMap: Map[String, String] = Map(
+  def thirdPartyApplicationHeadersMap(token: String): Map[String, String] = Map(
     "Content-Type"  -> "application/json",
-    "Authorization" -> authToken
+    "Authorization" -> token
   )
 
-  val notificationBoxHeadersMap: Map[String, String] = Map(
+  def notificationBoxHeadersMap(token: String): Map[String, String] = Map(
     "Content-Type"  -> "application/json",
-    "Authorization" -> authToken,
+    "Authorization" -> token,
     "User-Agent"    -> "disa-returns"
   )
 
   def submissionRequest(
+    token: String,
     isaManagerReference: String,
     taxYear: String = taxYear,
-    headers: Map[String, String] = validHeaders,
     ndString: String = validNdjsonTestData(),
     month: String
   ): StandaloneWSResponse =
+    val headers: Map[String, String] = validHeaders(token)
     monthlyReturnsSubmission.postSubmission(
       isaManagerReference,
       taxYear = taxYear,
@@ -162,12 +164,13 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     )
 
   def declarationRequest(
+    token: String,
     isaManagerReference: String,
     taxYear: String = taxYear,
-    headers: Map[String, String] = validHeaders,
     month: String,
     nilReturn: Boolean = false
   ): StandaloneWSResponse =
+    val headers: Map[String, String] = validHeaders(token)
     monthlyReturnsDeclaration.postDeclaration(
       isaManagerReference,
       taxYear = taxYear,
