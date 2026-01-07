@@ -44,7 +44,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val randomNumber                                                = new Random()
   val generateRandomZReference: () => String                      = () => ZReferenceGenerator.generate()
   val month                                                       = "AUG"
-  val isaManagerReference                                         = "Z1234"
   val totalRecords                                                = Array(1, 2, 3)
 
   def openReportingWindow(): Unit = {
@@ -55,7 +54,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   object ZReferenceGenerator {
     private val usedRefs = scala.collection.mutable.Set[String]()
     private val random   = new scala.util.Random()
-    private val badRefs  = Set("Z1404", "Z1500")
 
     def generate(): String = {
       var ref   = ""
@@ -63,7 +61,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
       while (!valid) {
         ref = f"Z${random.nextInt(9999)}%04d"
-        if (!usedRefs.contains(ref) && !badRefs.contains(ref)) {
+        if (!usedRefs.contains(ref)) {
           valid = true
         }
       }
