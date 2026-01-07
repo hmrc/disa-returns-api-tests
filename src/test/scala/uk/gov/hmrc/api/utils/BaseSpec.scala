@@ -63,7 +63,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   object ZReferenceGenerator {
     private val usedRefs = scala.collection.mutable.Set[String]()
     private val random   = new scala.util.Random()
-    private val badRefs  = Set("1400", "1503")
+    private val badRefs  = Set("1400", "1503", "1500")
 
     def generate(): String = {
       var ref   = ""
