@@ -22,6 +22,9 @@ object AppConfig {
   private val env                        = TestEnvironment
   val disaReturnsHost: String            = env.url("disa-returns")
   val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
+  val disa_returns_stub_host: String     = env.url("disa-returns-stubs")
   val disaReturnsRoute: String           = "/monthly/"
   val disaReturnsCallbackPath: String    = "/callback/monthly/"
+
+  val authBaseUrl: String = env.url("auth")
 }

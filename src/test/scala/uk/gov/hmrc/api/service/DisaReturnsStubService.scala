@@ -19,6 +19,7 @@ package uk.gov.hmrc.api.service
 import play.api.libs.ws.DefaultBodyWritables.*
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.AppConfig.disa_returns_stub_host
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
@@ -26,12 +27,12 @@ import scala.concurrent.duration.*
 
 class DisaReturnsStubService extends HttpClient {
 
-  val disa_returns_stub_host: String    = TestEnvironment.url("disa-returns-stub")
   val reportingWindowPath: String       = "/test-only/etmp/reporting-window-state"
   val openObligationStatusPath: String  = "/test-only/etmp/open-obligation-status/"
   val closeObligationStatusPath: String = "/etmp/declaration/"
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
+    println(Console.YELLOW + disa_returns_stub_host + reportingWindowPath + Console.RESET)
     val payload =
       s"""
          |{

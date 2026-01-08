@@ -26,7 +26,7 @@ import scala.concurrent.duration.*
 
 class PPNSService extends HttpClient {
   val third_party_application_host: String = TestEnvironment.url("third-party-application")
-  val ppns_host: String                    = TestEnvironment.url("push-pull-notification")
+  val ppns_host: String                    = TestEnvironment.url("push-pull-notifications-api")
   val api_subscription_fields_host: String = TestEnvironment.url("api-subscription-fields")
   val thirdPartyApplicationPath: String    = "/application"
   val ppnsPath: String                     = "/box"
