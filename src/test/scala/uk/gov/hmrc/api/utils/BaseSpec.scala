@@ -59,7 +59,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     def generate(): String = {
       val ref =
         Iterator
-          .continually(f"${random.nextInt(10000)}%04d")
+          .continually(f"${random.nextInt(9999)}%04d")
           .find(r => !usedRefs.contains(r) && !badRefs.contains(r))
           .get
 
