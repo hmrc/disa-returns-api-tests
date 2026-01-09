@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.api.constant
 
+import com.typesafe.config.{Config, ConfigFactory}
 import uk.gov.hmrc.api.conf.TestEnvironment
 
 object AppConfig {
@@ -25,6 +26,12 @@ object AppConfig {
   val disa_returns_stub_host: String     = env.url("disa-returns-stubs")
   val disaReturnsRoute: String           = "/monthly/"
   val disaReturnsCallbackPath: String    = "/callback/monthly/"
-
+  val config: Config        = ConfigFactory.load()
   val authBaseUrl: String = env.url("auth")
+
+  def baseUrl(service: String): String =
+    env.toString match {
+      case "local" => env.url(service)
+      case env => config.getString(s"$env.services.$service.baseUrl")
+    }
 }
