@@ -29,8 +29,6 @@ import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
-import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
@@ -47,13 +45,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val generateRandomZReference: () => String                      = () => ZReferenceGenerator.generate()
   val month                                                       = "AUG"
   val totalRecords                                                = Array(1, 2, 3)
-
-  private var usedRefs: java.util.Set[String] = _
-
-  override def beforeEach(): Unit =
-    usedRefs = Collections.newSetFromMap(
-      new ConcurrentHashMap[String, java.lang.Boolean]()
-    )
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")
@@ -75,7 +66,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
           valid = true
         }
       }
-
       usedRefs += s"Z$ref"
       s"Z$ref"
     }
