@@ -24,6 +24,8 @@ class AuthHelper {
   val authAPI: AuthService = new AuthService
 
   def getAuthBearerToken(isaReference: String): String = {
+    val newToken                                          = authAPI.getAccessToken()
+    val newOauthToken                                     = authAPI.getOAuthToken(newToken)
     val authServiceRequestResponse1: StandaloneWSResponse = authAPI.callGGSignIn(isaReference)
     val cookies                                           = authServiceRequestResponse1.cookies.map(c => s"${c.name}=${c.value}").mkString("; ")
     val authServiceRequestResponse2: StandaloneWSResponse = authAPI.getBearerToken(cookies)

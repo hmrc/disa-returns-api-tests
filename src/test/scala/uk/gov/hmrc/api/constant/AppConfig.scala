@@ -20,31 +20,20 @@ import com.typesafe.config.{Config, ConfigFactory}
 import uk.gov.hmrc.api.conf.TestEnvironment
 
 object AppConfig {
-  private val env    = TestEnvironment
-  private val config = ConfigFactory.load()
+  val env: TestEnvironment.type = TestEnvironment
+  private val config            = ConfigFactory.load()
 
-//  val disaReturnsHost: String            = env.url("disa-returns")
   val disaReturnsHost: String            = baseUrl("disa-returns")
-//  val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
   val disaReturnsTestSupportHost: String = baseUrl("disa-returns-test-support-api")
-//  val disa_returns_stub_host: String     = env.url("disa-returns-stubs")
   val disa_returns_stub_host: String     = baseUrl("disa-returns-stubs")
-  val disaReturnsRoute: String           = "/monthly/"
-  val disaReturnsCallbackPath: String    = "/callback/monthly/"
-//  val authBaseUrl: String                = env.url("auth")
   val authBaseUrl: String                = baseUrl("auth")
+
+  val disaReturnsRoute: String        = "/monthly/"
+  val disaReturnsCallbackPath: String = "/callback/monthly/"
+
+  val clientId: String     = config.getString(s"${env.environment}.clientId")
+  val clientSecret: String = config.getString(s"${env.environment}.clientSecret")
 
   def baseUrl(service: String): String =
     config.getString(s"${env.environment}.services.$service.url")
-
-//  def baseUrl(service: String): String =
-//    environment match {
-//      case "local" =>
-//        val host = config.getString("local.services.host")
-//        val port = config.getInt(s"local.services.$service.port")
-//        s"$host:$port"
-//
-//      case env =>
-//        config.getString(s"$env.services.$service.baseUrl")
-//    }
 }
