@@ -23,23 +23,19 @@ object AppConfig {
   private val env    = TestEnvironment
   private val config = ConfigFactory.load()
 
-  val disaReturnsHost: String            = env.url("disa-returns")
-//  val disaReturnsHost: String            = baseUrl("disa-returns")
-  val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
-//  val disaReturnsTestSupportHost: String = baseUrl("disa-returns-test-support-api")
-  val disa_returns_stub_host: String     = env.url("disa-returns-stubs")
-//  val disa_returns_stub_host: String     = baseUrl("disa-returns-stubs")
+//  val disaReturnsHost: String            = env.url("disa-returns")
+  val disaReturnsHost: String            = baseUrl("disa-returns")
+//  val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
+  val disaReturnsTestSupportHost: String = baseUrl("disa-returns-test-support-api")
+//  val disa_returns_stub_host: String     = env.url("disa-returns-stubs")
+  val disa_returns_stub_host: String     = baseUrl("disa-returns-stubs")
   val disaReturnsRoute: String           = "/monthly/"
   val disaReturnsCallbackPath: String    = "/callback/monthly/"
-  val authBaseUrl: String                = env.url("auth")
+//  val authBaseUrl: String                = env.url("auth")
+  val authBaseUrl: String                = baseUrl("auth")
 
   def baseUrl(service: String): String =
-    env.environment match {
-      case "local"     => env.url(service)
-      case environment =>
-        println(Console.YELLOW + environment + Console.RESET)
-        config.getString(s"$environment.services.$service.baseUrl")
-    }
+    config.getString(s"${env.environment}.services.$service.url")
 
 //  def baseUrl(service: String): String =
 //    environment match {
