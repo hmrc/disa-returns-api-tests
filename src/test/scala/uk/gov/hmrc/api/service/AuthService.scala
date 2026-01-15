@@ -19,6 +19,7 @@ package uk.gov.hmrc.api.service
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedSimpleForm
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.AppConfig.baseUrlFor
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
@@ -26,7 +27,7 @@ import scala.concurrent.duration.*
 
 class AuthService extends HttpClient {
 
-  val host: String = TestEnvironment.url("auth")
+  val host: String = baseUrlFor("auth-login-api")
   val url          = s"$host/auth-login-stub/gg-sign-in"
 
   def callGGSignIn(isaReference: String): StandaloneWSResponse = {
