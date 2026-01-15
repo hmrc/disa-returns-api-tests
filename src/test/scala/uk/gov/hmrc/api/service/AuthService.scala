@@ -83,7 +83,8 @@ class AuthService extends HttpClient {
     Client_Id     -> s"$clientId",
     Client_Secret -> s"$clientSecret",
     Grant_Type    -> "client_credentials",
-    Scope         -> "write:isa-returns read:isa-returns"
+    Scope         -> "write:isa-returns read:isa-returns",
+    Redirect_Url  ->  "urn:ietf:wg:oauth:2.0:oob"
   )
 
   def getAccessToken(): String =
