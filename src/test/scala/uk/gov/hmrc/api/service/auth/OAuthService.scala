@@ -29,10 +29,10 @@ class OAuthService(customHttpClient: CustomHttpClient) {
   val host: String = baseUrl("oauth-api")
 
   def getBearerToken(clientId: String, clientSecret: String, scope: String): String = {
-    val url: String = s"$host/token"
+    val url: String               = s"$host/token"
     log.info(s"Retrieving bearer token from $url")
-    val headers: (String, String) = ("Content-Type" -> "application/x-www-form-urlencoded")
-    val body: String = s"client_id=$clientId&client_secret=$clientSecret&scope=$scope&grant_type=client_credentials"
+    val headers: (String, String) = "Content-Type" -> "application/x-www-form-urlencoded"
+    val body: String              = s"client_id=$clientId&client_secret=$clientSecret&scope=$scope&grant_type=client_credentials"
 
     val response: StandaloneWSResponse =
       Await.result(customHttpClient.post(url, body, headers), 10.seconds)

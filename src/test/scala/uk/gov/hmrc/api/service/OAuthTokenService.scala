@@ -25,13 +25,12 @@ import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-
 object OAuthTokenService extends HttpClient {
 
   def exchangeCodeForToken(
-                            authorizationCode: String,
-                            redirectUri: String
-                          ): OAuthTokenResponse = {
+    authorizationCode: String,
+    redirectUri: String
+  ): OAuthTokenResponse = {
 
     val body =
       s"""
@@ -58,12 +57,12 @@ object OAuthTokenService extends HttpClient {
 }
 
 case class OAuthTokenResponse(
-                               access_token: String,
-                               refresh_token: String,
-                               expires_in: Int,
-                               scope: String,
-                               token_type: String
-                             )
+  access_token: String,
+  refresh_token: String,
+  expires_in: Int,
+  scope: String,
+  token_type: String
+)
 object OAuthTokenResponse {
   implicit val tokenReads: Reads[OAuthTokenResponse] = Json.reads[OAuthTokenResponse]
 }

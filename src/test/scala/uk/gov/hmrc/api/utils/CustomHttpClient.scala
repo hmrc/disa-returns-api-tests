@@ -26,16 +26,16 @@ class CustomHttpClient extends HttpClient {
 
   def get(url: String, headers: (String, String)*): Future[StandaloneWSResponse] =
     mkRequest(url)
-      .withHttpHeaders(headers *)
+      .withHttpHeaders(headers*)
       .get()
 
   def post(url: String, bodyAsJson: String, headers: (String, String)*): Future[StandaloneWSResponse] =
     mkRequest(url)
-      .withHttpHeaders(headers *)
+      .withHttpHeaders(headers*)
       .post(bodyAsJson)
 
   def delete(url: String, headers: (String, String)*): Future[StandaloneWSResponse] =
     mkRequest(url)
-      .withHttpHeaders(headers *)
+      .withHttpHeaders(headers*)
       .delete()
 }

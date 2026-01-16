@@ -19,10 +19,10 @@ package uk.gov.hmrc.api.service
 object OAuthAuthorizeUrl {
 
   def build(
-             clientId: String,
-             redirectUri: String,
-             scopes: String
-           ): String = {
+    clientId: String,
+    redirectUri: String,
+    scopes: String
+  ): String = {
     val encodedScopes = scopes.mkString("%20")
 
     s"https://www.development.tax.service.gov.uk/oauth/authorize" +
