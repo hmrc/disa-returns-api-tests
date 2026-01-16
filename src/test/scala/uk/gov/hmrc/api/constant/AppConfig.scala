@@ -16,12 +16,29 @@
 
 package uk.gov.hmrc.api.constant
 
+import com.typesafe.config.ConfigFactory
 import uk.gov.hmrc.api.conf.TestEnvironment
 
 object AppConfig {
-  private val env                        = TestEnvironment
-  val disaReturnsHost: String            = env.url("disa-returns")
-  val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
-  val disaReturnsRoute: String           = "/monthly/"
-  val disaReturnsCallbackPath: String    = "/callback/monthly/"
+  val env: TestEnvironment.type = TestEnvironment
+  private val config            = ConfigFactory.load()
+
+  val disaReturnsHost: String            = baseUrl("disa-returns")
+  val disaReturnsTestSupportHost: String = baseUrl("disa-returns-test-support-api")
+  val disa_returns_stub_host: String     = baseUrl("disa-returns-stubs")
+  val authBaseUrl: String                = baseUrl("auth")
+  val authApiBaseUrl: String             = baseUrl("auth-api")
+  val apiPlatformTestUserUrl: String     = baseUrl("api-platform-test-user")
+  val oAuthApi: String                   = baseUrl("oauth-api")
+
+  val disaReturnsRoute: String        = "/monthly/"
+  val disaReturnsCallbackPath: String = "/callback/monthly/"
+
+  val clientId: String         = config.getString(s"environments.${env.environment}.clientId")
+  val clientSecret: String     = config.getString(s"environments.${env.environment}.clientSecret")
+  val oAuthRedirectUrl: String = config.getString(s"environments.${env.environment}.redirectUrl")
+  val scopes: String           = config.getString(s"environments.${env.environment}.scopes")
+
+  def baseUrl(service: String): String =
+    config.getString(s"environments.${env.environment}.$service")
 }

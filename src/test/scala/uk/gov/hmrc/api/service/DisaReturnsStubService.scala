@@ -18,7 +18,7 @@ package uk.gov.hmrc.api.service
 
 import play.api.libs.ws.DefaultBodyWritables.*
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.AppConfig.baseUrl
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
@@ -26,7 +26,7 @@ import scala.concurrent.duration.*
 
 class DisaReturnsStubService extends HttpClient {
 
-  val disa_returns_stub_host: String    = TestEnvironment.url("disa-returns-stub")
+  val disa_returns_stub_host: String    = baseUrl("disa-returns-stubs")
   val reportingWindowPath: String       = "/test-only/etmp/reporting-window-state"
   val openObligationStatusPath: String  = "/test-only/etmp/open-obligation-status/"
   val closeObligationStatusPath: String = "/etmp/declaration/"

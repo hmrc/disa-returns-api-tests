@@ -26,13 +26,16 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.*
 import uk.gov.hmrc.api.service.*
+import uk.gov.hmrc.api.service.auth.OAuthService
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
-  val authHelper: AuthHelper                                      = new AuthHelper
+  val customHttpClient: CustomHttpClient                          = new CustomHttpClient
+  val OAuthService: OAuthService                                  = new OAuthService(customHttpClient)
+  val authHelper: AuthHelper                                      = new AuthHelper(oAuthService = OAuthService)
   val ppnsService: PPNSService                                    = new PPNSService
   var clientId: String                                            = _
   val disaReturnsStubService: DisaReturnsStubService              = new DisaReturnsStubService
