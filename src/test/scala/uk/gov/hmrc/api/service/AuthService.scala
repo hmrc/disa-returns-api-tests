@@ -26,9 +26,10 @@ import scala.concurrent.duration.*
 
 class AuthService extends HttpClient {
 
-  val authSignInUrl  = s"$authBaseUrl/auth-login-stub/gg-sign-in"
-  val authSessionUrl = s"$authBaseUrl/auth-login-stub/session"
-  val oAuthTokenUrl  = s"$authBaseUrl/oauth/token"
+  val authSignInUrl     = s"$authBaseUrl/auth-login-stub/gg-sign-in"
+  val authSessionUrl    = s"$authBaseUrl/auth-login-stub/session"
+  val oAuthTokenUrl     = s"$authBaseUrl/oauth/token"
+  val oAuthAuthorizeUrl = s"$authBaseUrl/oauth/authorize"
 
   def callGGSignIn(isaReference: String): StandaloneWSResponse = {
     val formData: Map[String, String] = Map(
@@ -84,10 +85,17 @@ class AuthService extends HttpClient {
     Client_Secret -> s"$clientSecret",
     Grant_Type    -> "client_credentials",
     Scope         -> "write:isa-returns read:isa-returns",
-    Redirect_Url  ->  "urn:ietf:wg:oauth:2.0:oob"
+    Redirect_Url  -> "urn:ietf:wg:oauth:2.0:oob"
   )
 
-  def getAccessToken(): String =
+  val accessTokenBody2: Map[String, String] = Map(
+    "response_type" -> "code",
+    "client_id"     -> clientId,
+    "scope"         -> "write:isa-returns read:isa-returns",
+    "redirect_uri"  -> "urn:ietf:wg:oauth:2.0:oob"
+  )
+
+  def getAuthorizationCode(): String =
     env.environment match {
       case "local" =>
         "CSP"
@@ -95,26 +103,40 @@ class AuthService extends HttpClient {
       case _ =>
         val response = Await.result(
           wsClient
-            .url(oAuthTokenUrl)
-            .withHttpHeaders(
-              "Content-Type" -> "application/x-www-form-urlencoded",
-              "Accept"       -> "application/json"
+            .url(oAuthAuthorizeUrl)
+            .addQueryStringParameters(
+              "response_type" -> "code",
+              "client_id"     -> clientId,
+              "scope"         -> "write:isa-returns read:isa-returns",
+              "redirect_uri"  -> "urn:ietf:wg:oauth:2.0:oob"
             )
-            .post(accessTokenBody),
+            .withFollowRedirects(false) // IMPORTANT
+            .get(),
           10.seconds
         )
 
-        if (response.status != 200) {
+        if (response.status != 302) {
           throw new RuntimeException(
-            s"Failed to get token. Status=${response.status}, body=${response.body}"
+            s"Failed to get authorization code. Status=${response.status}, body=${response.body}"
           )
         }
 
-        val json        = Json.parse(response.body)
-        val accessToken = (json \ "access_token")
-          .asOpt[String]
-          .getOrElse(throw new RuntimeException("access_token not found"))
-        accessToken
+        val locationHeader =
+          response
+            .header("Location")
+            .getOrElse(throw new RuntimeException("Missing Location header"))
+
+        val code =
+          new java.net.URI(locationHeader).getQuery
+            .split("&")
+            .map(_.split("="))
+            .collectFirst { case Array("code", value) =>
+              value
+            }
+            .getOrElse(throw new RuntimeException("Authorization code not found"))
+
+        println(Console.MAGENTA + s"code: $code" + Console.RESET)
+        code
     }
 
   def getOAuthToken(accessToken: String): String =
@@ -124,6 +146,14 @@ class AuthService extends HttpClient {
       Grant_Type    -> "authorization_code",
       Scope         -> "write:isa-returns read:isa-returns",
       Code          -> "accessToken"
+    )
+
+    val oAuthTokenBody2: Map[String, String] = Map(
+      "client_id"     -> clientId,
+      "client_secret" -> clientSecret,
+      "grant_type"    -> "authorization_code",
+      "code"          -> "accessToken",
+      "redirect_uri"  -> "urn:ietf:wg:oauth:2.0:oob"
     )
 
     env.environment match {
