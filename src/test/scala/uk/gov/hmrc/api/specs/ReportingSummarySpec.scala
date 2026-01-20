@@ -31,7 +31,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val isaReference      = generateRandomZReference()
     val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
-    Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
+    Given("I simulate a summary from NPS via callback endpoint")
     val totalRecords                                  = 1000
     val receivedSummaryResponse: StandaloneWSResponse =
       reportingService.makeReturnSummaryCallback(

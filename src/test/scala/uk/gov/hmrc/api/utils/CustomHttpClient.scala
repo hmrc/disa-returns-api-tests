@@ -16,23 +16,46 @@
 
 package uk.gov.hmrc.api.utils
 
+import play.api.libs.ws.DefaultBodyWritables.{writeableOf_String, writeableOf_urlEncodedSimpleForm}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.apitestrunner.http.HttpClient
-import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 
 import scala.concurrent.Future
 
 class CustomHttpClient extends HttpClient {
 
-  def get(url: String, headers: (String, String)*): Future[StandaloneWSResponse] =
-    mkRequest(url)
-      .withHttpHeaders(headers*)
-      .get()
+  private var bearerToken: Option[String] = None
+
+  def withBearerToken(token: String): CustomHttpClient = {
+    bearerToken = Some(token)
+    this
+  }
 
   def post(url: String, bodyAsJson: String, headers: (String, String)*): Future[StandaloneWSResponse] =
     mkRequest(url)
-      .withHttpHeaders(headers*)
+      .withHttpHeaders(headers: _*)
       .post(bodyAsJson)
+
+  def postForm(
+    url: String,
+    formData: Map[String, String],
+    followRedirects: Boolean = false,
+    headers: (String, String)*
+  ): Future[StandaloneWSResponse] =
+    mkRequest(url)
+      .withHttpHeaders(headers: _*)
+      .withFollowRedirects(followRedirects)
+      .post(formData)
+
+  def get(
+    url: String,
+    followRedirects: Boolean = false,
+    headers: (String, String)*
+  ): Future[StandaloneWSResponse] =
+    mkRequest(url)
+      .withHttpHeaders(headers: _*)
+      .withFollowRedirects(followRedirects)
+      .get()
 
   def delete(url: String, headers: (String, String)*): Future[StandaloneWSResponse] =
     mkRequest(url)

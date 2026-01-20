@@ -26,16 +26,18 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.helpers.*
 import uk.gov.hmrc.api.service.*
-import uk.gov.hmrc.api.service.auth.OAuthService
+import uk.gov.hmrc.api.service.auth.OAuthGrantAuthorityService
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.LocalDate
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
+
   val customHttpClient: CustomHttpClient                          = new CustomHttpClient
-  val OAuthService: OAuthService                                  = new OAuthService(customHttpClient)
-  val authHelper: AuthHelper                                      = new AuthHelper(oAuthService = OAuthService)
+  val authService: AuthService                                    = new AuthService
+  val oAuthGrantAuthorityService: OAuthGrantAuthorityService      = new OAuthGrantAuthorityService(customHttpClient)
+  val authHelper: AuthHelper                                      = new AuthHelper(authService = authService, oAuthGrantAuthorityService)
   val ppnsService: PPNSService                                    = new PPNSService
   var clientId: String                                            = _
   val disaReturnsStubService: DisaReturnsStubService              = new DisaReturnsStubService
@@ -47,7 +49,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val randomNumber                                                = new Random()
   val generateRandomZReference: () => String                      = () => ZReferenceGenerator.generate()
   val month                                                       = "AUG"
-  val totalRecords                                                = Array(1, 2, 3)
+  val totalRecords: Array[Int]                                    = Array(1, 2, 3)
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")

@@ -35,7 +35,7 @@ class AuthService extends HttpClient {
       "confidenceLevel"                     -> "50",
       "credentialStrength"                  -> "strong",
       "authorityId"                         -> "",
-      "redirectionUrl"                      -> "http://localhost:9949/auth-login-stub/session",
+      "redirectionUrl"                      -> s"$authBaseUrl/auth-login-stub/session",
       "enrolment[0].name"                   -> "HMRC-DISA-ORG",
       "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
       "enrolment[0].taxIdentifier[0].value" -> isaReference,
@@ -57,7 +57,7 @@ class AuthService extends HttpClient {
   def getBearerToken(cookies: String): StandaloneWSResponse =
     Await.result(
       wsClient
-        .url("http://localhost:9949/auth-login-stub/session")
+        .url(s"$authBaseUrl/auth-login-stub/session")
         .withHttpHeaders(
           "Accept"     -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "User-Agent" -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",

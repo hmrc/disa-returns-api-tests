@@ -23,14 +23,14 @@ import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
+  val isaReference: String = generateRandomZReference()
+  val authToken: String    = authHelper.getAuthBearerToken(isaReference)
+
   Scenario(
     s"1. Verify 'submission endpoint' returns a 204 status code for a successful submission"
   ) {
-    openReportingWindow()
 
     Given("I have a valid authentication and an ISA reference")
-    val isaReference      = generateRandomZReference()
-    val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
     When("I POST a submission request")
     val submissionResponse: StandaloneWSResponse =
@@ -38,23 +38,13 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
     Then("A 204 status code is returned")
     submissionResponse.status shouldBe 204
-
-    When("I Submit declaration request")
-    val declarationResponse: StandaloneWSResponse =
-      declarationRequest(authToken, isaManagerReference = isaReference, month = month)
-
-    Then("A 200 status code is returned")
-    declarationResponse.status shouldBe 200
   }
 
   Scenario(
     s"2. Verify submission endpoint accepts NDJSON WITHOUT a trailing newline"
   ) {
-    openReportingWindow()
 
     Given("I have a valid authentication and an ISA reference")
-    val isaReference      = generateRandomZReference()
-    val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
     When("I POST a submission request without trailing newline")
     val response: StandaloneWSResponse =

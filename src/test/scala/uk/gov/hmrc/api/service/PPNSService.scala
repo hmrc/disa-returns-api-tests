@@ -18,7 +18,6 @@ package uk.gov.hmrc.api.service
 
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.constant.AppConfig.baseUrl
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 

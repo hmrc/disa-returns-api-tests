@@ -9,7 +9,7 @@ object Dependencies {
     "ch.qos.logback"              % "logback-classic" % "1.4.14" % Test,
     "io.circe"                   %% "circe-core"      % "0.14.6" % Test,
     "io.circe"                   %% "circe-generic"   % "0.14.6" % Test,
-    "io.circe"                   %% "circe-parser"    % "0.14.6" % Test
+    "io.circe"                   %% "circe-parser"    % "0.14.6" % Test,
+    "org.jsoup"                   % "jsoup"           % "1.16.1" % Test
   )
-
 }
