@@ -34,22 +34,21 @@ import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
 
-  val customHttpClient: CustomHttpClient                          = new CustomHttpClient
-  val authService: AuthService                                    = new AuthService
-  val oAuthGrantAuthorityService: OAuthGrantAuthorityService      = new OAuthGrantAuthorityService(customHttpClient)
-  val authHelper: AuthHelper                                      = new AuthHelper(authService = authService, oAuthGrantAuthorityService)
-  val ppnsService: PPNSService                                    = new PPNSService
-  var clientId: String                                            = _
-  val disaReturnsStubService: DisaReturnsStubService              = new DisaReturnsStubService
-  val monthlyReturnsSubmission: MonthlyReturnsSubmissionService   = new MonthlyReturnsSubmissionService
-  val monthlyReturnsDeclaration: MonthlyReturnsDeclarationService = new MonthlyReturnsDeclarationService
-  val reportingService: ReconciliationReportService               = new ReconciliationReportService
-  val currentYear: Int                                            = LocalDate.now.getYear
-  val taxYear: String                                             = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
-  val randomNumber                                                = new Random()
-  val generateRandomZReference: () => String                      = () => ZReferenceGenerator.generate()
-  val month                                                       = "AUG"
-  val totalRecords: Array[Int]                                    = Array(1, 2, 3)
+  val customHttpClient: CustomHttpClient                     = new CustomHttpClient
+  val authService: AuthService                               = new AuthService
+  val oAuthGrantAuthorityService: OAuthGrantAuthorityService = new OAuthGrantAuthorityService(customHttpClient)
+  val authHelper: AuthHelper                                 = new AuthHelper(authService = authService, oAuthGrantAuthorityService)
+  val ppnsService: PPNSService                               = new PPNSService
+  var clientId: String                                       = _
+  val disaReturnsStubService: DisaReturnsStubService         = new DisaReturnsStubService
+  val testSupportService: DisaTestSupportService             = new DisaTestSupportService
+  val disaReturnsService: DisaReturnsService                 = new DisaReturnsService
+  val currentYear: Int                                       = LocalDate.now.getYear
+  val taxYear: String                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
+  val randomNumber                                           = new Random()
+  val generateRandomZReference: () => String                 = () => ZReferenceGenerator.generate()
+  val month                                                  = "AUG"
+  val totalRecords: Array[Int]                               = Array(1, 2, 3)
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")
@@ -155,7 +154,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     month: String
   ): StandaloneWSResponse =
     val headers: Map[String, String] = validHeaders(token)
-    monthlyReturnsSubmission.postSubmission(
+    disaReturnsService.postSubmission(
       isaManagerReference,
       taxYear = taxYear,
       headers = headers,
@@ -171,7 +170,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     nilReturn: Boolean = false
   ): StandaloneWSResponse =
     val headers: Map[String, String] = validHeaders(token)
-    monthlyReturnsDeclaration.postDeclaration(
+    disaReturnsService.postDeclaration(
       isaManagerReference,
       taxYear = taxYear,
       month = month,

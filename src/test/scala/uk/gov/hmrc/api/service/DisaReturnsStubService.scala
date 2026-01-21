@@ -18,7 +18,7 @@ package uk.gov.hmrc.api.service
 
 import play.api.libs.ws.DefaultBodyWritables.*
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.baseUrl
+import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
@@ -26,10 +26,7 @@ import scala.concurrent.duration.*
 
 class DisaReturnsStubService extends HttpClient {
 
-  val disa_returns_stub_host: String    = baseUrl("disa-returns-stubs")
-  val reportingWindowPath: String       = "/test-only/etmp/reporting-window-state"
-  val openObligationStatusPath: String  = "/test-only/etmp/open-obligation-status/"
-  val closeObligationStatusPath: String = "/etmp/declaration/"
+  val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stubs")
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
     val payload =
@@ -39,7 +36,7 @@ class DisaReturnsStubService extends HttpClient {
          |}
          |""".stripMargin
     Await.result(
-      mkRequest(disa_returns_stub_host + reportingWindowPath)
+      mkRequest(s"$disa_returns_stub_host/test-only/etmp/reporting-window-state")
         .withHttpHeaders("Content-Type" -> "application/json")
         .post(payload),
       10.seconds
@@ -48,14 +45,14 @@ class DisaReturnsStubService extends HttpClient {
 
   def openObligationStatus(isaReference: String): StandaloneWSResponse =
     Await.result(
-      mkRequest(disa_returns_stub_host + openObligationStatusPath + isaReference)
+      mkRequest(s"$disa_returns_stub_host/test-only/etmp/open-obligation-status/$isaReference")
         .post(""),
       10.seconds
     )
 
   def closeObligationStatus(isaReference: String): StandaloneWSResponse =
     Await.result(
-      mkRequest(disa_returns_stub_host + closeObligationStatusPath + isaReference)
+      mkRequest(s"$disa_returns_stub_host/etmp/declaration/$isaReference")
         .post(""),
       10.seconds
     )

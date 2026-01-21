@@ -19,6 +19,7 @@ package uk.gov.hmrc.api.service.auth
 import org.jsoup.Jsoup
 import play.api.libs.json.Json
 import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.constant.AppConfig.*
 import uk.gov.hmrc.api.utils.CustomHttpClient
 import uk.gov.hmrc.apitestrunner.util.ApiLogger.log
@@ -29,19 +30,19 @@ import scala.concurrent.duration.*
 
 class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
 
-  private val authLoginBase = baseUrl("auth")
-  private val oAuthApiBase     = baseUrl("oauth-api")
+  private val authLoginBase = TestEnvironment.url("auth")
+  private val oAuthApiBase  = TestEnvironment.url("oauth-api")
 
-  /**
-   * Perform OAuth grant-authority flow and return session cookies (mdtp, etc.)
-   */
+  /** Perform OAuth grant-authority flow and return session cookies (mdtp, etc.)
+    */
   def grantAuthorityAndReturnSessionCookies(zReference: String) = {
     val authToken = loginAndGetAccessToken(zReference)
     exchangeAccessToken(authToken)
   }
 
   private def loginAndGetAccessToken(zReference: String) = {
-    val oAuthRedirectUri =  s"/oauth/authorize?client_id=$clientId&redirect_uri=$oAuthRedirectUrl&scope=$scopes&response_type=code"
+    val oAuthRedirectUri =
+      s"/oauth/authorize?client_id=$clientId&redirect_uri=$oAuthRedirectUrl&scope=$scopes&response_type=code"
 
     /** POST /auth-login-stub/gg-sign-in to simulate a user session */
 
@@ -68,10 +69,13 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     )
 
     val authLoginResponseLocation: String =
-      loginResponse.header("Location")
+      loginResponse
+        .header("Location")
         .getOrElse(throw new RuntimeException("Location header missing from login response"))
 
-    /** Calls GET /oauth/authorize?client_id=???&redirect_uri=???&scope=???&response_type=code & redirected to /oauth/start?auth_id=??? **/
+    /** Calls GET /oauth/authorize?client_id=???&redirect_uri=???&scope=???&response_type=code & redirected to
+      * /oauth/start?auth_id=??? *
+      */
     val authLoginResponse = Await.result(
       httpClient.get(
         s"$authLoginBase$authLoginResponseLocation",
@@ -84,12 +88,13 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
       throw new RuntimeException(
         s"Expected 303 from /oauth/authorize, got ${authLoginResponse.status}"
       )
-    
+
     val authorizeResponseLocation: String =
-      authLoginResponse.header("Location")
+      authLoginResponse
+        .header("Location")
         .getOrElse(throw new RuntimeException("Location header missing from /oauth/authorize response"))
 
-    /** On /oauth/start?auth_id=??? extract authId and cookies **/
+    /** On /oauth/start?auth_id=??? extract authId and cookies * */
     val AUTH_ID_PATTERN = "auth_id=([^&]+)".r
 
     val authId: String =
@@ -99,7 +104,7 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
         .getOrElse {
           throw new RuntimeException(s"auth_id not found in Location header: $authorizeResponseLocation")
         }
-    
+
     val sessionCookies = loginResponse.cookies
 
     val cookieHeader: String =
@@ -122,12 +127,11 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
 
     /** Extract csrfToken and cookies from getGrantAuthorityResponse */
     val csrfToken = extractCsrfToken(getGrantAuthorityResponse)
-    
+
     val grantAuthorityCookies = getGrantAuthorityResponse.cookies
 
-    val mdtpCookieGrantAuthCookieHeader: String = {
+    val mdtpCookieGrantAuthCookieHeader: String =
       grantAuthorityCookies.map(c => s"${c.name}=${c.value}").mkString("; ")
-    }
 
     /** POST /oauth/grantscope with extracted csrfToken */
     val postGrantAuthorityResponse = Await.result(
@@ -135,13 +139,14 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
         s"$authLoginBase/oauth/grantscope",
         headers = "Cookie" -> mdtpCookieGrantAuthCookieHeader,
         "Content-Type" -> "application/x-www-form-urlencoded",
-          formData = Map(
+        formData = Map(
           "auth_id"   -> authId,
           "csrfToken" -> csrfToken
-          )),
+        )
+      ),
       10.seconds
     )
-    
+
     if (postGrantAuthorityResponse.status != 200)
       throw new RuntimeException(
         s"Expected 200 from POST /oauth/grantscope, got ${postGrantAuthorityResponse.status}"
@@ -154,16 +159,16 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
 
   def exchangeAccessToken(authCode: String): String = {
     val formData: Map[String, String] = Map(
-      "grant_type" -> "authorization_code",
-      "client_id" -> clientId,
+      "grant_type"    -> "authorization_code",
+      "client_id"     -> clientId,
       "client_secret" -> clientSecret,
-      "redirect_uri" -> oAuthRedirectUrl,
-      "code" -> authCode
+      "redirect_uri"  -> oAuthRedirectUrl,
+      "code"          -> authCode
     )
 
     val response: StandaloneWSResponse = Await.result(
       httpClient.postForm(
-        s"$oAuthApiBase/oauth/token",
+        s"$oAuthApiBase/token",
         formData,
         headers = "Accept" -> "application/vnd.hmrc.1.0+json"
       ),
@@ -186,14 +191,14 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     val doc = Jsoup.parse(response.body)
     doc.select("#authorisation-code").text() match {
       case code if code.nonEmpty => code
-      case _ => throw new RuntimeException("OAuth code not found in HTML page")
+      case _                     => throw new RuntimeException("OAuth code not found in HTML page")
     }
   }
 
-
   private def extractCsrfToken(grantAuthorityResponse: StandaloneWSResponse): String = {
     val csrfToken =
-      Jsoup.parse(grantAuthorityResponse.body)
+      Jsoup
+        .parse(grantAuthorityResponse.body)
         .select("input[name=csrfToken]")
         .attr("value")
 

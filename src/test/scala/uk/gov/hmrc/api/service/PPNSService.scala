@@ -18,16 +18,16 @@ package uk.gov.hmrc.api.service
 
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.baseUrl
+import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class PPNSService extends HttpClient {
-  val third_party_application_host: String = baseUrl("third-party-application")
-  val ppns_host: String                    = baseUrl("push-pull-notifications-api")
-  val api_subscription_fields_host: String = baseUrl("api-subscription-fields")
+  val third_party_application_host: String = TestEnvironment.url("third-party-application")
+  val ppns_host: String                    = TestEnvironment.url("push-pull-notifications-api")
+  val api_subscription_fields_host: String = TestEnvironment.url("api-subscription-fields")
   val thirdPartyApplicationPath: String    = "/application"
   val ppnsPath: String                     = "/box"
 
