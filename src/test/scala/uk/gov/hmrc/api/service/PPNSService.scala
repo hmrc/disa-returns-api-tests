@@ -28,11 +28,7 @@ class PPNSService extends HttpClient {
   val third_party_application_host: String = TestEnvironment.url("third-party-application")
   val ppns_host: String                    = TestEnvironment.url("push-pull-notifications-api")
   val api_subscription_fields_host: String = TestEnvironment.url("api-subscription-fields")
-  val thirdPartyApplicationPath: String    = "/application"
-  val ppnsPath: String                     = "/box"
 
-  val subscriptionPath                 = "/definition/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0"
-  val subscriptionFieldPath            = "/field/application/clientId/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0"
   val clientApplicationPayload: String = """{
                                        |  "name": "TEST APP",
                                        |  "access": {
@@ -83,7 +79,7 @@ class PPNSService extends HttpClient {
 
   def createClientApplication(headers: Map[String, String]): StandaloneWSResponse =
     Await.result(
-      mkRequest(third_party_application_host + thirdPartyApplicationPath)
+      mkRequest(s"$third_party_application_host/application")
         .withHttpHeaders(headers.toSeq: _*)
         .post(clientApplicationPayload),
       10.seconds
@@ -93,7 +89,7 @@ class PPNSService extends HttpClient {
     val payload       = notificationBoxPayload
     val payloadString = payload.replace("clientIdNumber", clientId)
     Await.result(
-      mkRequest(ppns_host + ppnsPath)
+      mkRequest(s"$ppns_host/box")
         .withHttpHeaders(headers.toSeq: _*)
         .put(payloadString),
       10.seconds
@@ -102,16 +98,17 @@ class PPNSService extends HttpClient {
 
   def createSubscriptionField(): StandaloneWSResponse =
     Await.result(
-      mkRequest(api_subscription_fields_host + subscriptionPath)
+      mkRequest(s"$api_subscription_fields_host/definition/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0")
         .withHttpHeaders("Content-Type" -> "application/json")
         .put(subscriptionFieldsPayload),
       10.seconds
     )
 
   def createSubscriptionFieldValues(clientId: String): StandaloneWSResponse =
-    val path = subscriptionFieldPath.replace("clientId", clientId)
     Await.result(
-      mkRequest(api_subscription_fields_host + path)
+      mkRequest(
+        s"$api_subscription_fields_host/field/application/$clientId/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0"
+      )
         .withHttpHeaders("Content-Type" -> "application/json")
         .put(subscriptionFieldValuesPayload),
       10.seconds

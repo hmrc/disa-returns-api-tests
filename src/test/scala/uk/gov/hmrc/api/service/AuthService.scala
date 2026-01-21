@@ -27,7 +27,6 @@ import scala.concurrent.duration.*
 class AuthService extends HttpClient {
 
   val authBaseUrl: String = TestEnvironment.url("auth")
-  val url                 = s"$authBaseUrl/auth-login-stub/gg-sign-in"
 
   def callGGSignIn(isaReference: String): StandaloneWSResponse = {
     val formData: Map[String, String] = Map(
@@ -43,7 +42,7 @@ class AuthService extends HttpClient {
       "enrolment[0].state"                  -> "Activated"
     )
     Await.result(
-      mkRequest(url)
+      mkRequest(s"$authBaseUrl/auth-login-stub/gg-sign-in")
         .withHttpHeaders(
           "Content-Type" -> "application/x-www-form-urlencoded",
           "Accept"       -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
