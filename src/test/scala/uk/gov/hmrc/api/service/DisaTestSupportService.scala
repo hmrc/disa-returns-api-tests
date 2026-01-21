@@ -35,7 +35,9 @@ class DisaTestSupportService extends HttpClient {
     headers: Map[String, String]
   ): StandaloneWSResponse = {
 
-    println(Console.GREEN + s"$disaReturnsTestSupportHost/monthly/$isaManagerReference/$taxYear/$month/reconciliation" + Console.RESET)
+    println(
+      Console.GREEN + s"$disaReturnsTestSupportHost/monthly/$isaManagerReference/$taxYear/$month/reconciliation" + Console.RESET
+    )
 
     val payload =
       s"""

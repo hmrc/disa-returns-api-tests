@@ -27,18 +27,18 @@ import scala.concurrent.duration.*
 
 class DisaReturnsService extends HttpClient {
 
-  val disaReturnsHost: String = TestEnvironment.url("disa-returns")
-  val disaReturnsRoute: String = "/monthly/"
-  val disaReturnsCallbackPath: String = "/callback/monthly/"
+  val disaReturnsHost: String             = TestEnvironment.url("disa-returns")
+  val disaReturnsRoute: String            = "/monthly/"
+  val disaReturnsCallbackPath: String     = "/callback/monthly/"
   val reportingResultsSummaryPath: String = "/results/summary"
-  
+
   def postSubmission(
-                      isaManagerReference: String,
-                      taxYear: String,
-                      headers: Map[String, String],
-                      ndString: String = "",
-                      month: String
-                    ): StandaloneWSResponse =
+    isaManagerReference: String,
+    taxYear: String,
+    headers: Map[String, String],
+    ndString: String = "",
+    month: String
+  ): StandaloneWSResponse =
     Await.result(
       mkRequest(disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month)
         .withHttpHeaders(headers.toSeq: _*)
@@ -47,12 +47,12 @@ class DisaReturnsService extends HttpClient {
     )
 
   def postDeclaration(
-                       isaManagerReference: String,
-                       taxYear: String,
-                       month: String,
-                       headers: Map[String, String],
-                       nilReturn: Boolean
-                     ): StandaloneWSResponse = {
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    headers: Map[String, String],
+    nilReturn: Boolean
+  ): StandaloneWSResponse = {
 
     val body = if (nilReturn) Json.stringify(Json.obj("nilReturn" -> true)) else ""
     Await.result(
@@ -64,11 +64,11 @@ class DisaReturnsService extends HttpClient {
   }
 
   def getReportingResultsSummary(
-                                  isaManagerReference: String,
-                                  taxYear: String,
-                                  month: String,
-                                  headers: Map[String, String]
-                                ): StandaloneWSResponse = {
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
     Await.result(
       mkRequest(
         disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + reportingResultsSummaryPath
@@ -77,32 +77,30 @@ class DisaReturnsService extends HttpClient {
         .get(),
       10.seconds
     )
-  }
 
-    def getReconciliationReport(
-                                 isaManagerReference: String,
-                                 taxYear: String,
-                                 month: String,
-                                 page: Int,
-                                 headers: Map[String, String]
-                               ): StandaloneWSResponse = {
-      Await.result(
-        mkRequest(
-          disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + "/results?page=" + page
-        )
-          .withHttpHeaders(headers.toSeq: _*)
-          .get(),
-        10.seconds
+  def getReconciliationReport(
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    page: Int,
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
+    Await.result(
+      mkRequest(
+        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + "/results?page=" + page
       )
-  }
-  
+        .withHttpHeaders(headers.toSeq: _*)
+        .get(),
+      10.seconds
+    )
+
   def makeReturnSummaryCallback(
-                                 isaManagerReference: String,
-                                 taxYear: String,
-                                 month: String,
-                                 totalRecords: Int,
-                                 headers: Map[String, String]
-                               ): StandaloneWSResponse = {
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    totalRecords: Int,
+    headers: Map[String, String]
+  ): StandaloneWSResponse = {
     val payload =
       s"""
          |{

@@ -32,9 +32,8 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
     Given("I simulate a summary from NPS via callback endpoint")
-    val totalRecords                                  = 1000
     val receivedSummaryResponse: StandaloneWSResponse =
-      disaReturnsService.makeReturnSummaryCallback(
+      testSupportService.triggerGenerateReport(
         isaReference,
         taxYear,
         month,
@@ -62,7 +61,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     (json \ "returnResultsLocation").as[String] should include(
       s"/monthly/$isaReference/$taxYear/$month/results?page=0"
     )
-    (json \ "totalRecords").as[Int]        shouldEqual totalRecords
+    (json \ "totalRecords").as[Int]        shouldEqual 6
     (json \ "numberOfPages").as[Int]            should be > 0
   }
 
