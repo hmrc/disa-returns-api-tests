@@ -27,10 +27,10 @@ import scala.concurrent.duration.*
 
 class DisaReturnsService extends HttpClient {
 
-  val disaReturnsHost: String             = TestEnvironment.url("disa-returns")
-  val disaReturnsRoute: String            = "/monthly/"
-  val disaReturnsCallbackPath: String     = "/callback/monthly/"
-  val reportingResultsSummaryPath: String = "/results/summary"
+  val disaReturnsHost: String         = TestEnvironment.url("disa-returns")
+  val disaReturnsPath: String         = "/monthly"
+  val disaReturnsCallbackPath: String = "/callback/monthly"
+  val disaReturnsBase: String         = s"$disaReturnsHost$disaReturnsPath"
 
   def postSubmission(
     isaManagerReference: String,
@@ -40,7 +40,7 @@ class DisaReturnsService extends HttpClient {
     month: String
   ): StandaloneWSResponse =
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month)
+      mkRequest(s"$disaReturnsBase/$isaManagerReference/$taxYear/$month")
         .withHttpHeaders(headers.toSeq: _*)
         .post(ndString),
       10.seconds
@@ -56,7 +56,7 @@ class DisaReturnsService extends HttpClient {
 
     val body = if (nilReturn) Json.stringify(Json.obj("nilReturn" -> true)) else ""
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsRoute + s"$isaManagerReference/$taxYear/$month/declaration")
+      mkRequest(s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/declaration")
         .withHttpHeaders(headers.toSeq: _*)
         .post(body),
       10.seconds
@@ -71,7 +71,7 @@ class DisaReturnsService extends HttpClient {
   ): StandaloneWSResponse =
     Await.result(
       mkRequest(
-        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + reportingResultsSummaryPath
+        s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/results/summary"
       )
         .withHttpHeaders(headers.toSeq: _*)
         .get(),
@@ -87,7 +87,7 @@ class DisaReturnsService extends HttpClient {
   ): StandaloneWSResponse =
     Await.result(
       mkRequest(
-        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + "/results?page=" + page
+        s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/results?page=$page"
       )
         .withHttpHeaders(headers.toSeq: _*)
         .get(),
@@ -108,7 +108,7 @@ class DisaReturnsService extends HttpClient {
          |}
          |""".stripMargin
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsCallbackPath + isaManagerReference + "/" + taxYear + "/" + month)
+      mkRequest(s"$disaReturnsHost$disaReturnsCallbackPath/$isaManagerReference/$taxYear/$month")
         .withHttpHeaders(headers.toSeq: _*)
         .post(payload),
       10.seconds

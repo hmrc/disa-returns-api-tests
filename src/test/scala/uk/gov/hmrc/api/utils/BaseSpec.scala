@@ -45,7 +45,6 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val disaReturnsService: DisaReturnsService                 = new DisaReturnsService
   val currentYear: Int                                       = LocalDate.now.getYear
   val taxYear: String                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
-  val randomNumber                                           = new Random()
   val generateRandomZReference: () => String                 = () => ZReferenceGenerator.generate()
   val month                                                  = "AUG"
   val totalRecords: Array[Int]                               = Array(1, 2, 3)

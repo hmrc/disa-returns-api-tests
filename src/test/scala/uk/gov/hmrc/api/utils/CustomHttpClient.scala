@@ -23,19 +23,7 @@ import uk.gov.hmrc.apitestrunner.http.HttpClient
 import scala.concurrent.Future
 
 class CustomHttpClient extends HttpClient {
-
-  private var bearerToken: Option[String] = None
-
-  def withBearerToken(token: String): CustomHttpClient = {
-    bearerToken = Some(token)
-    this
-  }
-
-  def post(url: String, bodyAsJson: String, headers: (String, String)*): Future[StandaloneWSResponse] =
-    mkRequest(url)
-      .withHttpHeaders(headers: _*)
-      .post(bodyAsJson)
-
+  
   def postForm(
     url: String,
     formData: Map[String, String],
@@ -56,9 +44,4 @@ class CustomHttpClient extends HttpClient {
       .withHttpHeaders(headers: _*)
       .withFollowRedirects(followRedirects)
       .get()
-
-  def delete(url: String, headers: (String, String)*): Future[StandaloneWSResponse] =
-    mkRequest(url)
-      .withHttpHeaders(headers*)
-      .delete()
 }
