@@ -30,8 +30,8 @@ import scala.concurrent.duration.*
 
 class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
 
-  private val authLoginBase = TestEnvironment.url("auth")
-  private val oAuthApiBase  = TestEnvironment.url("oauth-api")
+  private lazy val authLoginBase = TestEnvironment.url("auth")
+  private lazy val oAuthApiBase  = TestEnvironment.url("oauth-api")
 
   def generateOAuthAccessToken(zReference: String): String = {
 

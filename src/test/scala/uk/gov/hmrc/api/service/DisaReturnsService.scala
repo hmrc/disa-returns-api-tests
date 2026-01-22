@@ -27,10 +27,10 @@ import scala.concurrent.duration.*
 
 class DisaReturnsService extends HttpClient {
 
-  val disaReturnsHost: String         = TestEnvironment.url("disa-returns")
-  val disaReturnsPath: String         = "/monthly"
-  val disaReturnsCallbackPath: String = "/callback/monthly"
-  val disaReturnsBase: String         = s"$disaReturnsHost$disaReturnsPath"
+  private lazy val disaReturnsHost: String         = TestEnvironment.url("disa-returns")
+  private lazy val disaReturnsPath: String         = "/monthly"
+  private lazy val disaReturnsCallbackPath: String = "/callback/monthly"
+  private lazy val disaReturnsBase: String         = s"$disaReturnsHost$disaReturnsPath"
 
   def postSubmission(
     isaManagerReference: String,

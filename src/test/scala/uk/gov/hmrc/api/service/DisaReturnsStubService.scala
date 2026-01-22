@@ -26,7 +26,7 @@ import scala.concurrent.duration.*
 
 class DisaReturnsStubService extends HttpClient {
 
-  val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stubs")
+  private lazy val disa_returns_stub_host: String = TestEnvironment.url("disa-returns-stubs")
 
   def setReportingWindow(status: Boolean): StandaloneWSResponse = {
     val payload =

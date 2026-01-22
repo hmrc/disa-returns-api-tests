@@ -20,11 +20,10 @@ import com.typesafe.config.ConfigFactory
 import uk.gov.hmrc.api.conf.TestEnvironment
 
 object AppConfig {
-  val env: TestEnvironment.type = TestEnvironment
-  private val config            = ConfigFactory.load()
-
-  val clientId: String         = config.getString(s"${env.environment}.clientId")
-  val clientSecret: String     = config.getString(s"${env.environment}.clientSecret")
-  val oAuthRedirectUrl: String = config.getString(s"${env.environment}.redirectUrl")
-  val scopes: String           = config.getString(s"${env.environment}.scopes")
+  val env: TestEnvironment.type     = TestEnvironment
+  lazy val config                   = ConfigFactory.load()
+  lazy val clientId: String         = config.getString(s"${env.environment}.clientId")
+  lazy val clientSecret: String     = config.getString(s"${env.environment}.clientSecret")
+  lazy val oAuthRedirectUrl: String = config.getString(s"${env.environment}.redirectUrl")
+  lazy val scopes: String           = config.getString(s"${env.environment}.scopes")
 }

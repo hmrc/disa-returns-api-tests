@@ -26,7 +26,7 @@ import scala.concurrent.duration.*
 
 class AuthService extends HttpClient {
 
-  val authBaseUrl: String = TestEnvironment.url("auth")
+  private lazy val authBaseUrl: String = TestEnvironment.url("auth")
 
   def callGGSignIn(isaReference: String): StandaloneWSResponse = {
     val formData: Map[String, String] = Map(

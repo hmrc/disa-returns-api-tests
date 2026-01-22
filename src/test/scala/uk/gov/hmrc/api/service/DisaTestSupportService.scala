@@ -25,7 +25,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.*
 
 class DisaTestSupportService extends HttpClient {
-  val disaReturnsTestSupportHost: String = TestEnvironment.url("disa-returns-test-support-api")
+  private lazy val disaReturnsTestSupportHost: String = TestEnvironment.url("disa-returns-test-support-api")
 
   def triggerGenerateReport(
     isaManagerReference: String,
