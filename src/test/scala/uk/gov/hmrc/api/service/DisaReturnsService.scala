@@ -16,18 +16,83 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.libs.json.*
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig
-import uk.gov.hmrc.api.constant.AppConfig.*
+import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class ReconciliationReportService extends HttpClient {
-  val reportingResultsSummaryPath: String = "/results/summary"
-  val testSupportPath: String             = "/reconciliation"
+class DisaReturnsService extends HttpClient {
+
+  private lazy val disaReturnsHost: String         = TestEnvironment.url("disa-returns")
+  private lazy val disaReturnsPath: String         = "/monthly"
+  private lazy val disaReturnsCallbackPath: String = "/callback/monthly"
+  private lazy val disaReturnsBase: String         = s"$disaReturnsHost$disaReturnsPath"
+
+  def postSubmission(
+    isaManagerReference: String,
+    taxYear: String,
+    headers: Map[String, String],
+    ndString: String = "",
+    month: String
+  ): StandaloneWSResponse =
+    Await.result(
+      mkRequest(s"$disaReturnsBase/$isaManagerReference/$taxYear/$month")
+        .withHttpHeaders(headers.toSeq: _*)
+        .post(ndString),
+      10.seconds
+    )
+
+  def postDeclaration(
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    headers: Map[String, String],
+    nilReturn: Boolean
+  ): StandaloneWSResponse = {
+
+    val body = if (nilReturn) Json.stringify(Json.obj("nilReturn" -> true)) else ""
+    Await.result(
+      mkRequest(s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/declaration")
+        .withHttpHeaders(headers.toSeq: _*)
+        .post(body),
+      10.seconds
+    )
+  }
+
+  def getReportingResultsSummary(
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
+    Await.result(
+      mkRequest(
+        s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/results/summary"
+      )
+        .withHttpHeaders(headers.toSeq: _*)
+        .get(),
+      10.seconds
+    )
+
+  def getReconciliationReport(
+    isaManagerReference: String,
+    taxYear: String,
+    month: String,
+    page: Int,
+    headers: Map[String, String]
+  ): StandaloneWSResponse =
+    Await.result(
+      mkRequest(
+        s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/results?page=$page"
+      )
+        .withHttpHeaders(headers.toSeq: _*)
+        .get(),
+      10.seconds
+    )
 
   def makeReturnSummaryCallback(
     isaManagerReference: String,
@@ -43,65 +108,10 @@ class ReconciliationReportService extends HttpClient {
          |}
          |""".stripMargin
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsCallbackPath + isaManagerReference + "/" + taxYear + "/" + month)
+      mkRequest(s"$disaReturnsHost$disaReturnsCallbackPath/$isaManagerReference/$taxYear/$month")
         .withHttpHeaders(headers.toSeq: _*)
         .post(payload),
       10.seconds
     )
   }
-
-  def triggerReportReadyScenario(
-    isaManagerReference: String,
-    taxYear: String,
-    month: String,
-    numbers: Array[Int],
-    headers: Map[String, String]
-  ): StandaloneWSResponse = {
-    val payload =
-      s"""
-         {
-         |    "oversubscribed": ${numbers(0)},
-         |    "traceAndMatch": ${numbers(1)},
-         |    "failedEligibility": ${numbers(2)}
-         |}""".stripMargin
-    Await.result(
-      mkRequest(
-        disaReturnsTestSupportHost + "/" + isaManagerReference + "/" + taxYear + "/" + month + testSupportPath
-      )
-        .withHttpHeaders(headers.toSeq: _*)
-        .post(payload),
-      10.seconds
-    )
-  }
-
-  def getReportingResultsSummary(
-    isaManagerReference: String,
-    taxYear: String,
-    month: String,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
-    Await.result(
-      mkRequest(
-        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + reportingResultsSummaryPath
-      )
-        .withHttpHeaders(headers.toSeq: _*)
-        .get(),
-      10.seconds
-    )
-
-  def getReconcilationReportPage(
-    isaManagerReference: String,
-    taxYear: String,
-    month: String,
-    page: Int,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
-    Await.result(
-      mkRequest(
-        disaReturnsHost + disaReturnsRoute + isaManagerReference + "/" + taxYear + "/" + month + "/results?page=" + page
-      )
-        .withHttpHeaders(headers.toSeq: _*)
-        .get(),
-      10.seconds
-    )
 }

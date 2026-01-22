@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.api.constant
 
+import com.typesafe.config.ConfigFactory
 import uk.gov.hmrc.api.conf.TestEnvironment
 
 object AppConfig {
-  private val env                        = TestEnvironment
-  val disaReturnsHost: String            = env.url("disa-returns")
-  val disaReturnsTestSupportHost: String = env.url("disa-returns-test-support-api")
-  val disaReturnsRoute: String           = "/monthly/"
-  val disaReturnsCallbackPath: String    = "/callback/monthly/"
+  val env: TestEnvironment.type     = TestEnvironment
+  lazy val config                   = ConfigFactory.load()
+  lazy val clientId: String         = config.getString(s"${env.environment}.clientId")
+  lazy val clientSecret: String     = config.getString(s"${env.environment}.clientSecret")
+  lazy val oAuthRedirectUrl: String = config.getString(s"${env.environment}.redirectUrl")
+  lazy val scopes: String           = config.getString(s"${env.environment}.scopes")
 }

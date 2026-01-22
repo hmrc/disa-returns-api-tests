@@ -16,30 +16,38 @@
 
 package uk.gov.hmrc.api.service
 
-import play.api.libs.json._
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.*
+import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class MonthlyReturnsDeclarationService extends HttpClient {
+class DisaTestSupportService extends HttpClient {
+  private lazy val disaReturnsTestSupportHost: String = TestEnvironment.url("disa-returns-test-support-api")
 
-  def postDeclaration(
+  def triggerGenerateReport(
     isaManagerReference: String,
     taxYear: String,
     month: String,
-    headers: Map[String, String],
-    nilReturn: Boolean
+    numbers: Array[Int],
+    headers: Map[String, String]
   ): StandaloneWSResponse = {
 
-    val body = if (nilReturn) Json.stringify(Json.obj("nilReturn" -> true)) else ""
+    val payload =
+      s"""
+         {
+         |    "oversubscribed": ${numbers(0)},
+         |    "traceAndMatch": ${numbers(1)},
+         |    "failedEligibility": ${numbers(2)}
+         |}""".stripMargin
     Await.result(
-      mkRequest(disaReturnsHost + disaReturnsRoute + s"$isaManagerReference/$taxYear/$month/declaration")
+      mkRequest(
+        s"$disaReturnsTestSupportHost/monthly/$isaManagerReference/$taxYear/$month/reconciliation"
+      )
         .withHttpHeaders(headers.toSeq: _*)
-        .post(body),
+        .post(payload),
       10.seconds
     )
   }

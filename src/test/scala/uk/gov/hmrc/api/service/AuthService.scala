@@ -26,8 +26,7 @@ import scala.concurrent.duration.*
 
 class AuthService extends HttpClient {
 
-  val host: String = TestEnvironment.url("auth")
-  val url          = s"$host/auth-login-stub/gg-sign-in"
+  private lazy val authBaseUrl: String = TestEnvironment.url("auth")
 
   def callGGSignIn(isaReference: String): StandaloneWSResponse = {
     val formData: Map[String, String] = Map(
@@ -36,14 +35,14 @@ class AuthService extends HttpClient {
       "confidenceLevel"                     -> "50",
       "credentialStrength"                  -> "strong",
       "authorityId"                         -> "",
-      "redirectionUrl"                      -> "http://localhost:9949/auth-login-stub/session",
+      "redirectionUrl"                      -> s"$authBaseUrl/auth-login-stub/session",
       "enrolment[0].name"                   -> "HMRC-DISA-ORG",
       "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
       "enrolment[0].taxIdentifier[0].value" -> isaReference,
       "enrolment[0].state"                  -> "Activated"
     )
     Await.result(
-      mkRequest(url)
+      mkRequest(s"$authBaseUrl/auth-login-stub/gg-sign-in")
         .withHttpHeaders(
           "Content-Type" -> "application/x-www-form-urlencoded",
           "Accept"       -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -58,7 +57,7 @@ class AuthService extends HttpClient {
   def getBearerToken(cookies: String): StandaloneWSResponse =
     Await.result(
       wsClient
-        .url("http://localhost:9949/auth-login-stub/session")
+        .url(s"$authBaseUrl/auth-login-stub/session")
         .withHttpHeaders(
           "Accept"     -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "User-Agent" -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",

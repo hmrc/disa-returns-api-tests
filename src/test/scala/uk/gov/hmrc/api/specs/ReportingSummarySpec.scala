@@ -31,10 +31,9 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val isaReference      = generateRandomZReference()
     val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
-    Given("I Receive the summary from NPS and Save it on the database using the call back endpoint")
-    val totalRecords                                  = 1000
+    Given("I simulate a summary from NPS via callback endpoint")
     val receivedSummaryResponse: StandaloneWSResponse =
-      reportingService.makeReturnSummaryCallback(
+      testSupportService.triggerGenerateReport(
         isaReference,
         taxYear,
         month,
@@ -47,7 +46,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(
+      disaReturnsService.getReportingResultsSummary(
         isaReference,
         taxYear,
         month = month,
@@ -62,7 +61,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     (json \ "returnResultsLocation").as[String] should include(
       s"/monthly/$isaReference/$taxYear/$month/results?page=0"
     )
-    (json \ "totalRecords").as[Int]        shouldEqual totalRecords
+    (json \ "totalRecords").as[Int]        shouldEqual 6
     (json \ "numberOfPages").as[Int]            should be > 0
   }
 
@@ -75,7 +74,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
     val receivedSummaryResponse: StandaloneWSResponse =
-      reportingService.triggerReportReadyScenario(
+      testSupportService.triggerGenerateReport(
         isaReference,
         taxYear,
         month,
@@ -88,7 +87,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(
+      disaReturnsService.getReportingResultsSummary(
         isaReference,
         taxYear,
         month = month,
@@ -116,7 +115,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     When("I request 'reporting results summary' via a GET request when the report is not exists")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
-      reportingService.getReportingResultsSummary(
+      disaReturnsService.getReportingResultsSummary(
         isaReference,
         taxYear,
         month = month,
@@ -142,7 +141,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     Given("I Receive the summary from NPS and Save it on the database using the test support API")
     val npsReceivedSummaryResponse: StandaloneWSResponse =
-      reportingService.triggerReportReadyScenario(
+      testSupportService.triggerGenerateReport(
         isaReference,
         taxYear,
         month = month,
@@ -151,11 +150,12 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 204 confirming the data was successfully stored")
+    println(Console.GREEN + npsReceivedSummaryResponse.body + Console.RESET)
     npsReceivedSummaryResponse.status shouldBe 204
 
     When("I request 'Reporting Results Endpoint' via a GET request to retrieve the full reconciliation report")
     val receivedReportingResultsEndpointResponse: StandaloneWSResponse =
-      reportingService.getReconcilationReportPage(
+      disaReturnsService.getReconciliationReport(
         isaReference,
         taxYear,
         month,
