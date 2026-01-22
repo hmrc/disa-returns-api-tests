@@ -32,7 +32,6 @@ class AuthHelper(authService: AuthService, oAuthGrantAuthorityService: OAuthGran
       val authTokenOpt                                      = authTokenRegex.findFirstMatchIn(authServiceRequestResponse2.body).map(_.group(1))
       authTokenOpt.getOrElse("No authToken found")
     } else {
-      val newGrant = oAuthGrantAuthorityService.grantAuthorityAndReturnSessionCookies(zReference)
-      newGrant
+      oAuthGrantAuthorityService.generateOAuthAccessToken(zReference)
     }
 }

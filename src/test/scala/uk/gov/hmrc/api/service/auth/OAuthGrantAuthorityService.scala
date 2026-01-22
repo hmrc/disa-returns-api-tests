@@ -33,18 +33,43 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
   private val authLoginBase = TestEnvironment.url("auth")
   private val oAuthApiBase  = TestEnvironment.url("oauth-api")
 
-  /** Perform OAuth grant-authority flow and return session cookies (mdtp, etc.)
-    */
-  def grantAuthorityAndReturnSessionCookies(zReference: String) = {
-    val authToken = loginAndGetAccessToken(zReference)
-    exchangeAccessToken(authToken)
+  def generateOAuthAccessToken(zReference: String): String = {
+
+    /** POST /auth-login-stub/gg-sign-in to create auth session with a DISA enrolment */
+    val authLoginRedirectResponse = postAuthLoginStub(zReference = zReference)
+
+    /** GET /oauth/authorize using authLoginRedirectResponse redirect location */
+    val getOAuthAuthorizeResponse = getOAuthAuthorize(oAuthRedirectLocation = authLoginRedirectResponse._2)
+
+    /** Extract authId and cookies from getOAuthAuthorizeResponse * */
+    val authId: String       = extractAuthId(locationHeader = getOAuthAuthorizeResponse._2)
+    val sessionCookies       = authLoginRedirectResponse._1.cookies
+    val cookieHeader: String =
+      sessionCookies.map(c => s"${c.name}=${c.value}").mkString("; ")
+
+    /** GET /oauth/grantscope?auth_id=??? */
+    val getGrantAuthorityResponse = getGrantAuthority(authId = authId, cookies = cookieHeader)
+
+    /** Extract csrfToken and cookies from getGrantAuthorityResponse */
+    val csrfToken                    = extractCsrfToken(getGrantAuthorityResponse)
+    val grantAuthorityCookies        = getGrantAuthorityResponse.cookies
+    val grantAuthMdtpCookies: String =
+      grantAuthorityCookies.map(c => s"${c.name}=${c.value}").mkString("; ")
+
+    /** POST /oauth/grantscope */
+    val postGrantAuthorityResponse =
+      postGrantAuthority(authId = authId, csrfToken = csrfToken, grantAuthMdtpCookies = grantAuthMdtpCookies)
+
+    /** Extract authorisationCode from postGrantAuthorityResponse */
+    val oAuthCode: String = extractAuthorisationCode(postGrantAuthorityResponse)
+
+    /** Exchange authorisationCode for AccessToken */
+    exchangeAccessToken(oAuthCode)
   }
 
-  private def loginAndGetAccessToken(zReference: String) = {
+  def postAuthLoginStub(zReference: String): (StandaloneWSResponse, String) = {
     val oAuthRedirectUri =
       s"/oauth/authorize?client_id=$clientId&redirect_uri=$oAuthRedirectUrl&scope=$scopes&response_type=code"
-
-    /** POST /auth-login-stub/gg-sign-in to simulate a user session */
 
     val formData: Map[String, String] = Map(
       "CredID"                              -> "aaa",
@@ -68,76 +93,70 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
       10.seconds
     )
 
-    val authLoginResponseLocation: String =
-      loginResponse
-        .header("Location")
-        .getOrElse(throw new RuntimeException("Location header missing from login response"))
+    val locationHeader = (loginResponse.status, loginResponse.header("Location")) match {
+      case (303, Some(location)) => location
+      case (status, None)        =>
+        throw new RuntimeException(s"Expected Location header but it was missing. Status: $status")
+      case (status, Some(_))     =>
+        throw new RuntimeException(s"Unexpected status $status from /auth-login-stub/gg-sign-in")
+    }
 
-    /** Calls GET /oauth/authorize?client_id=???&redirect_uri=???&scope=???&response_type=code & redirected to
-      * /oauth/start?auth_id=??? *
-      */
-    val authLoginResponse = Await.result(
+    (loginResponse, locationHeader)
+  }
+
+  def getOAuthAuthorize(oAuthRedirectLocation: String): (StandaloneWSResponse, String) = {
+    val response = Await.result(
       httpClient.get(
-        s"$authLoginBase$authLoginResponseLocation",
+        s"$authLoginBase$oAuthRedirectLocation",
         headers = "Accept" -> "text/html"
       ),
       10.seconds
     )
 
-    if (authLoginResponse.status != 303)
-      throw new RuntimeException(
-        s"Expected 303 from /oauth/authorize, got ${authLoginResponse.status}"
-      )
+    val locationHeader = (response.status, response.header("Location")) match {
+      case (303, Some(location)) =>
+        location
+      case (status, None)        =>
+        throw new RuntimeException(s"Expected Location header but it was missing. Status: $status")
+      case (status, Some(_))     =>
+        throw new RuntimeException(s"Unexpected status $status from $oAuthRedirectLocation")
+    }
 
-    val authorizeResponseLocation: String =
-      authLoginResponse
-        .header("Location")
-        .getOrElse(throw new RuntimeException("Location header missing from /oauth/authorize response"))
+    (response, locationHeader)
+  }
 
-    /** On /oauth/start?auth_id=??? extract authId and cookies * */
-    val AUTH_ID_PATTERN = "auth_id=([^&]+)".r
+  def extractAuthId(locationHeader: String): String =
+    "auth_id=([^&]+)".r
+      .findFirstMatchIn(locationHeader)
+      .map(_.group(1))
+      .getOrElse {
+        throw new RuntimeException(s"auth_id not found in Location header: $locationHeader")
+      }
 
-    val authId: String =
-      AUTH_ID_PATTERN
-        .findFirstMatchIn(authorizeResponseLocation)
-        .map(_.group(1))
-        .getOrElse {
-          throw new RuntimeException(s"auth_id not found in Location header: $authorizeResponseLocation")
-        }
-
-    val sessionCookies = loginResponse.cookies
-
-    val cookieHeader: String =
-      sessionCookies.map(c => s"${c.name}=${c.value}").mkString("; ")
-
-    /** Call the GET /oauth/grantscope?auth_id=??? */
-    val getGrantAuthorityResponse = Await.result(
+  def getGrantAuthority(authId: String, cookies: String): StandaloneWSResponse = {
+    val response = Await.result(
       httpClient.get(
         s"$authLoginBase/oauth/grantscope?auth_id=$authId",
         headers = "Accept" -> "text/html",
-        "Cookie" -> cookieHeader
+        "Cookie" -> cookies
       ),
       10.seconds
     )
 
-    if (getGrantAuthorityResponse.status != 200)
-      throw new RuntimeException(
-        s"Expected 200 from /oauth/grantscope?auth_id=$authId, got ${authLoginResponse.status}"
-      )
+    response.status match {
+      case 200    => response
+      case status =>
+        throw new RuntimeException(
+          s"Expected 200 from /oauth/grantscope?auth_id=$authId, received: $status"
+        )
+    }
+  }
 
-    /** Extract csrfToken and cookies from getGrantAuthorityResponse */
-    val csrfToken = extractCsrfToken(getGrantAuthorityResponse)
-
-    val grantAuthorityCookies = getGrantAuthorityResponse.cookies
-
-    val mdtpCookieGrantAuthCookieHeader: String =
-      grantAuthorityCookies.map(c => s"${c.name}=${c.value}").mkString("; ")
-
-    /** POST /oauth/grantscope with extracted csrfToken */
-    val postGrantAuthorityResponse = Await.result(
+  def postGrantAuthority(authId: String, csrfToken: String, grantAuthMdtpCookies: String) = {
+    val response = Await.result(
       httpClient.postForm(
         s"$authLoginBase/oauth/grantscope",
-        headers = "Cookie" -> mdtpCookieGrantAuthCookieHeader,
+        headers = "Cookie" -> grantAuthMdtpCookies,
         "Content-Type" -> "application/x-www-form-urlencoded",
         formData = Map(
           "auth_id"   -> authId,
@@ -146,15 +165,13 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
       ),
       10.seconds
     )
-
-    if (postGrantAuthorityResponse.status != 200)
-      throw new RuntimeException(
-        s"Expected 200 from POST /oauth/grantscope, got ${postGrantAuthorityResponse.status}"
-      )
-
-    /** extract authId from postGrantAuthorityResponse */
-    extractOauthCode(postGrantAuthorityResponse)
-
+    response.status match {
+      case 200    => response
+      case status =>
+        throw new RuntimeException(
+          s"Expected 200 from POST /oauth/grantscope, received: ${response.status}"
+        )
+    }
   }
 
   def exchangeAccessToken(authCode: String): String = {
@@ -187,7 +204,7 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     s"Bearer $accessToken"
   }
 
-  private def extractOauthCode(response: StandaloneWSResponse): String = {
+  private def extractAuthorisationCode(response: StandaloneWSResponse): String = {
     val doc = Jsoup.parse(response.body)
     doc.select("#authorisation-code").text() match {
       case code if code.nonEmpty => code
