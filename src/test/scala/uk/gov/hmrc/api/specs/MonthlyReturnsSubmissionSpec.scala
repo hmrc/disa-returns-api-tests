@@ -65,13 +65,13 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
     Given("I have a valid authentication and an ISA reference")
 
-    When("I POST a submission request without trailing newline")
+    When("I POST a submission request with a 10mb request body")
     val response: StandaloneWSResponse =
       submissionRequest(
         authToken,
         isaManagerReference = isaReference,
         month = month,
-        ndString = validNdjsonTestData(5830).stripSuffix("\n")
+        ndString = validNdjsonTestData(5818).stripSuffix("\n")
       )
 
     Then("A 204 status code is returned")
@@ -79,12 +79,12 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   }
 
   Scenario(
-    s"3. Verify submission endpoint fails to accept more than 10MB NDJSON file in a single request"
+    s"4. Verify submission endpoint fails to accept more than 10MB NDJSON file in a single request"
   ) {
 
     Given("I have a valid authentication and an ISA reference")
 
-    When("I POST a submission request without trailing newline")
+    When("I POST a submission request with over 10mb request body")
     val response: StandaloneWSResponse =
       submissionRequest(
         authToken,
@@ -93,7 +93,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
         ndString = validNdjsonTestData(5845).stripSuffix("\n")
       )
 
-    Then("A 500 status code is returned")
-    response.status shouldBe 500
+    Then("A 413 status code is returned")
+    response.status shouldBe 413
   }
 }
