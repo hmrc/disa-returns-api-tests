@@ -19,6 +19,8 @@ package uk.gov.hmrc.api.utils
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.api.models.*
 
+import scala.language.postfixOps
+
 object MockMonthlyReturnData extends NdjsonSupport {
 
   def getLISASubscriptionPayload(
@@ -129,8 +131,9 @@ object MockMonthlyReturnData extends NdjsonSupport {
 
     val ndjsonString = toNdjson(allPayloads)
 
-    /** # Uncomment below code to save the ndjson fine in case for the testing purposes * */
-    /** val path = Paths.get("test-data.txt") Files.write(path, ndjsonString.getBytes(StandardCharsets.UTF_8))* */
+    /** Uncomment below code to save the ndjson file in case for the testing purposes * */
+    /* val path = Paths.get("test-data.txt")
+    Files.write(path, ndjsonString.getBytes(StandardCharsets.UTF_8))*/
     ndjsonString
   }
 

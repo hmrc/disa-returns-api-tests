@@ -71,7 +71,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
         authToken,
         isaManagerReference = isaReference,
         month = month,
-        ndString = validNdjsonTestData(5840).stripSuffix("\n")
+        ndString = validNdjsonTestData(5830).stripSuffix("\n")
       )
 
     Then("A 204 status code is returned")
