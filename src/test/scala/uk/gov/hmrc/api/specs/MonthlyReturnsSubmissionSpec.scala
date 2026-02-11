@@ -93,7 +93,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
         ndString = validNdjsonTestData(5845).stripSuffix("\n")
       )
 
-    Then("A 204 status code is returned")
+    Then("A 500 status code is returned")
     response.status shouldBe 500
   }
 }
