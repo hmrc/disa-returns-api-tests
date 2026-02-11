@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.api.utils
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.api.models.*
 
 object MockMonthlyReturnData extends NdjsonSupport {
@@ -105,23 +105,33 @@ object MockMonthlyReturnData extends NdjsonSupport {
     "VOID"
   )
 
-  def validNdjsonTestData(): String = {
-    val lisaSubscriptionPayload =
-      getLISASubscriptionPayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
-    val lisaClosurePayload      =
-      getLISAClosurePayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
-    val sisaSubscriptionPayload =
-      getSISASubscriptionPayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
-    val sisaClosurePayload      =
-      getSISAClosurePayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+  def validNdjsonTestData(noOfJsons: Int = 1): String = {
+    def generatePayloadBlock(): Seq[JsValue] = {
+      val lisaSubscriptionPayload =
+        getLISASubscriptionPayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+      val lisaClosurePayload      =
+        getLISAClosurePayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+      val sisaSubscriptionPayload =
+        getSISASubscriptionPayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
+      val sisaClosurePayload      =
+        getSISAClosurePayload(RandomDataGenerator.generateNino(), RandomDataGenerator.generateSTDCode())
 
-    toNdjson(
       Seq(
         Json.toJson(lisaSubscriptionPayload),
         Json.toJson(lisaClosurePayload),
         Json.toJson(sisaSubscriptionPayload),
         Json.toJson(sisaClosurePayload)
       )
-    )
+    }
+
+    val allPayloads: Seq[JsValue] =
+      Seq.fill(noOfJsons)(generatePayloadBlock()).flatten
+
+    val ndjsonString = toNdjson(allPayloads)
+
+    /** # Uncomment below code to save the ndjson fine in case for the testing purposes * */
+    /** val path = Paths.get("test-data.txt") Files.write(path, ndjsonString.getBytes(StandardCharsets.UTF_8))* */
+    ndjsonString
   }
+
 }
