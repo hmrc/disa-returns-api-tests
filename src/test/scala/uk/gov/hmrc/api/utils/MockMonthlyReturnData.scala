@@ -19,8 +19,6 @@ package uk.gov.hmrc.api.utils
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.api.models.*
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
 import scala.language.postfixOps
 
 object MockMonthlyReturnData extends NdjsonSupport {
@@ -134,7 +132,7 @@ object MockMonthlyReturnData extends NdjsonSupport {
     val ndjsonString = toNdjson(allPayloads)
 
     /** Uncomment below code to save the ndjson file in case for the testing purposes * */
-   /* val path = Paths.get("test-data.txt")
+    /* val path = Paths.get("test-data.txt")
     Files.write(path, ndjsonString.getBytes(StandardCharsets.UTF_8))*/
     ndjsonString
   }
