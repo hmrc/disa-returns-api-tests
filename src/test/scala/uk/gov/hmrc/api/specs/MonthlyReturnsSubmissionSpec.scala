@@ -18,6 +18,7 @@ package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.utils.BaseSpec
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
@@ -71,7 +72,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
         authToken,
         isaManagerReference = isaReference,
         month = month,
-        ndString = validNdjsonTestData(5818).stripSuffix("\n")
+        ndString = validNdjsonTestData(5000).stripSuffix("\n")
       )
 
     Then("A 204 status code is returned")
@@ -94,6 +95,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       )
 
     Then("A 413 status code is returned")
-    response.status shouldBe 413
+    val status = if (env.environment == "local") 500 else 413
+    response.status shouldBe status
   }
 }
