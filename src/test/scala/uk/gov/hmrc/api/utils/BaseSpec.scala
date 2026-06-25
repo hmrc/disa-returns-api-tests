@@ -24,7 +24,6 @@ import play.api.*
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.helpers.*
 import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.service.auth.OAuthGrantAuthorityService
@@ -54,10 +53,8 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
-    if (env.environment == "local") {
-      setClockInsideDeclarationPeriod()
-      openReportingWindow()
-    }
+    setClockInsideDeclarationPeriod()
+    openReportingWindow()
   }
 
   def setClockInsideDeclarationPeriod(): Unit = {
