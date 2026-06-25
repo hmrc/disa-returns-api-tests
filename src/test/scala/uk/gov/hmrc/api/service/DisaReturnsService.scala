@@ -27,10 +27,11 @@ import scala.concurrent.duration.*
 
 class DisaReturnsService extends HttpClient {
 
-  private lazy val disaReturnsHost: String         = TestEnvironment.url("disa-returns")
-  private lazy val disaReturnsPath: String         = "/monthly"
-  private lazy val disaReturnsCallbackPath: String = "/callback/monthly"
-  private lazy val disaReturnsBase: String         = s"$disaReturnsHost$disaReturnsPath"
+  private lazy val disaReturnsHost: String           = TestEnvironment.url("disa-returns")
+  private lazy val disaReturnsSubmissionHost: String = TestEnvironment.url("disa-returns-submission")
+  private lazy val disaReturnsPath: String           = "/monthly"
+  private lazy val disaReturnsCallbackPath: String   = "/callback/monthly"
+  private lazy val disaReturnsBase: String           = s"$disaReturnsHost$disaReturnsPath"
 
   def postSubmission(
     isaManagerReference: String,
@@ -54,7 +55,7 @@ class DisaReturnsService extends HttpClient {
     nilReturn: Boolean
   ): StandaloneWSResponse = {
 
-    val body = if (nilReturn) Json.stringify(Json.obj("nilReturn" -> true)) else ""
+    val body = Json.stringify(Json.obj("nilReturn" -> nilReturn))
     Await.result(
       mkRequest(s"$disaReturnsBase/$isaManagerReference/$taxYear/$month/declaration")
         .withHttpHeaders(headers.toSeq: _*)
@@ -91,6 +92,13 @@ class DisaReturnsService extends HttpClient {
       )
         .withHttpHeaders(headers.toSeq: _*)
         .get(),
+      10.seconds
+    )
+
+  def setClock(date: String): StandaloneWSResponse =
+    Await.result(
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/clock/$date")
+        .put(""),
       10.seconds
     )
 
