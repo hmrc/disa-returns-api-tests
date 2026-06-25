@@ -50,9 +50,20 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val month                                                  = "AUG"
   val totalRecords: Array[Int]                               = Array(1, 2, 3)
 
+  val declarationPeriodDate: String = "2026-08-17"
+
   override protected def beforeEach(): Unit = {
     super.beforeEach()
-    if (env.environment == "local") openReportingWindow()
+    if (env.environment == "local") {
+      setClockInsideDeclarationPeriod()
+      openReportingWindow()
+    }
+  }
+
+  def setClockInsideDeclarationPeriod(): Unit = {
+    Given("The system clock is set inside the declaration period")
+    val response = disaReturnsService.setClock(declarationPeriodDate)
+    response.status shouldBe 200
   }
 
   def openReportingWindow(): Unit = {
