@@ -60,6 +60,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   def setClockInsideDeclarationPeriod(): Unit = {
     Given("The system clock is set inside the declaration period")
     val response = disaReturnsService.setClock(declarationPeriodDate)
+    println(s"Set Clock Response: $response")
     response.status shouldBe 200
   }
 
