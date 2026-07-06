@@ -17,51 +17,60 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
+import play.api.libs.json.Json
+import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
-//  TODO: uncomment these once alex's changes as part DFI-1959 are merged
-//  TODO: Also need to add steps in scenario 1/2 to include submitting the data via submission endpoint
-//  Scenario(
-//    s"1. Verify 'declaration endpoint' returns a 200 status code for a successful request"
-//  ) {
-//    Given("I have a valid authentication and an ISA reference")
-//    val isaReference      = generateRandomZReference()
-//    val authToken: String = authHelper.getAuthBearerToken(isaReference)
-//
-//    When("I POST a declaration request")
-//    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
-//
-//    Then("A 200 status code is returned")
-//    response.status shouldBe 200
-//    val body = Json.parse(response.body)
-//    (body \ "boxId").asOpt[String] shouldBe empty
-//  }
+  Scenario(
+    s"1. Verify 'declaration endpoint' returns a 200 status code for a successful request"
+  ) {
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
-//  Scenario(
-//    s"2. Verify 'declaration endpoint' returns a 200 status code and successfully returns a boxId"
-//  ) {
-//    Given("I have a valid authentication and an ISA reference")
-//    val isaReference      = generateRandomZReference()
-//    val authToken: String = authHelper.getAuthBearerToken(isaReference)
-//
-//    Given("A client application and PPNS box is created")
-//    if (env.environment == "local") {
-//      createClientApplication(authToken)
-//      createNotificationBoxAndSubscribe(authToken)
-//    }
-//
-//    When("I POST a declaration request")
-//    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
-//
-//    Then("A 200 status code is returned")
-//    response.status shouldBe 200
-//    val body = Json.parse(response.body)
-//    if (env.environment == "local") {
-//      (body \ "boxId").asOpt[String] should not be empty
-//    }
-//  }
+    And("I have submitted monthly return data")
+    val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference, month = month)
+    submissionResponse.status shouldBe 204
+
+    When("I POST a declaration request")
+    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
+    println(Console.RED + "DEBUG BODY: " + response.body + Console.RESET)
+
+    Then("A 200 status code is returned")
+    response.status shouldBe 200
+    val body = Json.parse(response.body)
+    (body \ "boxId").asOpt[String] shouldBe empty
+  }
+
+  Scenario(
+    s"2. Verify 'declaration endpoint' returns a 200 status code and successfully returns a boxId"
+  ) {
+    Given("I have a valid authentication and an ISA reference")
+    val isaReference      = generateRandomZReference()
+    val authToken: String = authHelper.getAuthBearerToken(isaReference)
+
+    Given("A client application and PPNS box is created")
+    if (env.environment == "local") {
+      createClientApplication(authToken)
+      createNotificationBoxAndSubscribe(authToken)
+    }
+
+    And("I have submitted monthly return data")
+    val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference, month = month)
+    submissionResponse.status shouldBe 204
+
+    When("I POST a declaration request")
+    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
+
+    Then("A 200 status code is returned")
+    response.status shouldBe 200
+    val body = Json.parse(response.body)
+    if (env.environment == "local") {
+      (body \ "boxId").asOpt[String] should not be empty
+    }
+  }
 
   Scenario(
     s"3. Verify 'declaration endpoint' returns a 200 status code for a nil return"

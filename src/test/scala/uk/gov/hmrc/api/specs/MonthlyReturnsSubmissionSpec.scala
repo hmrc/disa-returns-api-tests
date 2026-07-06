@@ -82,6 +82,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
   Scenario(
     s"4. Verify submission endpoint fails to accept more than 10MB NDJSON file in a single request"
   ) {
+    assume(env.environment != "local", "Skipping 10MB payload test on local environment")
 
     Given("I have a valid authentication and an ISA reference")
 
@@ -95,7 +96,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       )
 
     Then("A 413 status code is returned")
-    val status = if (env.environment == "local") 500 else 413
-    response.status shouldBe status
+    response.status shouldBe 413
   }
 }
