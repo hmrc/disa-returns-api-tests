@@ -49,7 +49,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val month                                                  = "AUG"
   val totalRecords: Array[Int]                               = Array(1, 2, 3)
 
-  val declarationPeriodDate: String = "2026-08-17"
+  val declarationPeriodDate: String = "2026-09-17"
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
