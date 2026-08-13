@@ -1,8 +1,6 @@
-**This is the template README. Please update this with project specific content.**
-
 # disa-returns-api-tests
 
-API tests pack for disa-returns API.
+This repository contains the end-to-end API test suite for the [ISA Returns API](https://github.com/hmrc/disa-returns). It verifies monthly return submission, declaration and reconciliation results across supported environments.
 
 ## Pre-requisites
 
