@@ -31,11 +31,11 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
     And("I have submitted monthly return data")
-    val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference, month = month)
+    val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference)
     submissionResponse.status shouldBe 204
 
     When("I POST a declaration request")
-    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
+    val response = declarationRequest(authToken, isaReference)
     println(Console.RED + "DEBUG BODY: " + response.body + Console.RESET)
 
     Then("A 200 status code is returned")
@@ -58,11 +58,11 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     }
 
     And("I have submitted monthly return data")
-    val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference, month = month)
+    val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference)
     submissionResponse.status shouldBe 204
 
     When("I POST a declaration request")
-    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month)
+    val response = declarationRequest(authToken, isaReference)
 
     Then("A 200 status code is returned")
     response.status shouldBe 200
@@ -81,7 +81,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
     When("I POST a declaration request for a nil return")
-    val response = declarationRequest(authToken, isaReference, taxYear = taxYear, month = month, nilReturn = true)
+    val response = declarationRequest(authToken, isaReference, nilReturn = true)
 
     Then("A 200 status code is returned")
     response.status shouldBe 200

@@ -35,7 +35,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
     When("I POST a submission request")
     val submissionResponse: StandaloneWSResponse =
-      submissionRequest(authToken, isaManagerReference = isaReference, month = month)
+      submissionRequest(authToken, isaManagerReference = isaReference)
 
     Then("A 204 status code is returned")
     submissionResponse.status shouldBe 204
@@ -52,7 +52,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       submissionRequest(
         authToken,
         isaManagerReference = isaReference,
-        month = month,
         ndString = validNdjsonTestData().stripSuffix("\n")
       )
 
@@ -71,7 +70,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       submissionRequest(
         authToken,
         isaManagerReference = isaReference,
-        month = month,
         ndString = validNdjsonTestData(5000).stripSuffix("\n")
       )
 
@@ -91,7 +89,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       submissionRequest(
         authToken,
         isaManagerReference = isaReference,
-        month = month,
         ndString = validNdjsonTestData(5845).stripSuffix("\n")
       )
 
