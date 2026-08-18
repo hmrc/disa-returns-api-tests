@@ -29,7 +29,7 @@ import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.service.auth.OAuthGrantAuthorityService
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneOffset}
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
@@ -43,13 +43,10 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val disaReturnsStubService: DisaReturnsStubService         = new DisaReturnsStubService
   val testSupportService: DisaTestSupportService             = new DisaTestSupportService
   val disaReturnsService: DisaReturnsService                 = new DisaReturnsService
-  val currentYear: Int                                       = LocalDate.now.getYear
-  val taxYear: String                                        = s"$currentYear-${(currentYear + 1).toString.takeRight(2)}"
   val generateRandomZReference: () => String                 = () => ZReferenceGenerator.generate()
-  val month                                                  = "AUG"
   val totalRecords: Array[Int]                               = Array(1, 2, 3)
 
-  val declarationPeriodDate: String = "2026-09-17"
+  val declarationPeriodDate: String = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(17).toString
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
@@ -162,31 +159,23 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   def submissionRequest(
     token: String,
     isaManagerReference: String,
-    taxYear: String = taxYear,
-    ndString: String = validNdjsonTestData(),
-    month: String
+    ndString: String = validNdjsonTestData()
   ): StandaloneWSResponse =
     val headers: Map[String, String] = validHeaders(token)
     disaReturnsService.postSubmission(
       isaManagerReference,
-      taxYear = taxYear,
       headers = headers,
-      ndString = ndString,
-      month = month
+      ndString = ndString
     )
 
   def declarationRequest(
     token: String,
     isaManagerReference: String,
-    taxYear: String = taxYear,
-    month: String,
     nilReturn: Boolean = false
   ): StandaloneWSResponse =
     val headers: Map[String, String] = validHeaders(token)
     disaReturnsService.postDeclaration(
       isaManagerReference,
-      taxYear = taxYear,
-      month = month,
       headers = headers,
       nilReturn
     )

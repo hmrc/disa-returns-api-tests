@@ -35,8 +35,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val receivedSummaryResponse: StandaloneWSResponse =
       testSupportService.triggerGenerateReport(
         isaReference,
-        taxYear,
-        month,
         totalRecords,
         validHeadersOnlyWithToken(authToken)
       )
@@ -48,8 +46,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
       disaReturnsService.getReportingResultsSummary(
         isaReference,
-        taxYear,
-        month = month,
         validHeadersOnlyWithToken(authToken)
       )
 
@@ -59,7 +55,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "returnResultsLocation").as[String] should include(
-      s"/monthly/$isaReference/$taxYear/$month/results?page=0"
+      s"/monthly/$isaReference/results?page=0"
     )
     (json \ "totalRecords").as[Int]        shouldEqual 6
     (json \ "numberOfPages").as[Int]            should be > 0
@@ -76,8 +72,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val receivedSummaryResponse: StandaloneWSResponse =
       testSupportService.triggerGenerateReport(
         isaReference,
-        taxYear,
-        month,
         totalRecords,
         validHeadersOnlyWithToken(authToken)
       )
@@ -89,8 +83,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
       disaReturnsService.getReportingResultsSummary(
         isaReference,
-        taxYear,
-        month = month,
         validHeadersOnlyWithToken(authToken)
       )
 
@@ -100,7 +92,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "returnResultsLocation").as[String] should include(
-      s"/monthly/$isaReference/$taxYear/$month/results?page=0"
+      s"/monthly/$isaReference/results?page=0"
     )
     (json \ "totalRecords").as[Int]        shouldEqual totalRecords.sum
     (json \ "numberOfPages").as[Int]            should be > 0
@@ -117,8 +109,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
       disaReturnsService.getReportingResultsSummary(
         isaReference,
-        taxYear,
-        month = month,
         validHeadersOnlyWithToken(authToken)
       )
 
@@ -128,7 +118,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
     (json \ "message").as[String] should include(
-      s"No return found for $isaReference for $month $taxYear"
+      s"No return found for $isaReference"
     )
   }
 
@@ -143,8 +133,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val npsReceivedSummaryResponse: StandaloneWSResponse =
       testSupportService.triggerGenerateReport(
         isaReference,
-        taxYear,
-        month = month,
         totalRecords,
         validHeadersOnlyWithToken(authToken)
       )
@@ -157,8 +145,6 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
     val receivedReportingResultsEndpointResponse: StandaloneWSResponse =
       disaReturnsService.getReconciliationReport(
         isaReference,
-        taxYear,
-        month,
         page = 0,
         validHeadersOnlyWithToken(authToken)
       )

@@ -29,8 +29,6 @@ class DisaTestSupportService extends HttpClient {
 
   def triggerGenerateReport(
     isaManagerReference: String,
-    taxYear: String,
-    month: String,
     numbers: Array[Int],
     headers: Map[String, String]
   ): StandaloneWSResponse = {
@@ -44,7 +42,7 @@ class DisaTestSupportService extends HttpClient {
          |}""".stripMargin
     Await.result(
       mkRequest(
-        s"$disaReturnsTestSupportHost/monthly/$isaManagerReference/$taxYear/$month/reconciliation"
+        s"$disaReturnsTestSupportHost/monthly/$isaManagerReference/reconciliation"
       )
         .withHttpHeaders(headers.toSeq: _*)
         .post(payload),
