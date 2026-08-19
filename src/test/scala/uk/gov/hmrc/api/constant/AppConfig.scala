@@ -20,10 +20,12 @@ import com.typesafe.config.ConfigFactory
 import uk.gov.hmrc.api.conf.TestEnvironment
 
 object AppConfig {
-  val env: TestEnvironment.type     = TestEnvironment
-  lazy val config                   = ConfigFactory.load()
-  lazy val clientId: String         = config.getString(s"${env.environment}.clientId")
-  lazy val clientSecret: String     = config.getString(s"${env.environment}.clientSecret")
-  lazy val oAuthRedirectUrl: String = config.getString(s"${env.environment}.redirectUrl")
-  lazy val scopes: String           = config.getString(s"${env.environment}.scopes")
+  val env: TestEnvironment.type            = TestEnvironment
+  lazy val config                          = ConfigFactory.load()
+  lazy val clientId: String                = config.getString(s"${env.environment}.clientId")
+  lazy val clientSecret: String            = config.getString(s"${env.environment}.clientSecret")
+  lazy val oAuthRedirectUrl: String        = config.getString(s"${env.environment}.redirectUrl")
+  lazy val scopes: String                  = config.getString(s"${env.environment}.scopes")
+  lazy val useManualMfaCompletion: Boolean =
+    config.getBoolean(s"${env.environment}.useManualMfaCompletion")
 }

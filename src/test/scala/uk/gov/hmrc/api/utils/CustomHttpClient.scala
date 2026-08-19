@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.api.utils
 
+import play.api.libs.json.JsValue
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedSimpleForm
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.apitestrunner.http.HttpClient
@@ -44,4 +46,14 @@ class CustomHttpClient extends HttpClient {
       .withHttpHeaders(headers: _*)
       .withFollowRedirects(followRedirects)
       .get()
+
+  def putJson(
+    url: String,
+    body: JsValue,
+    headers: (String, String)*
+  ): Future[StandaloneWSResponse] =
+    mkRequest(url)
+      .withHttpHeaders(headers: _*)
+      .withFollowRedirects(false)
+      .put(body)
 }
