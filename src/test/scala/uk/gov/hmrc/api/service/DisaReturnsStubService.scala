@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.http.MimeTypes.JSON
 import play.api.libs.ws.DefaultBodyWritables.*
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
@@ -37,7 +39,7 @@ class DisaReturnsStubService extends HttpClient {
          |""".stripMargin
     Await.result(
       mkRequest(s"$disa_returns_stub_host/test-only/etmp/reporting-window-state")
-        .withHttpHeaders("Content-Type" -> "application/json")
+        .withHttpHeaders(CONTENT_TYPE -> JSON)
         .post(payload),
       10.seconds
     )

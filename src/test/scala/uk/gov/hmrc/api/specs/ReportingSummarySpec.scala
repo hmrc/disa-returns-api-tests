@@ -18,6 +18,7 @@ package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
 import org.scalactic.Prettifier.default
+import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.utils.BaseSpec
@@ -40,7 +41,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 204")
-    receivedSummaryResponse.status shouldBe 204
+    receivedSummaryResponse.status shouldBe NO_CONTENT
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
@@ -50,7 +51,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 200")
-    receivedReportingResultsSummaryResponse.status shouldBe 200
+    receivedReportingResultsSummaryResponse.status shouldBe OK
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
@@ -77,7 +78,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 204")
-    receivedSummaryResponse.status shouldBe 204
+    receivedSummaryResponse.status shouldBe NO_CONTENT
 
     When("I request 'reporting results summary' via a GET request")
     val receivedReportingResultsSummaryResponse: StandaloneWSResponse =
@@ -87,7 +88,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 200")
-    receivedReportingResultsSummaryResponse.status shouldBe 200
+    receivedReportingResultsSummaryResponse.status shouldBe OK
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
@@ -113,7 +114,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I got the status code 404")
-    receivedReportingResultsSummaryResponse.status shouldBe 404
+    receivedReportingResultsSummaryResponse.status shouldBe NOT_FOUND
 
     val json = Json.parse(receivedReportingResultsSummaryResponse.body)
 
@@ -139,7 +140,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
 
     Then("I got the status code 204 confirming the data was successfully stored")
     println(Console.GREEN + npsReceivedSummaryResponse.body + Console.RESET)
-    npsReceivedSummaryResponse.status shouldBe 204
+    npsReceivedSummaryResponse.status shouldBe NO_CONTENT
 
     When("I request 'Reporting Results Endpoint' via a GET request to retrieve the full reconciliation report")
     val receivedReportingResultsEndpointResponse: StandaloneWSResponse =
@@ -150,7 +151,7 @@ class ReportingSummarySpec extends BaseSpec, LazyLogging {
       )
 
     Then("I should receive status code 200 OK")
-    receivedReportingResultsEndpointResponse.status shouldBe 200
+    receivedReportingResultsEndpointResponse.status shouldBe OK
 
     And("The response body should contain valid report data from reconciliation")
     val json = Json.parse(receivedReportingResultsEndpointResponse.body)

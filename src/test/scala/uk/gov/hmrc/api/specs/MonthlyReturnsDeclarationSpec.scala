@@ -17,6 +17,7 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
+import play.api.http.Status.{NO_CONTENT, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.utils.BaseSpec
@@ -32,14 +33,14 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     And("I have submitted monthly return data")
     val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference)
-    submissionResponse.status shouldBe 204
+    submissionResponse.status shouldBe NO_CONTENT
 
     When("I POST a declaration request")
     val response = declarationRequest(authToken, isaReference)
     println(Console.RED + "DEBUG BODY: " + response.body + Console.RESET)
 
     Then("A 200 status code is returned")
-    response.status shouldBe 200
+    response.status shouldBe OK
     val body = Json.parse(response.body)
     (body \ "boxId").asOpt[String] shouldBe empty
   }
@@ -59,13 +60,13 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     And("I have submitted monthly return data")
     val submissionResponse = submissionRequest(authToken, isaManagerReference = isaReference)
-    submissionResponse.status shouldBe 204
+    submissionResponse.status shouldBe NO_CONTENT
 
     When("I POST a declaration request")
     val response = declarationRequest(authToken, isaReference)
 
     Then("A 200 status code is returned")
-    response.status shouldBe 200
+    response.status shouldBe OK
     val body = Json.parse(response.body)
     if (env.environment == "local") {
       (body \ "boxId").asOpt[String] should not be empty
@@ -84,7 +85,7 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     val response = declarationRequest(authToken, isaReference, nilReturn = true)
 
     Then("A 200 status code is returned")
-    response.status shouldBe 200
+    response.status shouldBe OK
   }
 
 }

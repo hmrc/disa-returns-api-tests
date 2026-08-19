@@ -21,6 +21,9 @@ import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import play.api.*
+import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE, USER_AGENT}
+import play.api.http.MimeTypes.JSON
+import play.api.http.Status.{CREATED, OK}
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
@@ -57,7 +60,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   def setClockInsideDeclarationPeriod(): Unit = {
     Given("The system clock is set inside the declaration period")
     val response = disaReturnsService.setClock(declarationPeriodDate)
-    response.status shouldBe 200
+    response.status shouldBe OK
   }
 
   def openReportingWindow(): Unit = {
@@ -87,7 +90,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       val headers: Map[String, String]  = thirdPartyApplicationHeadersMap(token)
       val thirdPartyApplicationResponse =
         ppnsService.createClientApplication(headers)
-      thirdPartyApplicationResponse.status should (be(201) or be(200))
+      thirdPartyApplicationResponse.status should (be(CREATED) or be(OK))
 
       val jsonTry = Try(Json.parse(thirdPartyApplicationResponse.body))
       jsonTry.fold(
@@ -104,16 +107,16 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     val setupSteps: Seq[(String, () => Any)] = Seq(
       "Create Notification Box"   -> (() => {
         val res = ppnsService.createNotificationBox(clientId, headers)
-        res.status shouldBe 201
+        res.status shouldBe CREATED
       }),
       "Create Subscription Field" -> (() => {
         val res = ppnsService.createSubscriptionField()
-        res.status should (be(201) or be(200))
+        res.status should (be(CREATED) or be(OK))
       })
       //        TODO commented out as this is creating two boxes. Do we want to test the callback url
 //      "Create Subscription Field Values" -> (() => {
 //        val res = ppnsService.createSubscriptionFieldValues(clientId)
-//        res.status shouldBe 201
+//        res.status shouldBe CREATED
 //      })
     )
     setupSteps.foreach { case (name, action) =>
@@ -124,36 +127,36 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   }
 
   def validHeaders(token: String): Map[String, String] = Map(
-    "Content-Type"  -> "application/json",
-    "X-Client-ID"   -> clientId,
-    "Authorization" -> token
+    CONTENT_TYPE  -> JSON,
+    "X-Client-ID" -> clientId,
+    AUTHORIZATION -> token
   )
 
   def validHeadersOnlyWithToken(token: String): Map[String, String] = Map(
-    "Content-Type"  -> "application/json",
-    "Authorization" -> token
+    CONTENT_TYPE  -> JSON,
+    AUTHORIZATION -> token
   )
 
   val headersIncorrectBearerToken: Map[String, String] = Map(
-    "Content-Type"  -> "application/json",
-    "X-Client-ID"   -> clientId,
-    "Authorization" -> "BadAuthToken"
+    CONTENT_TYPE  -> JSON,
+    "X-Client-ID" -> clientId,
+    AUTHORIZATION -> "BadAuthToken"
   )
 
   def headersMapWithValidClientIDAndTokenWithoutContentType(token: String): Map[String, String] = Map(
-    "X-Client-ID"   -> clientId,
-    "Authorization" -> token
+    "X-Client-ID" -> clientId,
+    AUTHORIZATION -> token
   )
 
   def thirdPartyApplicationHeadersMap(token: String): Map[String, String] = Map(
-    "Content-Type"  -> "application/json",
-    "Authorization" -> token
+    CONTENT_TYPE  -> JSON,
+    AUTHORIZATION -> token
   )
 
   def notificationBoxHeadersMap(token: String): Map[String, String] = Map(
-    "Content-Type"  -> "application/json",
-    "Authorization" -> token,
-    "User-Agent"    -> "disa-returns"
+    CONTENT_TYPE  -> JSON,
+    AUTHORIZATION -> token,
+    USER_AGENT    -> "disa-returns"
   )
 
   def submissionRequest(
