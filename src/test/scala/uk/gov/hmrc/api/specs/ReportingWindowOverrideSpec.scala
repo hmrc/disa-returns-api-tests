@@ -60,7 +60,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
 
     And("A monthly return is rejected because the reporting window is closed")
     val submissionResponse = submissionRequest(authToken, isaReference)
-    submissionResponse.status shouldBe FORBIDDEN
+    submissionResponse.status                                 shouldBe FORBIDDEN
     (Json.parse(submissionResponse.body) \ "code").as[String] shouldBe "REPORTING_WINDOW_CLOSED"
   }
 
@@ -72,13 +72,13 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = Instant.now()
     setOverride(authToken, isaReference, now.plusSeconds(3600), now.plusSeconds(7200)).status shouldBe NO_CONTENT
-    submissionRequest(authToken, isaReference).status shouldBe FORBIDDEN
+    submissionRequest(authToken, isaReference).status                                         shouldBe FORBIDDEN
 
     When("I replace it with a reporting window containing the current instant")
     val replacementResponse = setOverride(authToken, isaReference, now.minusSeconds(60), now.plusSeconds(300))
 
     Then("The replacement is accepted and a monthly return can be submitted")
-    replacementResponse.status shouldBe NO_CONTENT
+    replacementResponse.status                        shouldBe NO_CONTENT
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
   }
 
@@ -92,15 +92,25 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val secondAuthToken    = authHelper.getAuthBearerToken(secondIsaReference, uniqueCredentialId())
     val now                = Instant.now()
 
-    setOverride(firstAuthToken, firstIsaReference, now.plusSeconds(3600), now.plusSeconds(7200)).status shouldBe NO_CONTENT
-    setOverride(secondAuthToken, secondIsaReference, now.minusSeconds(60), now.plusSeconds(300)).status shouldBe NO_CONTENT
+    setOverride(
+      firstAuthToken,
+      firstIsaReference,
+      now.plusSeconds(3600),
+      now.plusSeconds(7200)
+    ).status shouldBe NO_CONTENT
+    setOverride(
+      secondAuthToken,
+      secondIsaReference,
+      now.minusSeconds(60),
+      now.plusSeconds(300)
+    ).status shouldBe NO_CONTENT
 
     When("Each user submits a monthly return")
     val firstSubmission  = submissionRequest(firstAuthToken, firstIsaReference)
     val secondSubmission = submissionRequest(secondAuthToken, secondIsaReference)
 
     Then("Only the user with the active override can submit")
-    firstSubmission.status shouldBe FORBIDDEN
+    firstSubmission.status  shouldBe FORBIDDEN
     secondSubmission.status shouldBe NO_CONTENT
   }
 
