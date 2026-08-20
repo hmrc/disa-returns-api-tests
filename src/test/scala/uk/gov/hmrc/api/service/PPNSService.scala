@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.http.MimeTypes.JSON
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
@@ -99,7 +101,7 @@ class PPNSService extends HttpClient {
   def createSubscriptionField(): StandaloneWSResponse =
     Await.result(
       mkRequest(s"$api_subscription_fields_host/definition/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0")
-        .withHttpHeaders("Content-Type" -> "application/json")
+        .withHttpHeaders(CONTENT_TYPE -> JSON)
         .put(subscriptionFieldsPayload),
       10.seconds
     )
@@ -109,7 +111,7 @@ class PPNSService extends HttpClient {
       mkRequest(
         s"$api_subscription_fields_host/field/application/$clientId/context/obligation%2Fdeclaration%2Fisa%2Freturn/version/1.0"
       )
-        .withHttpHeaders("Content-Type" -> "application/json")
+        .withHttpHeaders(CONTENT_TYPE -> JSON)
         .put(subscriptionFieldValuesPayload),
       10.seconds
     )

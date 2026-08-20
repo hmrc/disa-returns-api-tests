@@ -17,10 +17,14 @@
 package uk.gov.hmrc.api.service.auth
 
 import org.jsoup.Jsoup
+import play.api.http.HeaderNames.{ACCEPT, CONTENT_TYPE, COOKIE, LOCATION}
+import play.api.http.MimeTypes.{FORM, HTML}
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.constant.AppConfig.*
+import uk.gov.hmrc.api.constant.TestConstants.defaultCredentialId
 import uk.gov.hmrc.api.utils.CustomHttpClient
 import uk.gov.hmrc.apitestrunner.util.ApiLogger.log
 
@@ -34,10 +38,10 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
   private lazy val oAuthApiBase           = TestEnvironment.url("oauth-api")
   private lazy val requestedAuthorityBase = TestEnvironment.url("third-party-requested-authority")
 
-  def generateOAuthAccessToken(zReference: String): String = {
+  def generateOAuthAccessToken(zReference: String, credentialId: String = defaultCredentialId): String = {
 
     /** POST /auth-login-stub/gg-sign-in to create auth session with a DISA enrolment */
-    val authLoginRedirectResponse = postAuthLoginStub(zReference = zReference)
+    val authLoginRedirectResponse = postAuthLoginStub(zReference = zReference, credentialId = credentialId)
 
     /** GET /oauth/authorize using authLoginRedirectResponse redirect location */
     val getOAuthAuthorizeResponse = getOAuthAuthorize(oAuthRedirectLocation = authLoginRedirectResponse._2)
@@ -72,16 +76,18 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     exchangeAccessToken(oAuthCode)
   }
 
-  def postAuthLoginStub(zReference: String): (StandaloneWSResponse, String) = {
+  def postAuthLoginStub(
+    zReference: String,
+    credentialId: String = defaultCredentialId
+  ): (StandaloneWSResponse, String) = {
     val oAuthRedirectUri =
       s"/oauth/authorize?client_id=$clientId&redirect_uri=$oAuthRedirectUrl&scope=$scopes&response_type=code"
 
     val formData: Map[String, String] = Map(
-      "CredID"                              -> "aaa",
       "affinityGroup"                       -> "Organisation",
       "confidenceLevel"                     -> "50",
       "credentialStrength"                  -> "strong",
-      "authorityId"                         -> "",
+      "authorityId"                         -> credentialId,
       "redirectionUrl"                      -> oAuthRedirectUri,
       "enrolment[0].name"                   -> "HMRC-DISA-ORG",
       "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
@@ -93,16 +99,16 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
       httpClient.postForm(
         s"$authLoginBase/auth-login-stub/gg-sign-in",
         formData,
-        headers = "Accept" -> "text/html"
+        headers = ACCEPT -> HTML
       ),
       10.seconds
     )
 
-    val locationHeader = (loginResponse.status, loginResponse.header("Location")) match {
-      case (303, Some(location)) => location
-      case (status, None)        =>
+    val locationHeader = (loginResponse.status, loginResponse.header(LOCATION)) match {
+      case (SEE_OTHER, Some(location)) => location
+      case (status, None)              =>
         throw new RuntimeException(s"Expected Location header but it was missing. Status: $status")
-      case (status, Some(_))     =>
+      case (status, Some(_))           =>
         throw new RuntimeException(s"Unexpected status $status from /auth-login-stub/gg-sign-in")
     }
 
@@ -113,17 +119,17 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     val response = Await.result(
       httpClient.get(
         s"$authLoginBase$oAuthRedirectLocation",
-        headers = "Accept" -> "text/html"
+        headers = ACCEPT -> HTML
       ),
       10.seconds
     )
 
-    val locationHeader = (response.status, response.header("Location")) match {
-      case (303, Some(location)) =>
+    val locationHeader = (response.status, response.header(LOCATION)) match {
+      case (SEE_OTHER, Some(location)) =>
         location
-      case (status, None)        =>
+      case (status, None)              =>
         throw new RuntimeException(s"Expected Location header but it was missing. Status: $status")
-      case (status, Some(_))     =>
+      case (status, Some(_))           =>
         throw new RuntimeException(s"Unexpected status $status from $oAuthRedirectLocation")
     }
 
@@ -142,14 +148,14 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     val response = Await.result(
       httpClient.get(
         s"$authLoginBase/oauth/grantscope?auth_id=$authId",
-        headers = "Accept" -> "text/html",
-        "Cookie" -> cookies
+        headers = ACCEPT -> HTML,
+        COOKIE -> cookies
       ),
       10.seconds
     )
 
     response.status match {
-      case 200    => response
+      case OK     => response
       case status =>
         throw new RuntimeException(
           s"Expected 200 from /oauth/grantscope?auth_id=$authId, received: $status"
@@ -177,8 +183,8 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     val response = Await.result(
       httpClient.postForm(
         s"$authLoginBase/oauth/grantscope",
-        headers = "Cookie" -> grantAuthMdtpCookies,
-        "Content-Type" -> "application/x-www-form-urlencoded",
+        headers = COOKIE -> grantAuthMdtpCookies,
+        CONTENT_TYPE -> FORM,
         formData = Map(
           "auth_id"   -> authId,
           "csrfToken" -> csrfToken
@@ -187,7 +193,7 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
       10.seconds
     )
     response.status match {
-      case 200    => response
+      case OK     => response
       case status =>
         throw new RuntimeException(
           s"Expected 200 from POST /oauth/grantscope, received: ${response.status}"
@@ -208,12 +214,12 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
       httpClient.postForm(
         s"$oAuthApiBase/token",
         formData,
-        headers = "Accept" -> "application/vnd.hmrc.1.0+json"
+        headers = ACCEPT -> "application/vnd.hmrc.1.0+json"
       ),
       10.seconds
     )
 
-    if (response.status != 200) {
+    if (response.status != OK) {
       throw new RuntimeException(
         s"Failed to exchange auth code for access token, status=${response.status}, body=${response.body}"
       )

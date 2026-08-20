@@ -17,6 +17,7 @@
 package uk.gov.hmrc.api.specs
 
 import com.typesafe.scalalogging.LazyLogging
+import play.api.http.Status.{NO_CONTENT, REQUEST_ENTITY_TOO_LARGE}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.utils.BaseSpec
@@ -38,7 +39,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       submissionRequest(authToken, isaManagerReference = isaReference)
 
     Then("A 204 status code is returned")
-    submissionResponse.status shouldBe 204
+    submissionResponse.status shouldBe NO_CONTENT
   }
 
   Scenario(
@@ -56,7 +57,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       )
 
     Then("A 204 status code is returned")
-    response.status shouldBe 204
+    response.status shouldBe NO_CONTENT
   }
 
   Scenario(
@@ -74,7 +75,7 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       )
 
     Then("A 204 status code is returned")
-    response.status shouldBe 204
+    response.status shouldBe NO_CONTENT
   }
 
   Scenario(
@@ -93,6 +94,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
       )
 
     Then("A 413 status code is returned")
-    response.status shouldBe 413
+    response.status shouldBe REQUEST_ENTITY_TOO_LARGE
   }
 }

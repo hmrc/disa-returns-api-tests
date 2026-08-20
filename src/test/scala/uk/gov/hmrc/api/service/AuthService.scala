@@ -16,9 +16,12 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.http.HeaderNames.{ACCEPT, CONTENT_TYPE, COOKIE, USER_AGENT}
+import play.api.http.MimeTypes.FORM
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedSimpleForm
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
+import uk.gov.hmrc.api.constant.TestConstants.defaultCredentialId
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
@@ -28,13 +31,12 @@ class AuthService extends HttpClient {
 
   private lazy val authBaseUrl: String = TestEnvironment.url("auth")
 
-  def callGGSignIn(isaReference: String): StandaloneWSResponse = {
+  def callGGSignIn(isaReference: String, credentialId: String = defaultCredentialId): StandaloneWSResponse = {
     val formData: Map[String, String] = Map(
-      "CredID"                              -> "aaa",
       "affinityGroup"                       -> "Organisation",
       "confidenceLevel"                     -> "50",
       "credentialStrength"                  -> "strong",
-      "authorityId"                         -> "",
+      "authorityId"                         -> credentialId,
       "redirectionUrl"                      -> s"$authBaseUrl/auth-login-stub/session",
       "enrolment[0].name"                   -> "HMRC-DISA-ORG",
       "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
@@ -44,9 +46,9 @@ class AuthService extends HttpClient {
     Await.result(
       mkRequest(s"$authBaseUrl/auth-login-stub/gg-sign-in")
         .withHttpHeaders(
-          "Content-Type" -> "application/x-www-form-urlencoded",
-          "Accept"       -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "User-Agent"   -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+          CONTENT_TYPE -> FORM,
+          ACCEPT       -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          USER_AGENT   -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         )
         .withFollowRedirects(false)
         .post(formData),
@@ -59,9 +61,9 @@ class AuthService extends HttpClient {
       wsClient
         .url(s"$authBaseUrl/auth-login-stub/session")
         .withHttpHeaders(
-          "Accept"     -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "User-Agent" -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          "Cookie"     -> cookies
+          ACCEPT     -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          USER_AGENT -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          COOKIE     -> cookies
         )
         .get(),
       10.seconds
