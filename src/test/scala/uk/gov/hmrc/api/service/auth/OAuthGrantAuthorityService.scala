@@ -34,8 +34,9 @@ import scala.concurrent.duration.*
 
 class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
 
-  private lazy val authLoginBase = TestEnvironment.url("auth")
-  private lazy val oAuthApiBase  = TestEnvironment.url("oauth-api")
+  private lazy val authLoginBase          = TestEnvironment.url("auth")
+  private lazy val oAuthApiBase           = TestEnvironment.url("oauth-api")
+  private lazy val requestedAuthorityBase = TestEnvironment.url("third-party-requested-authority")
 
   def generateOAuthAccessToken(zReference: String, credentialId: String = defaultCredentialId): String = {
 
@@ -50,6 +51,10 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
     val sessionCookies       = authLoginRedirectResponse._1.cookies
     val cookieHeader: String =
       sessionCookies.map(c => s"${c.name}=${c.value}").mkString("; ")
+
+    if (useManualMfaCompletion) {
+      completeMfa(authId)
+    }
 
     /** GET /oauth/grantscope?auth_id=??? */
     val getGrantAuthorityResponse = getGrantAuthority(authId = authId, cookies = cookieHeader)
@@ -155,6 +160,22 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
         throw new RuntimeException(
           s"Expected 200 from /oauth/grantscope?auth_id=$authId, received: $status"
         )
+    }
+  }
+
+  def completeMfa(authId: String): Unit = {
+    val response = Await.result(
+      httpClient.putJson(
+        s"$requestedAuthorityBase/authority-request/$authId/mfaCompleted",
+        Json.obj("mfaCompleted" -> true)
+      ),
+      10.seconds
+    )
+
+    if (response.status != 200) {
+      throw new RuntimeException(
+        s"Failed to mark MFA as completed for auth_id=$authId, status=${response.status}, body=${response.body}"
+      )
     }
   }
 
