@@ -126,12 +126,11 @@ class ReportingWindowOverrideSpec extends BaseSpec {
 
   override protected def afterEach(): Unit =
     try {
-      val cleanupResponses = overriddenZReferences.toSeq.map { isaReference =>
-        isaReference -> disaReturnsService.deleteReportingWindowOverride(isaReference)
-      }
+      val zReferences = overriddenZReferences.toSeq
 
-      cleanupResponses.foreach { case (isaReference, response) =>
-        withClue(s"Failed to delete reporting-window override for $isaReference: ") {
+      if (zReferences.nonEmpty) {
+        val response = disaReturnsService.deleteReportingWindowOverrides(zReferences)
+        withClue(s"Failed to delete reporting-window overrides for ${zReferences.mkString(", ")}: ") {
           response.status shouldBe NO_CONTENT
         }
       }

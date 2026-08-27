@@ -110,12 +110,17 @@ class DisaReturnsService extends HttpClient {
     )
   }
 
-  def deleteReportingWindowOverride(isaManagerReference: String): StandaloneWSResponse =
+  def deleteReportingWindowOverrides(isaManagerReferences: Seq[String]): StandaloneWSResponse = {
+    val payload = Json.stringify(Json.obj("zReferences" -> isaManagerReferences))
+
     Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/reporting-window-override/$isaManagerReference")
-        .delete(),
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/reporting-window-override")
+        .withHttpHeaders(CONTENT_TYPE -> JSON)
+        .withBody(payload)
+        .execute("DELETE"),
       10.seconds
     )
+  }
 
   def setClock(date: String): StandaloneWSResponse =
     Await.result(
