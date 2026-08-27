@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.api.service
 
+import play.api.http.HeaderNames.CONTENT_TYPE
+import play.api.http.MimeTypes.JSON
 import play.api.libs.json.*
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
+import java.time.Instant
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
@@ -84,6 +87,33 @@ class DisaReturnsService extends HttpClient {
       )
         .withHttpHeaders(headers.toSeq: _*)
         .get(),
+      10.seconds
+    )
+
+  def setReportingWindowOverride(
+    isaManagerReference: String,
+    startDate: Instant,
+    endDate: Instant
+  ): StandaloneWSResponse = {
+    val payload = Json.stringify(
+      Json.obj(
+        "startDate" -> startDate.toString,
+        "endDate"   -> endDate.toString
+      )
+    )
+
+    Await.result(
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/reporting-window-override/$isaManagerReference")
+        .withHttpHeaders(CONTENT_TYPE -> JSON)
+        .put(payload),
+      10.seconds
+    )
+  }
+
+  def deleteReportingWindowOverride(isaManagerReference: String): StandaloneWSResponse =
+    Await.result(
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/reporting-window-override/$isaManagerReference")
+        .delete(),
       10.seconds
     )
 

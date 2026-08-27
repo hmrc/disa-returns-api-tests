@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.api.service
 
-import play.api.libs.json.Json
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
-import java.time.Instant
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
@@ -52,24 +50,4 @@ class DisaTestSupportService extends HttpClient {
     )
   }
 
-  def setReportingWindowOverride(
-    isaManagerReference: String,
-    startDate: Instant,
-    endDate: Instant,
-    headers: Map[String, String]
-  ): StandaloneWSResponse = {
-    val payload = Json.stringify(
-      Json.obj(
-        "startDate" -> startDate.toString,
-        "endDate"   -> endDate.toString
-      )
-    )
-
-    Await.result(
-      mkRequest(s"$disaReturnsTestSupportHost/monthly/$isaManagerReference/reporting-window-override")
-        .withHttpHeaders(headers.toSeq: _*)
-        .put(payload),
-      10.seconds
-    )
-  }
 }
