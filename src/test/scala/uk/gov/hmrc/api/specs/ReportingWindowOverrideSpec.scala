@@ -30,7 +30,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
   private val submissionClockInstant = Instant.parse(s"${declarationPeriodDate}T00:00:00Z")
 
   Scenario("1. An active reporting-window override allows a monthly return submission") {
-    Given("I have valid authentication with an isolated credential ID")
+    Given("I have valid authentication for an ISA manager")
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = submissionClockInstant
@@ -46,7 +46,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
   }
 
   Scenario("2. An inactive reporting-window override prevents a monthly return submission") {
-    Given("I have valid authentication with an isolated credential ID")
+    Given("I have valid authentication for an ISA manager")
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = submissionClockInstant
@@ -79,8 +79,8 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
   }
 
-  Scenario("4. A reporting-window override only applies to the authenticated user") {
-    Given("Two users have different reporting-window overrides")
+  Scenario("4. A reporting-window override only applies to its Z-reference") {
+    Given("Two Z-references have different reporting-window overrides")
     val firstIsaReference  = generateRandomZReference()
     val secondIsaReference = generateRandomZReference()
     val firstAuthToken     = authHelper.getAuthBearerToken(firstIsaReference, uniqueCredentialId())
@@ -98,11 +98,11 @@ class ReportingWindowOverrideSpec extends BaseSpec {
       now.plusSeconds(300)
     ).status shouldBe NO_CONTENT
 
-    When("Each user submits a monthly return")
+    When("Each ISA manager submits a monthly return")
     val firstSubmission  = submissionRequest(firstAuthToken, firstIsaReference)
     val secondSubmission = submissionRequest(secondAuthToken, secondIsaReference)
 
-    Then("Only the user with the active override can submit")
+    Then("Only the Z-reference with the active override can submit")
     firstSubmission.status  shouldBe FORBIDDEN
     secondSubmission.status shouldBe NO_CONTENT
   }
