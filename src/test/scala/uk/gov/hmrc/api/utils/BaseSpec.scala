@@ -46,21 +46,21 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   val disaReturnsStubService: DisaReturnsStubService         = new DisaReturnsStubService
   val testSupportService: DisaTestSupportService             = new DisaTestSupportService
   val disaReturnsService: DisaReturnsService                 = new DisaReturnsService
-  val generateRandomZReference: () => String                 = () => ZReferenceGenerator.generate()
   val totalRecords: Array[Int]                               = Array(1, 2, 3)
 
   val declarationPeriodDate: String = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(17).toString
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
-    setClockInsideDeclarationPeriod()
     openReportingWindow()
   }
 
-  def setClockInsideDeclarationPeriod(): Unit = {
+  def generateRandomZReference(): String = {
+    val zReference = ZReferenceGenerator.generate()
     Given("The system clock is set inside the declaration period")
-    val response = disaReturnsService.setClock(declarationPeriodDate)
+    val response   = disaReturnsService.setClock(zReference, declarationPeriodDate)
     response.status shouldBe OK
+    zReference
   }
 
   def openReportingWindow(): Unit = {
