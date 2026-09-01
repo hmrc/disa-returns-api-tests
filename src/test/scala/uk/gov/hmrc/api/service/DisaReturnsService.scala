@@ -122,9 +122,9 @@ class DisaReturnsService extends HttpClient {
     )
   }
 
-  def setClock(date: String): StandaloneWSResponse =
+  def setClock(isaManagerReference: String, date: String): StandaloneWSResponse =
     Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/clock/$date")
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/clock/$isaManagerReference/$date")
         .put(""),
       10.seconds
     )

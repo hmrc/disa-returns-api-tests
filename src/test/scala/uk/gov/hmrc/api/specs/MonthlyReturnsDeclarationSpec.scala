@@ -37,7 +37,6 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
 
     When("I POST a declaration request")
     val response = declarationRequest(authToken, isaReference)
-    println(Console.RED + "DEBUG BODY: " + response.body + Console.RESET)
 
     Then("A 200 status code is returned")
     response.status shouldBe OK
