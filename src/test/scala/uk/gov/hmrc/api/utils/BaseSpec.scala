@@ -37,6 +37,8 @@ import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
 
+  private val overrideZReferences = scala.collection.mutable.Set.empty[String]
+
   val customHttpClient: CustomHttpClient                     = new CustomHttpClient
   val authService: AuthService                               = new AuthService
   val oAuthGrantAuthorityService: OAuthGrantAuthorityService = new OAuthGrantAuthorityService(customHttpClient)
@@ -60,8 +62,19 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     Given("The system clock is set inside the declaration period")
     val response   = disaReturnsService.setClock(zReference, declarationPeriodDate)
     response.status shouldBe OK
+    overrideZReferences += zReference
     zReference
   }
+
+  override protected def afterAll(): Unit =
+    try
+      if (overrideZReferences.nonEmpty) {
+        all(disaReturnsService.deleteOverrides(overrideZReferences.toSeq).map(_.status)) shouldBe OK
+      }
+    finally {
+      overrideZReferences.clear()
+      super.afterAll()
+    }
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")

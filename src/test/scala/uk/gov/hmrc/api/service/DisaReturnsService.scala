@@ -93,41 +93,45 @@ class DisaReturnsService extends HttpClient {
   def setReportingWindowOverride(
     isaManagerReference: String,
     startDate: Instant,
-    endDate: Instant
+    endDate: Instant,
+    clockDate: String
   ): StandaloneWSResponse = {
     val payload = Json.stringify(
       Json.obj(
-        "startDate" -> startDate.toString,
-        "endDate"   -> endDate.toString
+        "clock"           -> Json.obj("date" -> clockDate),
+        "reportingWindow" -> Json.obj(
+          "startDate" -> startDate.toString,
+          "endDate"   -> endDate.toString
+        )
       )
     )
 
     Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/reporting-window-override/$isaManagerReference")
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/$isaManagerReference")
         .withHttpHeaders(CONTENT_TYPE -> JSON)
         .put(payload),
       10.seconds
     )
   }
 
-  def deleteReportingWindowOverrides(isaManagerReferences: Seq[String]): StandaloneWSResponse = {
-    val payload = Json.stringify(Json.obj("zReferences" -> isaManagerReferences))
+  def deleteOverrides(isaManagerReferences: Seq[String]): Seq[StandaloneWSResponse] =
+    isaManagerReferences.map { isaManagerReference =>
+      Await.result(
+        mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/$isaManagerReference").delete(),
+        10.seconds
+      )
+    }
+
+  def setClock(isaManagerReference: String, date: String): StandaloneWSResponse = {
+    val payload = Json.stringify(Json.obj("clock" -> Json.obj("date" -> date), "reportingWindow" -> None))
 
     Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/reporting-window-override")
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/$isaManagerReference")
         .withHttpHeaders(CONTENT_TYPE -> JSON)
-        .withBody(payload)
-        .execute("DELETE"),
+        .put(payload),
       10.seconds
     )
   }
-
-  def setClock(isaManagerReference: String, date: String): StandaloneWSResponse =
-    Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/clock/$isaManagerReference/$date")
-        .put(""),
-      10.seconds
-    )
 
   def makeReturnSummaryCallback(
     isaManagerReference: String,
