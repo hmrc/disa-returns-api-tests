@@ -16,17 +16,15 @@
 
 package uk.gov.hmrc.api.specs
 
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.api.utils.BaseSpec
 
 import java.time.Instant
 import java.util.UUID
-import scala.collection.mutable.Set
 
 class ReportingWindowOverrideSpec extends BaseSpec {
 
-  private val overriddenZReferences  = Set.empty[String]
   private val submissionClockInstant = Instant.parse(s"${declarationPeriodDate}T00:00:00Z")
 
   Scenario("1. An active reporting-window override allows a monthly return submission") {
@@ -39,7 +37,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val overrideResponse = setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300))
 
     Then("The override is accepted")
-    overrideResponse.status shouldBe NO_CONTENT
+    overrideResponse.status shouldBe OK
 
     And("A monthly return can be submitted")
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
@@ -55,7 +53,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val overrideResponse = setOverride(isaReference, now.plusSeconds(3600), now.plusSeconds(7200))
 
     Then("The override is accepted")
-    overrideResponse.status shouldBe NO_CONTENT
+    overrideResponse.status shouldBe OK
 
     And("A monthly return is rejected because the reporting window is closed")
     val submissionResponse = submissionRequest(authToken, isaReference)
@@ -68,14 +66,14 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = submissionClockInstant
-    setOverride(isaReference, now.plusSeconds(3600), now.plusSeconds(7200)).status shouldBe NO_CONTENT
+    setOverride(isaReference, now.plusSeconds(3600), now.plusSeconds(7200)).status shouldBe OK
     submissionRequest(authToken, isaReference).status                              shouldBe FORBIDDEN
 
     When("I replace it with a reporting window containing the current instant")
     val replacementResponse = setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300))
 
     Then("The replacement is accepted and a monthly return can be submitted")
-    replacementResponse.status                        shouldBe NO_CONTENT
+    replacementResponse.status                        shouldBe OK
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
   }
 
@@ -91,12 +89,12 @@ class ReportingWindowOverrideSpec extends BaseSpec {
       firstIsaReference,
       now.plusSeconds(3600),
       now.plusSeconds(7200)
-    ).status shouldBe NO_CONTENT
+    ).status shouldBe OK
     setOverride(
       secondIsaReference,
       now.minusSeconds(60),
       now.plusSeconds(300)
-    ).status shouldBe NO_CONTENT
+    ).status shouldBe OK
 
     When("Each ISA manager submits a monthly return")
     val firstSubmission  = submissionRequest(firstAuthToken, firstIsaReference)
@@ -112,7 +110,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = submissionClockInstant
-    setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300)).status shouldBe NO_CONTENT
+    setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300)).status shouldBe OK
 
     When("I try to replace it with an end date before its start date")
     val invalidResponse = setOverride(isaReference, now.plusSeconds(300), now.minusSeconds(60))
@@ -124,25 +122,8 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
   }
 
-  override protected def afterEach(): Unit =
-    try {
-      val zReferences = overriddenZReferences.toSeq
-
-      if (zReferences.nonEmpty) {
-        val response = disaReturnsService.deleteReportingWindowOverrides(zReferences)
-        withClue(s"Failed to delete reporting-window overrides for ${zReferences.mkString(", ")}: ") {
-          response.status shouldBe NO_CONTENT
-        }
-      }
-    } finally {
-      overriddenZReferences.clear()
-      super.afterEach()
-    }
-
-  private def setOverride(isaReference: String, startDate: Instant, endDate: Instant) = {
-    overriddenZReferences += isaReference
-    disaReturnsService.setReportingWindowOverride(isaReference, startDate, endDate)
-  }
+  private def setOverride(isaReference: String, startDate: Instant, endDate: Instant) =
+    disaReturnsService.setReportingWindowOverride(isaReference, startDate, endDate, declarationPeriodDate)
 
   private def uniqueCredentialId(): String = s"disa-api-tests-${UUID.randomUUID()}"
 }
