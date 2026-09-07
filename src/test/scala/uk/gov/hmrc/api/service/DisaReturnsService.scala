@@ -65,17 +65,23 @@ class DisaReturnsService extends HttpClient {
 
   def getReconciliationReport(
     isaManagerReference: String,
-    page: Int,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
+    headers: Map[String, String],
+    cursor: Option[String] = None,
+    limit: Option[Int] = None
+  ): StandaloneWSResponse = {
+    val queryParameters = Seq(
+      cursor.map("cursor" -> _),
+      limit.map(value => "limit" -> value.toString)
+    ).flatten
+
     Await.result(
-      mkRequest(
-        s"$disaReturnsBase/$isaManagerReference/results?page=$page"
-      )
+      mkRequest(s"$disaReturnsBase/$isaManagerReference/results")
+        .addQueryStringParameters(queryParameters: _*)
         .withHttpHeaders(headers.toSeq: _*)
         .get(),
       10.seconds
     )
+  }
 
   def setReportingWindowOverride(
     isaManagerReference: String,
@@ -122,20 +128,12 @@ class DisaReturnsService extends HttpClient {
 
   def makeReconciliationReportReadyCallback(
     isaManagerReference: String,
-    totalRecords: Int,
     headers: Map[String, String]
-  ): StandaloneWSResponse = {
-    val payload =
-      s"""
-         |{
-         |  "totalRecords": $totalRecords
-         |}
-         |""".stripMargin
+  ): StandaloneWSResponse =
     Await.result(
       mkRequest(s"$disaReturnsHost$disaReturnsCallbackPath/$isaManagerReference")
         .withHttpHeaders(headers.toSeq: _*)
-        .post(payload),
+        .post(""),
       10.seconds
     )
-  }
 }
