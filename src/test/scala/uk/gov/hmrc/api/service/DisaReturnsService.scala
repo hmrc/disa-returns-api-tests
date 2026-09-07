@@ -63,19 +63,6 @@ class DisaReturnsService extends HttpClient {
     )
   }
 
-  def getReportingResultsSummary(
-    isaManagerReference: String,
-    headers: Map[String, String]
-  ): StandaloneWSResponse =
-    Await.result(
-      mkRequest(
-        s"$disaReturnsBase/$isaManagerReference/results/summary"
-      )
-        .withHttpHeaders(headers.toSeq: _*)
-        .get(),
-      10.seconds
-    )
-
   def getReconciliationReport(
     isaManagerReference: String,
     page: Int,
@@ -133,7 +120,7 @@ class DisaReturnsService extends HttpClient {
     )
   }
 
-  def makeReturnSummaryCallback(
+  def makeReconciliationReportReadyCallback(
     isaManagerReference: String,
     totalRecords: Int,
     headers: Map[String, String]

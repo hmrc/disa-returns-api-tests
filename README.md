@@ -35,6 +35,12 @@ Run tests as follows:
 ./run-tests.sh <environment>
 ```
 
+Run formatting and tests before committing:
+
+```bash
+sbt precommit
+```
+
 ## Scalafmt
 
 Check all project files are formatted as expected as follows:

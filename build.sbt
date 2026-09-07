@@ -12,3 +12,5 @@ lazy val root = (project in file("."))
     Test / fork := true,
     (Compile / compile) := ((Compile / compile) dependsOn (Compile / scalafmtSbtCheck, Compile / scalafmtCheckAll)).value
   )
+
+addCommandAlias("precommit", ";scalafmtAll;scalafmtSbt;test")
