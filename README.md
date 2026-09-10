@@ -19,8 +19,9 @@ docker run --rm -d -p 27017:27017 --name mongo percona/percona-server-mongodb:6.
 sm2 --start DISA_RETURNS_ALL
 ```
 
-The reporting-window scenarios use scoped test-only clock and override routes in `DISA_RETURNS_SUBMISSION`. When that
-service is started outside a configured non-production environment, enable them with
+The reporting-window scenarios use the bulk test-only clock and override routes in `DISA_RETURNS_SUBMISSION`, with
+one Z-reference per setup request and combined cleanup. When that service is started outside a configured
+non-production environment, enable them with
 `-Dapplication.router=testOnlyDoNotUseInAppConf.Routes`.
 
 The suite exercises the current periodless monthly API paths, where tax year and month are not supplied in the URL.

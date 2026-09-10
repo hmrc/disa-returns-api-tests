@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.api.specs
 
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT}
 import play.api.libs.json.Json
 import uk.gov.hmrc.api.utils.BaseSpec
 
@@ -37,7 +37,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val overrideResponse = setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300))
 
     Then("The override is accepted")
-    overrideResponse.status shouldBe OK
+    overrideResponse.status shouldBe NO_CONTENT
 
     And("A monthly return can be submitted")
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
@@ -53,7 +53,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val overrideResponse = setOverride(isaReference, now.plusSeconds(3600), now.plusSeconds(7200))
 
     Then("The override is accepted")
-    overrideResponse.status shouldBe OK
+    overrideResponse.status shouldBe NO_CONTENT
 
     And("A monthly return is rejected because the reporting window is closed")
     val submissionResponse = submissionRequest(authToken, isaReference)
@@ -66,14 +66,14 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = submissionClockInstant
-    setOverride(isaReference, now.plusSeconds(3600), now.plusSeconds(7200)).status shouldBe OK
+    setOverride(isaReference, now.plusSeconds(3600), now.plusSeconds(7200)).status shouldBe NO_CONTENT
     submissionRequest(authToken, isaReference).status                              shouldBe FORBIDDEN
 
     When("I replace it with a reporting window containing the current instant")
     val replacementResponse = setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300))
 
     Then("The replacement is accepted and a monthly return can be submitted")
-    replacementResponse.status                        shouldBe OK
+    replacementResponse.status                        shouldBe NO_CONTENT
     submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
   }
 
@@ -89,12 +89,12 @@ class ReportingWindowOverrideSpec extends BaseSpec {
       firstIsaReference,
       now.plusSeconds(3600),
       now.plusSeconds(7200)
-    ).status shouldBe OK
+    ).status shouldBe NO_CONTENT
     setOverride(
       secondIsaReference,
       now.minusSeconds(60),
       now.plusSeconds(300)
-    ).status shouldBe OK
+    ).status shouldBe NO_CONTENT
 
     When("Each ISA manager submits a monthly return")
     val firstSubmission  = submissionRequest(firstAuthToken, firstIsaReference)
@@ -110,7 +110,7 @@ class ReportingWindowOverrideSpec extends BaseSpec {
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference, uniqueCredentialId())
     val now          = submissionClockInstant
-    setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300)).status shouldBe OK
+    setOverride(isaReference, now.minusSeconds(60), now.plusSeconds(300)).status shouldBe NO_CONTENT
 
     When("I try to replace it with an end date before its start date")
     val invalidResponse = setOverride(isaReference, now.plusSeconds(300), now.minusSeconds(60))

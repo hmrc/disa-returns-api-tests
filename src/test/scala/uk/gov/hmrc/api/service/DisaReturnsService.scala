@@ -91,6 +91,7 @@ class DisaReturnsService extends HttpClient {
   ): StandaloneWSResponse = {
     val payload = Json.stringify(
       Json.obj(
+        "zReferences"     -> Seq(isaManagerReference),
         "clock"           -> Json.obj("date" -> clockDate),
         "reportingWindow" -> Json.obj(
           "startDate" -> startDate.toString,
@@ -100,26 +101,35 @@ class DisaReturnsService extends HttpClient {
     )
 
     Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/$isaManagerReference")
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides")
         .withHttpHeaders(CONTENT_TYPE -> JSON)
         .put(payload),
       10.seconds
     )
   }
 
-  def deleteOverrides(isaManagerReferences: Seq[String]): Seq[StandaloneWSResponse] =
-    isaManagerReferences.map { isaManagerReference =>
-      Await.result(
-        mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/$isaManagerReference").delete(),
-        10.seconds
-      )
-    }
-
-  def setClock(isaManagerReference: String, date: String): StandaloneWSResponse = {
-    val payload = Json.stringify(Json.obj("clock" -> Json.obj("date" -> date), "reportingWindow" -> None))
+  def deleteOverrides(isaManagerReferences: Seq[String]): StandaloneWSResponse = {
+    val payload = Json.stringify(Json.obj("zReferences" -> isaManagerReferences))
 
     Await.result(
-      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/$isaManagerReference")
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides/delete")
+        .withHttpHeaders(CONTENT_TYPE -> JSON)
+        .post(payload),
+      10.seconds
+    )
+  }
+
+  def setClock(isaManagerReference: String, date: String): StandaloneWSResponse = {
+    val payload = Json.stringify(
+      Json.obj(
+        "zReferences"     -> Seq(isaManagerReference),
+        "clock"           -> Json.obj("date" -> date),
+        "reportingWindow" -> None
+      )
+    )
+
+    Await.result(
+      mkRequest(s"$disaReturnsSubmissionHost/test-only/overrides")
         .withHttpHeaders(CONTENT_TYPE -> JSON)
         .put(payload),
       10.seconds

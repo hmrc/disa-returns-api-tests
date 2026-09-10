@@ -23,7 +23,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import play.api.*
 import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE, USER_AGENT}
 import play.api.http.MimeTypes.JSON
-import play.api.http.Status.{CREATED, OK}
+import play.api.http.Status.{CREATED, NO_CONTENT, OK}
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
@@ -61,7 +61,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
     val zReference = ZReferenceGenerator.generate()
     Given("The system clock is set inside the declaration period")
     val response   = disaReturnsService.setClock(zReference, declarationPeriodDate)
-    response.status shouldBe OK
+    response.status shouldBe NO_CONTENT
     overrideZReferences += zReference
     zReference
   }
@@ -69,7 +69,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   override protected def afterAll(): Unit =
     try
       if (overrideZReferences.nonEmpty) {
-        all(disaReturnsService.deleteOverrides(overrideZReferences.toSeq).map(_.status)) shouldBe OK
+        disaReturnsService.deleteOverrides(overrideZReferences.toSeq).status shouldBe NO_CONTENT
       }
     finally {
       overrideZReferences.clear()
