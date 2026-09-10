@@ -18,7 +18,7 @@ package uk.gov.hmrc.api.specs
 
 import org.scalactic.Prettifier.default
 import play.api.http.Status.{NO_CONTENT, OK}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.utils.BaseSpec
 
@@ -43,28 +43,39 @@ class ReconciliationReportSpec extends BaseSpec {
     println(Console.GREEN + reportReadyCallbackResponse.body + Console.RESET)
     reportReadyCallbackResponse.status shouldBe NO_CONTENT
 
-    When("I request 'Reporting Results Endpoint' via a GET request to retrieve the full reconciliation report")
-    val receivedReportingResultsEndpointResponse: StandaloneWSResponse =
-      disaReturnsService.getReconciliationReport(
+    When("I follow each cursor from the results endpoint")
+    val limit                                     = 2
+    var cursor: Option[String]                    = None
+    var returnResults                             = Seq.empty[JsValue]
+    var receivedReportingResultsEndpointResponses = Seq.empty[StandaloneWSResponse]
+    var moreResultsAvailable                      = true
+
+    while (moreResultsAvailable) {
+      val response = disaReturnsService.getReconciliationReport(
         isaReference,
-        page = 0,
-        validHeadersOnlyWithToken(authToken)
+        validHeadersOnlyWithToken(authToken),
+        cursor = cursor,
+        limit = Some(limit)
       )
+      val json     = Json.parse(response.body).as[JsObject]
 
-    Then("I should receive status code 200 OK")
-    receivedReportingResultsEndpointResponse.status shouldBe OK
+      receivedReportingResultsEndpointResponses :+= response
+      returnResults ++= (json \ "returnResults").as[Seq[JsValue]]
 
-    And("The response body should contain valid report data from reconciliation")
-    val json = Json.parse(receivedReportingResultsEndpointResponse.body)
-    (json \ "currentPage").as[Int]   shouldEqual 0
-    (json \ "recordsInPage").as[Int] shouldEqual 6
-    (json \ "totalRecords").as[Int]       should be >= (json \ "recordsInPage").as[Int]
-    (json \ "totalRecords").as[Int]  shouldEqual totalRecords.sum
-    (json \ "totalNumberOfPages").as[Int] should be > 0
+      (json \ "currentPage").toOption        shouldBe None
+      (json \ "recordsInPage").toOption      shouldBe None
+      (json \ "totalRecords").toOption       shouldBe None
+      (json \ "totalNumberOfPages").toOption shouldBe None
 
-    And("The number of records in 'returnResults' should match 'recordsInPage'")
-    val recordsInPage = (json \ "recordsInPage").as[Int]
-    val returnResults = (json \ "returnResults").as[Seq[JsValue]]
-    returnResults.size shouldEqual recordsInPage
+      cursor = (json \ "nextCursor").toOption.map(_.as[String])
+      cursor.foreach(_.nonEmpty shouldBe true)
+      moreResultsAvailable = cursor.nonEmpty
+    }
+
+    Then("each request should receive status code 200 OK")
+    all(receivedReportingResultsEndpointResponses.map(_.status)) shouldBe OK
+
+    And("all reconciliation results should be returned across the cursor pages")
+    returnResults.size shouldEqual totalRecords.sum
   }
 }
