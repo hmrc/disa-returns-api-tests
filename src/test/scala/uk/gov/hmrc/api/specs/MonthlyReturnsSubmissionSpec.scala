@@ -27,11 +27,9 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
 
   val isaReference: String = generateRandomZReference()
   val authToken: String    = authHelper.getAuthBearerToken(isaReference)
-
   Scenario(
     s"1. Verify 'submission endpoint' returns a 204 status code for a successful submission"
   ) {
-
     Given("I have a valid authentication and an ISA reference")
 
     When("I POST a submission request")
