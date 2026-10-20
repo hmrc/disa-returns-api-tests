@@ -25,8 +25,8 @@ import uk.gov.hmrc.api.utils.RandomDataGenerator.{generateNino, generateSTDCode}
 
 import java.time.Instant
 
-/** Triggers the APIUploadStarted, APIValidation and APIDeclarationSubmitted audit events in disa-returns. The events are
-  * not asserted here; they are checked in Splunk by searching on the Z-reference logged by each scenario.
+/** Triggers the APIUploadStarted, APIValidation and APIDeclarationSubmitted audit events in disa-returns. The events
+  * are not asserted here; they are checked in Splunk by searching on the Z-reference logged by each scenario.
   */
 class AuditSpec extends BaseSpec, LazyLogging {
 
@@ -101,7 +101,9 @@ class AuditSpec extends BaseSpec, LazyLogging {
 
   // ============= APIValidation ==========================================
 
-  Scenario("5. Second level validation errors across several records trigger APIValidation failure with error volumes") {
+  Scenario(
+    "5. Second level validation errors across several records trigger APIValidation failure with error volumes"
+  ) {
     Given("I have a valid authentication and an ISA reference")
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference)
@@ -119,7 +121,11 @@ class AuditSpec extends BaseSpec, LazyLogging {
     Given("I have a valid authentication and an ISA reference")
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference)
-    logExpectation(6, isaReference, "APIValidation(Failure) with errorType nino_or_acc_num_missing, no APIUploadStarted")
+    logExpectation(
+      6,
+      isaReference,
+      "APIValidation(Failure) with errorType nino_or_acc_num_missing, no APIUploadStarted"
+    )
 
     When("I POST a submission request with a record missing its NINO")
     val response = submissionRequest(authToken, isaReference, ndString = recordsMissingField(1, "nino"))
@@ -178,10 +184,14 @@ class AuditSpec extends BaseSpec, LazyLogging {
     Given("I have a valid authentication and an ISA reference")
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference)
-    logExpectation(10, isaReference, "APIDeclarationSubmitted(Success), then APIDeclarationSubmitted(Failure) for obligation closed")
+    logExpectation(
+      10,
+      isaReference,
+      "APIDeclarationSubmitted(Success), then APIDeclarationSubmitted(Failure) for obligation closed"
+    )
 
     And("I have submitted and declared monthly return data")
-    submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
+    submissionRequest(authToken, isaReference).status  shouldBe NO_CONTENT
     declarationRequest(authToken, isaReference).status shouldBe OK
 
     When("I POST a second declaration request")
