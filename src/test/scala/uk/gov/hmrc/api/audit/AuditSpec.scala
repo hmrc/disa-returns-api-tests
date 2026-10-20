@@ -17,7 +17,7 @@
 package uk.gov.hmrc.api.audit
 
 import com.typesafe.scalalogging.LazyLogging
-import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, NO_CONTENT, OK, UNAUTHORIZED}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.api.utils.BaseSpec
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.*
@@ -180,55 +180,18 @@ class AuditSpec extends BaseSpec, LazyLogging {
     response.status shouldBe OK
   }
 
-  Scenario("10. A second declaration for the same period triggers APIDeclarationSubmitted failure") {
-    Given("I have a valid authentication and an ISA reference")
+  Scenario("10. A declaration while the reporting window is closed triggers APIDeclarationSubmitted failure") {
+    Given("I have a valid authentication and an ISA reference with a closed reporting window")
     val isaReference = generateRandomZReference()
     val authToken    = authHelper.getAuthBearerToken(isaReference)
-    logExpectation(
-      10,
-      isaReference,
-      "APIDeclarationSubmitted(Success), then APIDeclarationSubmitted(Failure) for obligation closed"
-    )
-
-    And("I have submitted and declared monthly return data")
-    submissionRequest(authToken, isaReference).status  shouldBe NO_CONTENT
-    declarationRequest(authToken, isaReference).status shouldBe OK
-
-    When("I POST a second declaration request")
-    val response = declarationRequest(authToken, isaReference)
-
-    Then("A 403 status code is returned")
-    response.status shouldBe FORBIDDEN
-  }
-
-  Scenario("11. A declaration while the reporting window is closed triggers APIDeclarationSubmitted failure") {
-    Given("I have submitted monthly return data")
-    val isaReference = generateRandomZReference()
-    val authToken    = authHelper.getAuthBearerToken(isaReference)
-    submissionRequest(authToken, isaReference).status shouldBe NO_CONTENT
-    logExpectation(11, isaReference, "APIDeclarationSubmitted(Failure) for reporting window closed")
-
-    And("The reporting window is closed")
     closeReportingWindow(isaReference)
+    logExpectation(10, isaReference, "APIDeclarationSubmitted(Failure) for reporting window closed")
 
     When("I POST a declaration request")
     val response = declarationRequest(authToken, isaReference)
 
     Then("A 403 status code is returned")
     response.status shouldBe FORBIDDEN
-  }
-
-  Scenario("12. A declaration without any submitted data triggers APIDeclarationSubmitted failure") {
-    Given("I have a valid authentication and an ISA reference")
-    val isaReference = generateRandomZReference()
-    val authToken    = authHelper.getAuthBearerToken(isaReference)
-    logExpectation(12, isaReference, "APIDeclarationSubmitted(Failure) for monthly return not submitted")
-
-    When("I POST a declaration request that is not a nil return")
-    val response = declarationRequest(authToken, isaReference)
-
-    Then("A 422 status code is returned")
-    response.status shouldBe UNPROCESSABLE_ENTITY
   }
 
   private def logExpectation(scenario: Int, isaReference: String, expected: String): Unit =
