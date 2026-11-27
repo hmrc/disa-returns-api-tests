@@ -19,20 +19,26 @@ package uk.gov.hmrc.api.helpers
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.constant.TestConstants.defaultCredentialId
+import uk.gov.hmrc.api.models.UserType
 import uk.gov.hmrc.api.service.AuthService
 import uk.gov.hmrc.api.service.auth.OAuthGrantAuthorityService
 
 class AuthHelper(authService: AuthService, oAuthGrantAuthorityService: OAuthGrantAuthorityService) {
 
-  def getAuthBearerToken(zReference: String, credentialId: String = defaultCredentialId): String =
+  def getAuthBearerToken(
+    zReference: String,
+    credentialId: String = defaultCredentialId,
+    userType: UserType = UserType.Organisation
+  ): String =
     if (env.environment == "local") {
-      val authServiceRequestResponse1: StandaloneWSResponse = authService.callGGSignIn(zReference, credentialId)
+      val authServiceRequestResponse1: StandaloneWSResponse =
+        authService.callGGSignIn(zReference, credentialId, userType)
       val cookies                                           = authServiceRequestResponse1.cookies.map(c => s"${c.name}=${c.value}").mkString("; ")
       val authServiceRequestResponse2: StandaloneWSResponse = authService.getBearerToken(cookies)
       val authTokenRegex                                    = """(?s)data-session-id="authToken".*?<code[^>]*>(.*?)</code>""".r
       val authTokenOpt                                      = authTokenRegex.findFirstMatchIn(authServiceRequestResponse2.body).map(_.group(1))
       authTokenOpt.getOrElse("No authToken found")
     } else {
-      oAuthGrantAuthorityService.generateOAuthAccessToken(zReference, credentialId)
+      oAuthGrantAuthorityService.generateOAuthAccessToken(zReference, credentialId, userType)
     }
 }

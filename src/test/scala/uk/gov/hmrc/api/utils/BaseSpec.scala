@@ -23,16 +23,19 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import play.api.*
 import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE, USER_AGENT}
 import play.api.http.MimeTypes.JSON
-import play.api.http.Status.{CREATED, NO_CONTENT, OK}
+import play.api.http.Status.{CREATED, FORBIDDEN, NO_CONTENT, OK}
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.constant.TestConstants.AgentClientRelationshipNotFound
 import uk.gov.hmrc.api.helpers.*
+import uk.gov.hmrc.api.models.UserType
 import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.service.auth.OAuthGrantAuthorityService
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.{LocalDate, ZoneOffset}
+import java.util.UUID
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
@@ -75,6 +78,21 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       overrideZReferences.clear()
       super.afterAll()
     }
+
+  def agentAuthBearerToken(delegatedZReference: String): String =
+    authHelper.getAuthBearerToken(
+      delegatedZReference,
+      credentialId = s"disa-agent-${UUID.randomUUID()}",
+      userType = UserType.Agent
+    )
+
+  def assertAgentClientRelationshipNotFound(response: StandaloneWSResponse): Unit = {
+    Then("A 403 status code is returned with AGENT_CLIENT_RELATIONSHIP_NOT_FOUND")
+    withClue(s"Agent response body: ${response.body} → ") {
+      response.status                                 shouldBe FORBIDDEN
+      (Json.parse(response.body) \ "code").as[String] shouldBe AgentClientRelationshipNotFound
+    }
+  }
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")

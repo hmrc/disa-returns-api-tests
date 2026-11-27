@@ -87,4 +87,30 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     response.status shouldBe OK
   }
 
+  Scenario(
+    s"4. Verify 'declaration endpoint' allows an agent with a delegated enrolment for the ISA reference"
+  ) {
+    Given("I am an agent with a delegated enrolment for an ISA reference")
+    val isaReference = generateRandomZReference()
+    val agentToken   = agentAuthBearerToken(isaReference)
+
+    When("I POST a declaration request for a nil return as the agent")
+    val response = declarationRequest(agentToken, isaReference, nilReturn = true)
+
+    Then("A 200 status code is returned")
+    response.status shouldBe OK
+  }
+
+  Scenario(
+    s"5. Verify 'declaration endpoint' rejects an agent without a delegated enrolment for the ISA reference"
+  ) {
+    Given("I am an agent with a delegated enrolment for a different ISA reference")
+    val isaReference = generateRandomZReference()
+    val agentToken   = agentAuthBearerToken(ZReferenceGenerator.generate())
+
+    When("I POST a declaration request for a nil return as the agent")
+    val response = declarationRequest(agentToken, isaReference, nilReturn = true)
+
+    assertAgentClientRelationshipNotFound(response)
+  }
 }

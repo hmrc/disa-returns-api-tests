@@ -96,4 +96,31 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     Then("A 413 status code is returned")
     response.status shouldBe REQUEST_ENTITY_TOO_LARGE
   }
+
+  Scenario(
+    s"5. Verify 'submission endpoint' allows an agent with a delegated enrolment for the ISA reference"
+  ) {
+    Given("I am an agent with a delegated enrolment for an ISA reference")
+    val agentIsaReference = generateRandomZReference()
+    val agentToken        = agentAuthBearerToken(agentIsaReference)
+
+    When("I POST a submission request as the agent")
+    val response = submissionRequest(agentToken, isaManagerReference = agentIsaReference)
+
+    Then("A 204 status code is returned")
+    response.status shouldBe NO_CONTENT
+  }
+
+  Scenario(
+    s"6. Verify 'submission endpoint' rejects an agent without a delegated enrolment for the ISA reference"
+  ) {
+    Given("I am an agent with a delegated enrolment for a different ISA reference")
+    val agentIsaReference = generateRandomZReference()
+    val agentToken        = agentAuthBearerToken(ZReferenceGenerator.generate())
+
+    When("I POST a submission request as the agent")
+    val response = submissionRequest(agentToken, isaManagerReference = agentIsaReference)
+
+    assertAgentClientRelationshipNotFound(response)
+  }
 }

@@ -25,6 +25,8 @@ import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.constant.AppConfig.*
 import uk.gov.hmrc.api.constant.TestConstants.defaultCredentialId
+import uk.gov.hmrc.api.helpers.AuthLoginStubFormData
+import uk.gov.hmrc.api.models.UserType
 import uk.gov.hmrc.api.utils.CustomHttpClient
 import uk.gov.hmrc.apitestrunner.util.ApiLogger.log
 
@@ -38,10 +40,15 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
   private lazy val oAuthApiBase           = TestEnvironment.url("oauth-api")
   private lazy val requestedAuthorityBase = TestEnvironment.url("third-party-requested-authority")
 
-  def generateOAuthAccessToken(zReference: String, credentialId: String = defaultCredentialId): String = {
+  def generateOAuthAccessToken(
+    zReference: String,
+    credentialId: String = defaultCredentialId,
+    userType: UserType = UserType.Organisation
+  ): String = {
 
-    /** POST /auth-login-stub/gg-sign-in to create auth session with a DISA enrolment */
-    val authLoginRedirectResponse = postAuthLoginStub(zReference = zReference, credentialId = credentialId)
+    /** POST /auth-login-stub/gg-sign-in to create auth session with a DISA enrolment (delegated for agents) */
+    val authLoginRedirectResponse =
+      postAuthLoginStub(zReference = zReference, credentialId = credentialId, userType = userType)
 
     /** GET /oauth/authorize using authLoginRedirectResponse redirect location */
     val getOAuthAuthorizeResponse = getOAuthAuthorize(oAuthRedirectLocation = authLoginRedirectResponse._2)
@@ -78,21 +85,17 @@ class OAuthGrantAuthorityService(httpClient: CustomHttpClient) {
 
   def postAuthLoginStub(
     zReference: String,
-    credentialId: String = defaultCredentialId
+    credentialId: String = defaultCredentialId,
+    userType: UserType = UserType.Organisation
   ): (StandaloneWSResponse, String) = {
     val oAuthRedirectUri =
       s"/oauth/authorize?client_id=$clientId&redirect_uri=$oAuthRedirectUrl&scope=$scopes&response_type=code"
 
-    val formData: Map[String, String] = Map(
-      "affinityGroup"                       -> "Organisation",
-      "confidenceLevel"                     -> "50",
-      "credentialStrength"                  -> "strong",
-      "authorityId"                         -> credentialId,
-      "redirectionUrl"                      -> oAuthRedirectUri,
-      "enrolment[0].name"                   -> "HMRC-DISA-ORG",
-      "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
-      "enrolment[0].taxIdentifier[0].value" -> zReference,
-      "enrolment[0].state"                  -> "Activated"
+    val formData: Map[String, String] = AuthLoginStubFormData(
+      zReference = zReference,
+      credentialId = credentialId,
+      userType = userType,
+      redirectionUrl = oAuthRedirectUri
     )
 
     val loginResponse = Await.result(

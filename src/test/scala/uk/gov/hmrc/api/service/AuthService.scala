@@ -22,6 +22,8 @@ import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedSimpleForm
 import play.api.libs.ws.StandaloneWSResponse
 import uk.gov.hmrc.api.conf.TestEnvironment
 import uk.gov.hmrc.api.constant.TestConstants.defaultCredentialId
+import uk.gov.hmrc.api.helpers.AuthLoginStubFormData
+import uk.gov.hmrc.api.models.UserType
 import uk.gov.hmrc.apitestrunner.http.HttpClient
 
 import scala.concurrent.Await
@@ -31,17 +33,16 @@ class AuthService extends HttpClient {
 
   private lazy val authBaseUrl: String = TestEnvironment.url("auth")
 
-  def callGGSignIn(isaReference: String, credentialId: String = defaultCredentialId): StandaloneWSResponse = {
-    val formData: Map[String, String] = Map(
-      "affinityGroup"                       -> "Organisation",
-      "confidenceLevel"                     -> "50",
-      "credentialStrength"                  -> "strong",
-      "authorityId"                         -> credentialId,
-      "redirectionUrl"                      -> s"$authBaseUrl/auth-login-stub/session",
-      "enrolment[0].name"                   -> "HMRC-DISA-ORG",
-      "enrolment[0].taxIdentifier[0].name"  -> "ZREF",
-      "enrolment[0].taxIdentifier[0].value" -> isaReference,
-      "enrolment[0].state"                  -> "Activated"
+  def callGGSignIn(
+    isaReference: String,
+    credentialId: String = defaultCredentialId,
+    userType: UserType = UserType.Organisation
+  ): StandaloneWSResponse = {
+    val formData: Map[String, String] = AuthLoginStubFormData(
+      zReference = isaReference,
+      credentialId = credentialId,
+      userType = userType,
+      redirectionUrl = s"$authBaseUrl/auth-login-stub/session"
     )
     Await.result(
       mkRequest(s"$authBaseUrl/auth-login-stub/gg-sign-in")
