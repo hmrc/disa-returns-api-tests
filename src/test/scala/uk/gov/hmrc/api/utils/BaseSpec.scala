@@ -87,7 +87,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       credentialId = s"disa-api-tests-agent-${UUID.randomUUID()}",
       userType = UserType.Agent
     )
-  
+
   def expectedAgentStatus(features: AuthFeatures, hasDelegatedEnrolment: Boolean, successStatus: Int): Int =
     if (!features.enrolmentVerificationEnabled) successStatus
     else if (!features.agentAuthenticationEnabled) UNAUTHORIZED
