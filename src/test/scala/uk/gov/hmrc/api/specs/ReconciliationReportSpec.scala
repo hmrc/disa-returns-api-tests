@@ -35,7 +35,6 @@ class ReconciliationReportSpec extends BaseSpec {
     val reportReadyCallbackResponse: StandaloneWSResponse = generateReport(isaReference, authToken)
 
     Then("I got the status code 204 confirming the data was successfully stored")
-    println(Console.GREEN + reportReadyCallbackResponse.body + Console.RESET)
     reportReadyCallbackResponse.status shouldBe NO_CONTENT
 
     When("I follow each cursor from the results endpoint")
@@ -115,7 +114,6 @@ class ReconciliationReportSpec extends BaseSpec {
   private def generateReport(isaReference: String, token: String): StandaloneWSResponse =
     testSupportService.triggerGenerateReport(isaReference, totalRecords, validHeadersOnlyWithToken(token))
 
-  /** Follows `nextCursor` until the last page, returning every page response and the combined results. */
   private def getAllResults(isaReference: String, token: String): (Seq[StandaloneWSResponse], Seq[JsValue]) = {
     val limit                  = 2
     var cursor: Option[String] = None

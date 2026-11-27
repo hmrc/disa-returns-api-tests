@@ -18,6 +18,7 @@ package uk.gov.hmrc.api.helpers
 
 import uk.gov.hmrc.api.constant.TestConstants.*
 import uk.gov.hmrc.api.models.UserType
+import uk.gov.hmrc.api.utils.RandomDataGenerator.generateAgentReferenceNumber
 
 object AuthLoginStubFormData {
 
@@ -48,7 +49,7 @@ object AuthLoginStubFormData {
           "affinityGroup"                                -> "Agent",
           "enrolment[0].name"                            -> AgentEnrolmentKey,
           "enrolment[0].taxIdentifier[0].name"           -> AgentIdentifierKey,
-          "enrolment[0].taxIdentifier[0].value"          -> AgentReferenceNumber,
+          "enrolment[0].taxIdentifier[0].value"          -> generateAgentReferenceNumber(),
           "enrolment[0].state"                           -> "Activated",
           "delegatedEnrolment[0].key"                    -> EnrolmentKey,
           "delegatedEnrolment[0].taxIdentifier[0].name"  -> IdentifierKey,

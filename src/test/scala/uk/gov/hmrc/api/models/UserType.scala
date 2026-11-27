@@ -16,12 +16,6 @@
 
 package uk.gov.hmrc.api.models
 
-/** The type of user signed in through the auth login stub.
-  *
-  *   - `Organisation` holds an activated `HMRC-DISA-ORG` enrolment for the Z-reference.
-  *   - `Agent` holds an activated `HMRC-AS-AGENT` enrolment and a `HMRC-DISA-ORG` delegated enrolment for the
-  *     Z-reference.
-  */
 enum UserType {
   case Organisation, Agent
 }

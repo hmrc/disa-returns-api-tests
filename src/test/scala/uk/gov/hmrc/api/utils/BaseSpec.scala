@@ -82,7 +82,7 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
   def agentAuthBearerToken(delegatedZReference: String): String =
     authHelper.getAuthBearerToken(
       delegatedZReference,
-      credentialId = s"disa-api-tests-agent-${UUID.randomUUID()}",
+      credentialId = s"disa-agent-${UUID.randomUUID()}",
       userType = UserType.Agent
     )
 

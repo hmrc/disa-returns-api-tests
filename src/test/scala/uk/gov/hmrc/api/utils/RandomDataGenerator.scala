@@ -31,4 +31,9 @@ object RandomDataGenerator {
     val number = Random.nextInt(999999) + 1
     f"STD$number%06d"
   }
+
+  def generateAgentReferenceNumber(): String = {
+    val number = Random.nextInt(100)
+    f"TARN00000$number%02d"
+  }
 }
