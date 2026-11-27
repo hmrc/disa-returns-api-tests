@@ -23,16 +23,21 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import play.api.*
 import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE, USER_AGENT}
 import play.api.http.MimeTypes.JSON
-import play.api.http.Status.{CREATED, NO_CONTENT, OK}
+import play.api.http.Status.{CREATED, FORBIDDEN, NO_CONTENT, OK, UNAUTHORIZED}
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.constant.AppConfig.env
+import uk.gov.hmrc.api.constant.AuthFeatures
+import uk.gov.hmrc.api.constant.TestConstants.AgentClientRelationshipNotFound
 import uk.gov.hmrc.api.helpers.*
+import uk.gov.hmrc.api.models.UserType
 import uk.gov.hmrc.api.service.*
 import uk.gov.hmrc.api.service.auth.OAuthGrantAuthorityService
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
 import java.time.{LocalDate, ZoneOffset}
+import java.util.UUID
 import scala.util.{Random, Try}
 
 trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
@@ -75,6 +80,35 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       overrideZReferences.clear()
       super.afterAll()
     }
+
+  def agentAuthBearerToken(delegatedZReference: String): String =
+    authHelper.getAuthBearerToken(
+      delegatedZReference,
+      credentialId = s"disa-api-tests-agent-${UUID.randomUUID()}",
+      userType = UserType.Agent
+    )
+  
+  def expectedAgentStatus(features: AuthFeatures, hasDelegatedEnrolment: Boolean, successStatus: Int): Int =
+    if (!features.enrolmentVerificationEnabled) successStatus
+    else if (!features.agentAuthenticationEnabled) UNAUTHORIZED
+    else if (hasDelegatedEnrolment) successStatus
+    else FORBIDDEN
+
+  def assertAgentResponse(
+    response: StandaloneWSResponse,
+    features: AuthFeatures,
+    hasDelegatedEnrolment: Boolean,
+    successStatus: Int
+  ): Unit = {
+    val expectedStatus = expectedAgentStatus(features, hasDelegatedEnrolment, successStatus)
+    Then(s"A $expectedStatus status code is returned for the agent in the ${env.environment} environment")
+    withClue(s"Agent response body: ${response.body} → ") {
+      response.status shouldBe expectedStatus
+      if (expectedStatus == FORBIDDEN) {
+        (Json.parse(response.body) \ "code").as[String] shouldBe AgentClientRelationshipNotFound
+      }
+    }
+  }
 
   def openReportingWindow(): Unit = {
     Given("The reporting window is open")

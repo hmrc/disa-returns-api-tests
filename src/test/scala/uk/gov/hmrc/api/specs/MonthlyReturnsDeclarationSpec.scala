@@ -19,7 +19,7 @@ package uk.gov.hmrc.api.specs
 import com.typesafe.scalalogging.LazyLogging
 import play.api.http.Status.{NO_CONTENT, OK}
 import play.api.libs.json.Json
-import uk.gov.hmrc.api.constant.AppConfig.env
+import uk.gov.hmrc.api.constant.AppConfig.{disaReturnsFeatures, env}
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
@@ -87,4 +87,29 @@ class MonthlyReturnsDeclarationSpec extends BaseSpec, LazyLogging {
     response.status shouldBe OK
   }
 
+  Scenario(
+    s"4. Verify 'declaration endpoint' allows an agent with a delegated enrolment for the ISA reference"
+  ) {
+    Given("I am an agent with a delegated enrolment for an ISA reference")
+    val isaReference = generateRandomZReference()
+    val agentToken   = agentAuthBearerToken(isaReference)
+
+    When("I POST a declaration request for a nil return as the agent")
+    val response = declarationRequest(agentToken, isaReference, nilReturn = true)
+
+    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = true, successStatus = OK)
+  }
+
+  Scenario(
+    s"5. Verify 'declaration endpoint' rejects an agent without a delegated enrolment for the ISA reference"
+  ) {
+    Given("I am an agent with a delegated enrolment for a different ISA reference")
+    val isaReference = generateRandomZReference()
+    val agentToken   = agentAuthBearerToken(ZReferenceGenerator.generate())
+
+    When("I POST a declaration request for a nil return as the agent")
+    val response = declarationRequest(agentToken, isaReference, nilReturn = true)
+
+    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = false, successStatus = OK)
+  }
 }

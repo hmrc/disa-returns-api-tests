@@ -20,6 +20,7 @@ import org.scalactic.Prettifier.default
 import play.api.http.Status.{NO_CONTENT, OK}
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
+import uk.gov.hmrc.api.constant.AppConfig.{disaReturnsFeatures, testSupportFeatures}
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class ReconciliationReportSpec extends BaseSpec {
@@ -32,34 +33,107 @@ class ReconciliationReportSpec extends BaseSpec {
     val authToken: String = authHelper.getAuthBearerToken(isaReference)
 
     Given("I receive a reconciliation report ready callback using the test support API")
-    val reportReadyCallbackResponse: StandaloneWSResponse =
-      testSupportService.triggerGenerateReport(
-        isaReference,
-        totalRecords,
-        validHeadersOnlyWithToken(authToken)
-      )
+    val reportReadyCallbackResponse: StandaloneWSResponse = generateReport(isaReference, authToken)
 
     Then("I got the status code 204 confirming the data was successfully stored")
     println(Console.GREEN + reportReadyCallbackResponse.body + Console.RESET)
     reportReadyCallbackResponse.status shouldBe NO_CONTENT
 
     When("I follow each cursor from the results endpoint")
-    val limit                                     = 2
-    var cursor: Option[String]                    = None
-    var returnResults                             = Seq.empty[JsValue]
-    var receivedReportingResultsEndpointResponses = Seq.empty[StandaloneWSResponse]
-    var moreResultsAvailable                      = true
+    val (responses, returnResults) = getAllResults(isaReference, authToken)
+
+    Then("each request should receive status code 200 OK")
+    all(responses.map(_.status)) shouldBe OK
+
+    And("all reconciliation results should be returned across the cursor pages")
+    returnResults.size shouldEqual totalRecords.sum
+  }
+
+  Scenario(
+    s"2. Verify 'Results Endpoint' allows an agent with a delegated enrolment for the ISA reference"
+  ) {
+    Given("A reconciliation report has been generated for an ISA reference")
+    val isaReference = generateRandomZReference()
+    generateReport(isaReference, authHelper.getAuthBearerToken(isaReference)).status shouldBe NO_CONTENT
+
+    And("I am an agent with a delegated enrolment for the ISA reference")
+    val agentToken = agentAuthBearerToken(isaReference)
+
+    When("I GET the reconciliation report as the agent")
+    val response = disaReturnsService.getReconciliationReport(isaReference, validHeadersOnlyWithToken(agentToken))
+
+    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = true, successStatus = OK)
+
+    if (response.status == OK) {
+      And("all reconciliation results are returned to the agent")
+      val (_, returnResults) = getAllResults(isaReference, agentToken)
+      returnResults.size shouldEqual totalRecords.sum
+    }
+  }
+
+  Scenario(
+    s"3. Verify 'Results Endpoint' rejects an agent without a delegated enrolment for the ISA reference"
+  ) {
+    Given("A reconciliation report has been generated for an ISA reference")
+    val isaReference = generateRandomZReference()
+    generateReport(isaReference, authHelper.getAuthBearerToken(isaReference)).status shouldBe NO_CONTENT
+
+    And("I am an agent with a delegated enrolment for a different ISA reference")
+    val agentToken = agentAuthBearerToken(ZReferenceGenerator.generate())
+
+    When("I GET the reconciliation report as the agent")
+    val response = disaReturnsService.getReconciliationReport(isaReference, validHeadersOnlyWithToken(agentToken))
+
+    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = false, successStatus = OK)
+  }
+
+  Scenario(
+    s"4. Verify the test support API allows an agent with a delegated enrolment to generate a reconciliation report"
+  ) {
+    Given("I am an agent with a delegated enrolment for an ISA reference")
+    val isaReference = generateRandomZReference()
+    val agentToken   = agentAuthBearerToken(isaReference)
+
+    When("I generate a reconciliation report using the test support API as the agent")
+    val response = generateReport(isaReference, agentToken)
+
+    assertAgentResponse(response, testSupportFeatures, hasDelegatedEnrolment = true, successStatus = NO_CONTENT)
+  }
+
+  Scenario(
+    s"5. Verify the test support API rejects an agent without a delegated enrolment generating a reconciliation report"
+  ) {
+    Given("I am an agent with a delegated enrolment for a different ISA reference")
+    val isaReference = generateRandomZReference()
+    val agentToken   = agentAuthBearerToken(ZReferenceGenerator.generate())
+
+    When("I generate a reconciliation report using the test support API as the agent")
+    val response = generateReport(isaReference, agentToken)
+
+    assertAgentResponse(response, testSupportFeatures, hasDelegatedEnrolment = false, successStatus = NO_CONTENT)
+  }
+
+  private def generateReport(isaReference: String, token: String): StandaloneWSResponse =
+    testSupportService.triggerGenerateReport(isaReference, totalRecords, validHeadersOnlyWithToken(token))
+
+  /** Follows `nextCursor` until the last page, returning every page response and the combined results. */
+  private def getAllResults(isaReference: String, token: String): (Seq[StandaloneWSResponse], Seq[JsValue]) = {
+    val limit                  = 2
+    var cursor: Option[String] = None
+    var returnResults          = Seq.empty[JsValue]
+    var responses              = Seq.empty[StandaloneWSResponse]
+    var moreResultsAvailable   = true
 
     while (moreResultsAvailable) {
       val response = disaReturnsService.getReconciliationReport(
         isaReference,
-        validHeadersOnlyWithToken(authToken),
+        validHeadersOnlyWithToken(token),
         cursor = cursor,
         limit = Some(limit)
       )
       val json     = Json.parse(response.body).as[JsObject]
 
-      receivedReportingResultsEndpointResponses :+= response
+      responses :+= response
       returnResults ++= (json \ "returnResults").as[Seq[JsValue]]
 
       (json \ "currentPage").toOption        shouldBe None
@@ -72,10 +146,6 @@ class ReconciliationReportSpec extends BaseSpec {
       moreResultsAvailable = cursor.nonEmpty
     }
 
-    Then("each request should receive status code 200 OK")
-    all(receivedReportingResultsEndpointResponses.map(_.status)) shouldBe OK
-
-    And("all reconciliation results should be returned across the cursor pages")
-    returnResults.size shouldEqual totalRecords.sum
+    (responses, returnResults)
   }
 }

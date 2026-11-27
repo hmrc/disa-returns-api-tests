@@ -18,4 +18,13 @@ package uk.gov.hmrc.api.constant
 
 object TestConstants {
   val defaultCredentialId: String = "aaa"
+
+  val EnrolmentKey: String         = "HMRC-DISA-ORG"
+  val IdentifierKey: String        = "ZREF"
+  val AgentEnrolmentKey: String    = "HMRC-AS-AGENT"
+  val AgentIdentifierKey: String   = "AgentReferenceNumber"
+  val AgentReferenceNumber: String = "KARN1234567"
+  val DelegatedAuthRule: String    = "disa-auth"
+
+  val AgentClientRelationshipNotFound: String = "AGENT_CLIENT_RELATIONSHIP_NOT_FOUND"
 }
