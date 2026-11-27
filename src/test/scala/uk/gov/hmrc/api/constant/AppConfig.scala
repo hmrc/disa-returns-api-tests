@@ -28,17 +28,4 @@ object AppConfig {
   lazy val scopes: String                  = config.getString(s"${env.environment}.scopes")
   lazy val useManualMfaCompletion: Boolean =
     config.getBoolean(s"${env.environment}.useManualMfaCompletion")
-
-  lazy val disaReturnsFeatures: AuthFeatures = authFeatures("disa-returns")
-  lazy val testSupportFeatures: AuthFeatures = authFeatures("disa-returns-test-support-api")
-
-  private def authFeatures(service: String): AuthFeatures =
-    AuthFeatures(
-      enrolmentVerificationEnabled =
-        config.getBoolean(s"${env.environment}.features.$service.enrolment-verification-enabled"),
-      agentAuthenticationEnabled =
-        config.getBoolean(s"${env.environment}.features.$service.agent-authentication-enabled")
-    )
 }
-
-final case class AuthFeatures(enrolmentVerificationEnabled: Boolean, agentAuthenticationEnabled: Boolean)

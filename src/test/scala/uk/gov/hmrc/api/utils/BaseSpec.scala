@@ -23,12 +23,10 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import play.api.*
 import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE, USER_AGENT}
 import play.api.http.MimeTypes.JSON
-import play.api.http.Status.{CREATED, FORBIDDEN, NO_CONTENT, OK, UNAUTHORIZED}
+import play.api.http.Status.{CREATED, FORBIDDEN, NO_CONTENT, OK}
 import play.api.libs.json
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.env
-import uk.gov.hmrc.api.constant.AuthFeatures
 import uk.gov.hmrc.api.constant.TestConstants.AgentClientRelationshipNotFound
 import uk.gov.hmrc.api.helpers.*
 import uk.gov.hmrc.api.models.UserType
@@ -88,25 +86,11 @@ trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers with Befo
       userType = UserType.Agent
     )
 
-  def expectedAgentStatus(features: AuthFeatures, hasDelegatedEnrolment: Boolean, successStatus: Int): Int =
-    if (!features.enrolmentVerificationEnabled) successStatus
-    else if (!features.agentAuthenticationEnabled) UNAUTHORIZED
-    else if (hasDelegatedEnrolment) successStatus
-    else FORBIDDEN
-
-  def assertAgentResponse(
-    response: StandaloneWSResponse,
-    features: AuthFeatures,
-    hasDelegatedEnrolment: Boolean,
-    successStatus: Int
-  ): Unit = {
-    val expectedStatus = expectedAgentStatus(features, hasDelegatedEnrolment, successStatus)
-    Then(s"A $expectedStatus status code is returned for the agent in the ${env.environment} environment")
+  def assertAgentClientRelationshipNotFound(response: StandaloneWSResponse): Unit = {
+    Then("A 403 status code is returned with AGENT_CLIENT_RELATIONSHIP_NOT_FOUND")
     withClue(s"Agent response body: ${response.body} → ") {
-      response.status shouldBe expectedStatus
-      if (expectedStatus == FORBIDDEN) {
-        (Json.parse(response.body) \ "code").as[String] shouldBe AgentClientRelationshipNotFound
-      }
+      response.status                                 shouldBe FORBIDDEN
+      (Json.parse(response.body) \ "code").as[String] shouldBe AgentClientRelationshipNotFound
     }
   }
 

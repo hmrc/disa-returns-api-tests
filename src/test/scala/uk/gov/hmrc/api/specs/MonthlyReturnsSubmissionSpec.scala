@@ -19,7 +19,7 @@ package uk.gov.hmrc.api.specs
 import com.typesafe.scalalogging.LazyLogging
 import play.api.http.Status.{NO_CONTENT, REQUEST_ENTITY_TOO_LARGE}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.{disaReturnsFeatures, env}
+import uk.gov.hmrc.api.constant.AppConfig.env
 import uk.gov.hmrc.api.utils.BaseSpec
 import uk.gov.hmrc.api.utils.MockMonthlyReturnData.validNdjsonTestData
 
@@ -107,7 +107,8 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     When("I POST a submission request as the agent")
     val response = submissionRequest(agentToken, isaManagerReference = agentIsaReference)
 
-    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = true, successStatus = NO_CONTENT)
+    Then("A 204 status code is returned")
+    response.status shouldBe NO_CONTENT
   }
 
   Scenario(
@@ -120,6 +121,6 @@ class MonthlyReturnsSubmissionSpec extends BaseSpec, LazyLogging {
     When("I POST a submission request as the agent")
     val response = submissionRequest(agentToken, isaManagerReference = agentIsaReference)
 
-    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = false, successStatus = NO_CONTENT)
+    assertAgentClientRelationshipNotFound(response)
   }
 }

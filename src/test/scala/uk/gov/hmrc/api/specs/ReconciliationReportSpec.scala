@@ -20,7 +20,6 @@ import org.scalactic.Prettifier.default
 import play.api.http.Status.{NO_CONTENT, OK}
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.StandaloneWSResponse
-import uk.gov.hmrc.api.constant.AppConfig.{disaReturnsFeatures, testSupportFeatures}
 import uk.gov.hmrc.api.utils.BaseSpec
 
 class ReconciliationReportSpec extends BaseSpec {
@@ -62,13 +61,12 @@ class ReconciliationReportSpec extends BaseSpec {
     When("I GET the reconciliation report as the agent")
     val response = disaReturnsService.getReconciliationReport(isaReference, validHeadersOnlyWithToken(agentToken))
 
-    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = true, successStatus = OK)
+    Then("A 200 status code is returned")
+    response.status shouldBe OK
 
-    if (response.status == OK) {
-      And("all reconciliation results are returned to the agent")
-      val (_, returnResults) = getAllResults(isaReference, agentToken)
-      returnResults.size shouldEqual totalRecords.sum
-    }
+    And("all reconciliation results are returned to the agent")
+    val (_, returnResults) = getAllResults(isaReference, agentToken)
+    returnResults.size shouldEqual totalRecords.sum
   }
 
   Scenario(
@@ -84,7 +82,7 @@ class ReconciliationReportSpec extends BaseSpec {
     When("I GET the reconciliation report as the agent")
     val response = disaReturnsService.getReconciliationReport(isaReference, validHeadersOnlyWithToken(agentToken))
 
-    assertAgentResponse(response, disaReturnsFeatures, hasDelegatedEnrolment = false, successStatus = OK)
+    assertAgentClientRelationshipNotFound(response)
   }
 
   Scenario(
@@ -97,7 +95,8 @@ class ReconciliationReportSpec extends BaseSpec {
     When("I generate a reconciliation report using the test support API as the agent")
     val response = generateReport(isaReference, agentToken)
 
-    assertAgentResponse(response, testSupportFeatures, hasDelegatedEnrolment = true, successStatus = NO_CONTENT)
+    Then("A 204 status code is returned")
+    response.status shouldBe NO_CONTENT
   }
 
   Scenario(
@@ -110,7 +109,7 @@ class ReconciliationReportSpec extends BaseSpec {
     When("I generate a reconciliation report using the test support API as the agent")
     val response = generateReport(isaReference, agentToken)
 
-    assertAgentResponse(response, testSupportFeatures, hasDelegatedEnrolment = false, successStatus = NO_CONTENT)
+    assertAgentClientRelationshipNotFound(response)
   }
 
   private def generateReport(isaReference: String, token: String): StandaloneWSResponse =
